@@ -1,25 +1,10 @@
 {
-  "name": "node-module_lab_njs",
+  "name": "api",
   "version": "1.0.0",
-  "description": "node_module_lab",
-  "main": "app.js",
-  "dependencies": {
-    "bson": "^4.6.0",
-    "connect-mongodb-session": "^3.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.0",
-    "express": "^4.17.1",
-    "express-session": "^1.17.2",
-    "jsonwebtoken": "^8.5.1",
-    "lite-server": "^2.6.1",
-    "moment": "^2.29.3",
-    "mongodb": "^4.2.0",
-    "mongoose": "^6.0.13",
-    "nodemon": "^1.18.3"
-  },
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC"
