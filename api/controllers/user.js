@@ -1,5 +1,4 @@
 const User = require("../models/user");
-const mongoose = require("mongoose");
 
 const getUsers = async (_req, res) => {
   //create an array of documents
