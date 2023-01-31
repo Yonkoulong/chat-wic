@@ -1,6 +1,7 @@
 const Message = require("../models/message");
 const MongoDB = require("mongodb");
 const { httpCode } = require("../utils/constant");
+const { isObjectIdInMongodb } = require("../utils/validation");
 
 const ObjectIdMongodb = MongoDB.ObjectId;
 
@@ -16,21 +17,24 @@ const getMessages = async (_req, res) => {
 
 const postMessage = async (req, res) => {
   const { content, roomId, senderId } = req.body;
-  const convertSenderId = ObjectIdMongodb(senderId);
-  const convertRoomId = ObjectIdMongodb(roomId);
-  const newMessage = {
-    senderId: convertSenderId,
-    content,
-    roomId: convertRoomId,
-  };
 
-  try {
-    await Message.create(newMessage);
-    return res?.status(httpCode.ok).json(newMessage);
-  } catch {
-    return res?.status(httpCode.badRequest).json({
-      content: "Bad request",
-    });
+  if (isObjectIdInMongodb(roomId) && isObjectIdInMongodb(senderId)) {
+    const convertSenderId = ObjectIdMongodb(senderId);
+    const convertRoomId = ObjectIdMongodb(roomId);
+    const newMessage = {
+      senderId: convertSenderId,
+      content,
+      roomId: convertRoomId,
+    };
+
+    try {
+      await Message.create(newMessage);
+      return res?.status(httpCode.ok).json(newMessage);
+    } catch {
+      return res?.status(httpCode.badRequest).json({
+        content: "Bad request",
+      });
+    }
   }
 };
 
