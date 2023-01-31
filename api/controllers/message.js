@@ -1,6 +1,6 @@
 const Message = require("../models/message");
 const MongoDB = require("mongodb");
-const { httpCode } = require("../utils/constant");
+const { httpCode, responseError } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const ObjectIdMongodb = MongoDB.ObjectId;
@@ -31,9 +31,7 @@ const postMessage = async (req, res) => {
       await Message.create(newMessage);
       return res?.status(httpCode.ok).json(newMessage);
     } catch {
-      return res?.status(httpCode.badRequest).json({
-        content: "Bad request",
-      });
+      return res?.status(httpCode.badRequest).json(responseError.badRequest);
     }
   }
 };

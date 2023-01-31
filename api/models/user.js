@@ -10,7 +10,7 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      required: true,
+      required: false,
     },
     password: {
       type: String,
@@ -18,7 +18,7 @@ const userSchema = new Schema(
     },
     userStatus: {
       type: String, // "Online - offline - busy - others"
-      required: true,
+      required: false,
     },
     avatar: {
       type: String,
