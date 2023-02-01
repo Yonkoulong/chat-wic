@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const messageController = require("../controllers/message");
+const roomController = require("../controllers/room.controller");
 
-messageController.forEach((item) => {
+roomController.forEach((item) => {
   const { method, routeName, controller } = item;
   router[method](routeName, controller);
 });
