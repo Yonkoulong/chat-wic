@@ -1,6 +1,11 @@
 const Message = require("../models/message");
+const User = require("../models/user");
 const MongoDB = require("mongodb");
-const { httpCode, responseError } = require("../utils/constant");
+const {
+  httpCode,
+  responseError,
+  ORDER_DIRECTION,
+} = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const ObjectIdMongodb = MongoDB.ObjectId;
@@ -36,7 +41,53 @@ const postMessage = async (req, res) => {
   }
 };
 
+const getMessageByRoomId = async (req, res) => {
+  const { paging, isPaging } = req?.body;
+  const { roomId } = req?.params;
+  const orderCreatedAt = paging?.orders?.createdAt;
+
+  // declare message in room
+
+  let messageInRoom = [];
+
+  if (isObjectIdInMongodb(roomId)) {
+    if (isPaging) {
+      messageInRoom = await Message.find({ roomId })
+        .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "ASC"] })
+        .skip(paging?.page || 1)
+        .limit(paging?.size || 10);
+    } else {
+      messageInRoom = await Message.find({ roomId });
+    }
+  }
+
+  const senderIds = messageInRoom?.map((message) => {
+    if (isObjectIdInMongodb(message?.senderId)) {
+      return ObjectIdMongodb(message.senderId);
+    }
+  });
+  const senders = await User.find({ _id: { $in: senderIds } });
+  const convertMessageInRoom = messageInRoom?.map((message) => {
+    const senderId = message?.senderId;
+    let senderName = "";
+    senders?.forEach((sender) => {
+      if (senderId?.toString() === sender?._id?.toString()) {
+        senderName = sender?.username || "";
+      }
+    });
+
+    return { ...message?._doc, senderName };
+  });
+
+  return res.status(httpCode.ok).json(convertMessageInRoom);
+};
+
 module.exports = [
   { method: "get", controller: getMessages, routeName: "/messages" },
   { method: "post", controller: postMessage, routeName: "/message/create" },
+  {
+    method: "get",
+    controller: getMessageByRoomId,
+    routeName: "/message/:roomId",
+  },
 ];

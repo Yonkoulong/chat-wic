@@ -19,8 +19,16 @@ const responseError = {
   notFound: "Not found",
 };
 
+const ORDER_DIRECTION = {
+  asc: 1,
+  ASC: 1,
+  DESC: -1,
+  desc: -1,
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
   responseError,
+  ORDER_DIRECTION,
 };
