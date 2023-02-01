@@ -1,4 +1,4 @@
-const Room = require("../models/room");
+const Room = require("../models/room.model");
 const {
   httpCode,
   responseError,

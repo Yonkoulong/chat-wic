@@ -1,5 +1,5 @@
-const Message = require("../models/message");
-const User = require("../models/user");
+const Message = require("../models/message.model");
+const User = require("../models/user.model");
 const {
   httpCode,
   responseError,
