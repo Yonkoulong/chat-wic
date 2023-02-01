@@ -69,10 +69,10 @@ const getMessageByRoomId = async (req, res) => {
   });
   const senders = await User.find({ _id: { $in: senderIds } });
   const convertMessageInRoom = messageInRoom?.map((message) => {
-    const senderId = message?.senderId;
+    const senderIdToString = message?.senderId?.toString();
     let senderName = "";
     senders?.forEach((sender) => {
-      if (senderId?.toString() === sender?._id?.toString()) {
+      if (senderIdToString === sender?._id?.toString()) {
         senderName = sender?.username || "";
       }
     });

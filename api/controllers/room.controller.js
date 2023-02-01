@@ -1,4 +1,7 @@
 const Room = require("../models/room.model");
+const User = require("../models/user.model");
+const { isObjectIdInMongodb } = require("../utils/validation");
+
 const {
   httpCode,
   responseError,
@@ -43,7 +46,32 @@ const getRoomByUserId = async (req, res) => {
     });
   }
 
-  return res.status(httpCode.ok).json(roomsByUserId);
+  const ownerIds = roomsByUserId?.map((room) => {
+    if (isObjectIdInMongodb(room?.ownerId)) {
+      return ObjectIdMongodb(room.ownerId);
+    }
+  });
+
+  const ownerListing = await User.find({
+    _id: {
+      $in: ownerIds,
+    },
+  });
+
+  const convertRoomsByUserId = roomsByUserId?.map((room) => {
+    const ownerIdInRoomToString = room?.ownerId?.toString();
+    let ownerName = "";
+
+    ownerListing.map((owner) => {
+      if (owner?._id?.toString() === ownerIdInRoomToString) {
+        ownerName = owner?.username || "";
+      }
+    });
+
+    return { ...room?._doc, ownerName };
+  });
+
+  return res.status(httpCode.ok).json(convertRoomsByUserId);
 };
 
 module.exports = [
