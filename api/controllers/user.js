@@ -1,9 +1,11 @@
 const User = require("../models/user");
-const MongoDB = require("mongodb");
-const { httpCode, IUserStatus, responseError } = require("../utils/constant");
+const {
+  httpCode,
+  IUserStatus,
+  responseError,
+  ObjectIdMongodb,
+} = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
-
-const ObjectIdMongodb = MongoDB.ObjectId;
 
 const getUsers = async (_req, res) => {
   //create an array of documents

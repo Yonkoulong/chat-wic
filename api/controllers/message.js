@@ -1,14 +1,12 @@
 const Message = require("../models/message");
 const User = require("../models/user");
-const MongoDB = require("mongodb");
 const {
   httpCode,
   responseError,
   ORDER_DIRECTION,
+  ObjectIdMongodb,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
-
-const ObjectIdMongodb = MongoDB.ObjectId;
 
 const getMessages = async (_req, res) => {
   //create an array of documents
@@ -42,8 +40,11 @@ const postMessage = async (req, res) => {
 };
 
 const getMessageByRoomId = async (req, res) => {
-  const { paging, isPaging } = req?.body;
   const { roomId } = req?.params;
+  if (!roomId)
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+
+  const { paging, isPaging } = req?.body;
   const orderCreatedAt = paging?.orders?.createdAt;
 
   // declare message in room
@@ -51,9 +52,9 @@ const getMessageByRoomId = async (req, res) => {
   let messageInRoom = [];
 
   if (isObjectIdInMongodb(roomId)) {
-    if (isPaging) {
+    if (isPaging || !!paging) {
       messageInRoom = await Message.find({ roomId })
-        .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "ASC"] })
+        .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
         .skip(paging?.page || 1)
         .limit(paging?.size || 10);
     } else {

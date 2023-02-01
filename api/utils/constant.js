@@ -1,3 +1,6 @@
+const MongoDB = require("mongodb");
+const ObjectIdMongodb = MongoDB.ObjectId;
+
 const httpCode = {
   ok: 200,
   created: 201,
@@ -31,4 +34,6 @@ module.exports = {
   IUserStatus,
   responseError,
   ORDER_DIRECTION,
+  MongoDB,
+  ObjectIdMongodb,
 };
