@@ -5,6 +5,7 @@ const {
   responseError,
   ObjectIdMongodb,
   saltRounds,
+  DEFAULT_PASSWORD,
 } = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 const bcrypt = require("bcrypt");
@@ -86,10 +87,11 @@ const putUserDetail = async (req, res) => {
 
 const postUser = async (req, res) => {
   const { username, email, password, avatar } = req?.body;
+  const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUser = {
     username,
     email,
-    password,
+    password: convertPassword,
     avatar,
     userStatus: IUserStatus.offline,
   };
@@ -99,6 +101,56 @@ const postUser = async (req, res) => {
     return res?.status(httpCode.ok).json(newUser);
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
+const putUpdatePasswordUser = async (req, res) => {
+  const { id } = req?.params;
+  const { oldPassword, newPassword } = req.body;
+
+  if (!id || !oldPassword || !newPassword) {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+
+  const matchUser = await User.find({ _id: ObjectIdMongodb(id) });
+  const currentPassword = matchUser[0]?.password || "";
+  const isMatchPassword = await bcrypt.compare(oldPassword, currentPassword);
+
+  if (isMatchPassword) {
+    const convertNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    const userUpdated = { ...matchUser[0]?._doc, password: convertNewPassword };
+    await User.updateOne(
+      { _id: id },
+      {
+        $set: userUpdated,
+        $currentDate: { lastUpdated: true },
+      }
+    );
+
+    return res.status(httpCode.ok).json(userUpdated);
+  } else {
+    return res.status(httpCode.badRequest).json(responseError.updatePassword);
+  }
+};
+
+const getResetPasswordByUserId = async (req, res) => {
+  const { id } = req?.params;
+  const matchUser = await User.find({ _id: ObjectIdMongodb(id) });
+  const user = matchUser[0];
+  const newPassword = await bcrypt.hash(DEFAULT_PASSWORD, saltRounds);
+  const userUpdated = { ...user?._doc, password: newPassword };
+  try {
+    await User.updateOne(
+      { _id: id },
+      {
+        $set: userUpdated,
+        $currentDate: { lastUpdated: true },
+      }
+    );
+
+    return res.status(httpCode.ok).json(userUpdated);
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.updatePassword);
   }
 };
 
@@ -116,11 +168,21 @@ module.exports = [
   {
     method: "put",
     controller: putUserDetail,
-    routeName: "/user/:id/update",
+    routeName: "/user/:id/update-profile",
   },
   {
     method: "post",
     controller: postUser,
     routeName: "/user/create",
+  },
+  {
+    method: "put",
+    controller: putUpdatePasswordUser,
+    routeName: "/user/:id/update-password",
+  },
+  {
+    method: "get",
+    controller: getResetPasswordByUserId,
+    routeName: "/user/:id/reset-password",
   },
 ];

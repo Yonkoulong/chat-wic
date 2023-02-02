@@ -22,6 +22,8 @@ const responseError = {
     content: "Bad request",
   },
   notFound: "Not found",
+  updatePassword: "Password incorrect, please try again ",
+  login: "Account or password incorrect, please try again",
 };
 
 const ORDER_DIRECTION = {
@@ -31,6 +33,8 @@ const ORDER_DIRECTION = {
   desc: -1,
 };
 
+const DEFAULT_PASSWORD = "123456a@";
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -39,4 +43,5 @@ module.exports = {
   MongoDB,
   ObjectIdMongodb,
   saltRounds,
+  DEFAULT_PASSWORD,
 };
