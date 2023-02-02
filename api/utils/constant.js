@@ -15,6 +15,8 @@ const IUserStatus = {
   other: "OTHER",
 };
 
+const saltRounds = 10;
+
 const responseError = {
   badRequest: {
     content: "Bad request",
@@ -36,4 +38,5 @@ module.exports = {
   ORDER_DIRECTION,
   MongoDB,
   ObjectIdMongodb,
+  saltRounds,
 };

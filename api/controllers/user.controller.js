@@ -4,8 +4,10 @@ const {
   IUserStatus,
   responseError,
   ObjectIdMongodb,
+  saltRounds,
 } = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
+const bcrypt = require("bcrypt");
 
 const getUsers = async (_req, res) => {
   //create an array of documents
@@ -48,11 +50,19 @@ const putUserDetail = async (req, res) => {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
+  let newPassword;
+
+  if (password) {
+    newPassword = await bcrypt.hash(password, saltRounds);
+  } else {
+    newPassword = matchUser[0]?.password;
+  }
+
   if (isArray(matchUser) && matchUser.length > 0) {
     const userUpdated = {
       username: username || matchUser[0]?.username,
       email: email || matchUser[0]?.email,
-      password: password || matchUser[0]?.password,
+      password: newPassword,
       userStatus: userStatus || matchUser[0]?.userStatus,
       avatar: avatar || matchUser[0]?.avatar,
     };
