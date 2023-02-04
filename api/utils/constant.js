@@ -35,6 +35,11 @@ const ORDER_DIRECTION = {
 
 const DEFAULT_PASSWORD = "123456a@";
 
+const ROOM_TYPES = {
+  channel: "CHANNEL",
+  direct: "DIRECT",
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -44,4 +49,5 @@ module.exports = {
   ObjectIdMongodb,
   saltRounds,
   DEFAULT_PASSWORD,
+  ROOM_TYPES,
 };

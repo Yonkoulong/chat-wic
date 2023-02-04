@@ -1,12 +1,13 @@
 const Room = require("../models/room.model");
 const User = require("../models/user.model");
-const { isObjectIdInMongodb } = require("../utils/validation");
+const { isArray } = require("../utils/validation");
 
 const {
   httpCode,
   responseError,
   ObjectIdMongodb,
   ORDER_DIRECTION,
+  ROOM_TYPES,
 } = require("../utils/constant");
 
 const getRooms = async (_req, res) => {
@@ -46,19 +47,30 @@ const getRoomByUserId = async (req, res) => {
     });
   }
 
-  const ownerIds = roomsByUserId?.map((room) => {
-    if (isObjectIdInMongodb(room?.ownerId)) {
-      return ObjectIdMongodb(room.ownerId);
+  let roomsTypeChannel = [];
+  let roomsTypeDirect = [];
+  let ownerIdsOfRoomsTypeChannel = [];
+
+  // get room by room type
+  roomsByUserId.forEach((room) => {
+    if (room?.roomType === ROOM_TYPES.channel) {
+      roomsTypeChannel.push(room);
+      ownerIdsOfRoomsTypeChannel.push(ObjectIdMongodb(room.ownerId));
+    }
+
+    if (room?.roomType === ROOM_TYPES.direct) {
+      roomsTypeDirect.push(room);
     }
   });
 
+  // get owner listing of room with type : "CHANNEL"
   const ownerListing = await User.find({
     _id: {
-      $in: ownerIds,
+      $in: ownerIdsOfRoomsTypeChannel,
     },
   });
 
-  const convertRoomsByUserId = roomsByUserId?.map((room) => {
+  const convertRoomsTypeChannel = roomsTypeChannel?.map((room) => {
     const ownerIdInRoomToString = room?.ownerId?.toString();
     let ownerName = "";
 
@@ -71,10 +83,61 @@ const getRoomByUserId = async (req, res) => {
     return { ...room?._doc, ownerName };
   });
 
-  return res.status(httpCode.ok).json(convertRoomsByUserId);
+  // convert data room type direct
+  let remainingMemberIdsOfRoomsTypeDirect = [];
+  let remainingMemberOfRoomsTypeDirect = [];
+  roomsTypeDirect.forEach((room) => {
+    room?.users?.forEach((id) => {
+      if (id?.toString() !== userId.toString()) {
+        remainingMemberIdsOfRoomsTypeDirect.push(id);
+      }
+    });
+  });
+
+  try {
+    remainingMemberOfRoomsTypeDirect = await User.find({
+      _id: { $in: remainingMemberIdsOfRoomsTypeDirect },
+    });
+
+    // let roomName = "";
+    // if (isArray(remainingMember) && remainingMember.length > 0) {
+    //   roomName = remainingMember[0].username;
+    // }
+  } catch {
+    (err) => console.log(err);
+  }
+
+  const convertRoomsTypeDirect = roomsTypeDirect.map((room) => {
+    let roomName = "";
+    let remainingMemberId = "";
+    room?.users?.forEach((id) => {
+      if (id?.toString() !== userId.toString()) {
+        remainingMemberId = id?.toString();
+      }
+    });
+
+    remainingMemberOfRoomsTypeDirect.map((item) => {
+      if (item?._id?.toString() === remainingMemberId) {
+        roomName = item?.username || "";
+      }
+    });
+
+    return { ...room?._doc, roomName };
+  });
+
+  const configResponse = {
+    channel: convertRoomsTypeChannel,
+    direct: convertRoomsTypeDirect,
+  };
+
+  return res.status(httpCode.ok).json(configResponse);
 };
+
+const postCreateRoom = async (req, res) => {};
 
 module.exports = [
   { method: "get", controller: getRooms, routeName: "/rooms" },
   { method: "get", controller: getRoomByUserId, routeName: "/rooms/:userId" },
+  { method: "post", controller: getRoomByUserId, routeName: "/rooms/:userId" },
+  { method: "post", controller: postCreateRoom, routeName: "/room/create" },
 ];
