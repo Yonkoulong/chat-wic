@@ -14,15 +14,14 @@ const postLogin = async (req, res) => {
     }
 
     const isMatchPassword = await bcrypt.compare(
-      matchUser?.password || "",
-      password
+      password,
+      matchUser?.password || ""
     );
 
-    const token = jwt.sign(matchUser, process.env.TOKEN_KEY, {
-      expiresIn: "12h",
-    });
-
     if (isMatchPassword) {
+      const token = jwt.sign({ data: matchUser }, process.env.TOKEN_KEY, {
+        expiresIn: "12h",
+      });
       return res.status(httpCode.ok).json({ ...matchUser?._doc, token });
     } else {
       return res.status(httpCode.badRequest).json(responseError.login);
