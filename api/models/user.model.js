@@ -4,6 +4,14 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
+    lastName: {
+      type: String,
+      required: false,
+    },
+    firstName: {
+      type: String,
+      required: false,
+    },
     username: {
       type: String,
       required: true,
@@ -24,6 +32,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    role : {
+      type : String,
+      required : false, // ADMIN || STAFF
+    }
   },
   {
     timestamps: true,

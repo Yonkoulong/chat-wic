@@ -8,7 +8,7 @@ const roomSchema = new Schema(
       type: String,
       required: false,
     },
-    users: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    userIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     roomType: {
       type: String,

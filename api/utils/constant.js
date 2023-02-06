@@ -40,6 +40,11 @@ const ROOM_TYPES = {
   direct: "DIRECT",
 };
 
+const USER_ROLES = {
+  admin : "ADMIN",
+  staff : "STAFF"
+}
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -50,4 +55,5 @@ module.exports = {
   saltRounds,
   DEFAULT_PASSWORD,
   ROOM_TYPES,
+  USER_ROLES
 };
