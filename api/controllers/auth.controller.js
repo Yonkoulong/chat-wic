@@ -1,7 +1,8 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 const { httpCode, responseError } = require("../utils/constant");
 const { isArray } = require("../utils/validation");
-const bcrypt = require("bcrypt");
 
 const postLogin = async (req, res) => {
   const { username, password } = req?.body;
@@ -17,8 +18,12 @@ const postLogin = async (req, res) => {
       password
     );
 
+    const token = jwt.sign(matchUser, process.env.TOKEN_KEY, {
+      expiresIn: "12h",
+    });
+
     if (isMatchPassword) {
-      return res.status(httpCode.ok).json(matchUser);
+      return res.status(httpCode.ok).json({ ...matchUser?._doc, token });
     } else {
       return res.status(httpCode.badRequest).json(responseError.login);
     }
