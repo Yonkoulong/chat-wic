@@ -5,6 +5,8 @@ const httpCode = {
   ok: 200,
   created: 201,
   badRequest: 400,
+  unauthorize: 401,
+  forbidden: 403,
   notFound: 404,
 };
 
@@ -41,9 +43,9 @@ const ROOM_TYPES = {
 };
 
 const USER_ROLES = {
-  admin : "ADMIN",
-  staff : "STAFF"
-}
+  admin: "ADMIN",
+  staff: "STAFF",
+};
 
 module.exports = {
   httpCode,
@@ -55,5 +57,5 @@ module.exports = {
   saltRounds,
   DEFAULT_PASSWORD,
   ROOM_TYPES,
-  USER_ROLES
+  USER_ROLES,
 };
