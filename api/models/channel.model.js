@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const workPlaceSchema = new Schema(
+const channelSchema = new Schema(
   {
-    name: {
+    channelName: {
       type: String,
-      required: true,
+      required: false,
     },
+    userIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false },
   },
   {
@@ -15,4 +16,4 @@ const workPlaceSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("WorkPlace", workPlaceSchema);
+module.exports = mongoose.model("Channel", channelSchema);
