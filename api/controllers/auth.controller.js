@@ -4,12 +4,12 @@ const { isArray } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
 const postLogin = async (req, res) => {
-  const { account, password } = req?.body;
+  const { username, password } = req?.body;
   try {
-    const mapUserWithAccount = await User.find({ account });
+    const mapUserWithUsername = await User.find({ username });
     let matchUser = {};
-    if (isArray(mapUserWithAccount) && mapUserWithAccount.length > 0) {
-      matchUser = mapUserWithAccount[0];
+    if (isArray(mapUserWithUsername) && mapUserWithUsername.length > 0) {
+      matchUser = mapUserWithUsername[0];
     }
 
     const isMatchPassword = await bcrypt.compare(
