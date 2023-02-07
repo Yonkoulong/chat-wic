@@ -26,6 +26,9 @@ const responseError = {
   notFound: "Not found",
   updatePassword: "Password incorrect, please try again ",
   login: "Account or password incorrect, please try again",
+  organizeAlreadyExist: "Organize already exist.",
+  emailAlreadyExist: "Email already exist.",
+  createOrganizeError: "Create organize error.",
 };
 
 const ORDER_DIRECTION = {
