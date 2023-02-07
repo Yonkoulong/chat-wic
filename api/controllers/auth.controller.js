@@ -96,5 +96,5 @@ const postRegister = async (req, res) => {
 
 module.exports = [
   { method: "post", controller: postLogin, routeName: "/login" },
-  { method: "post", controller: postRegister, routeName: "/register" },
+  { method: "post", controller: postRegister, routeName: "/organize/register" },
 ];
