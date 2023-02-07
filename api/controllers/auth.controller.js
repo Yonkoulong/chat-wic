@@ -68,6 +68,10 @@ const postRegister = async (req, res) => {
     email,
     password: convertPassword,
     userStatus: IUserStatus.offline,
+    username: "",
+    avatar: "",
+    firstName: "",
+    lastName: "",
   };
 
   try {
@@ -85,7 +89,7 @@ const postRegister = async (req, res) => {
   };
 
   try {
-    Organize.create(newOrganize);
+    await Organize.create(newOrganize);
     return res.status(httpCode.ok).json(newOrganize);
   } catch {
     return res

@@ -86,14 +86,16 @@ const putUserDetail = async (req, res) => {
 };
 
 const postUser = async (req, res) => {
-  const { username, email, password, avatar } = req?.body;
+  const { email, password } = req?.body;
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUser = {
-    username,
+    username: "",
     email,
     password: convertPassword,
-    avatar,
+    avatar: "",
     userStatus: IUserStatus.offline,
+    firstName: "",
+    lastName: "",
   };
 
   try {

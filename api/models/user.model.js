@@ -14,7 +14,7 @@ const userSchema = new Schema(
     },
     username: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -22,7 +22,7 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     userStatus: {
       type: String, // "Online - offline - busy - others"
@@ -30,12 +30,12 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      required: true,
+      required: false,
     },
-    role : {
-      type : String,
-      required : false, // ADMIN || STAFF
-    }
+    role: {
+      type: String,
+      required: false, // ADMIN || STAFF
+    },
   },
   {
     timestamps: true,
