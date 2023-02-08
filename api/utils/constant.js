@@ -5,6 +5,8 @@ const httpCode = {
   ok: 200,
   created: 201,
   badRequest: 400,
+  unauthorize: 401,
+  forbidden: 403,
   notFound: 404,
 };
 
@@ -21,9 +23,13 @@ const responseError = {
   badRequest: {
     content: "Bad request",
   },
-  notFound: "Not found",
-  updatePassword: "Password incorrect, please try again ",
-  login: "Account or password incorrect, please try again",
+  notFound: { content: "Not found" },
+  updatePassword: { content: "Password incorrect, please try again " },
+  login: { content: "Account or password incorrect, please try again" },
+  organizeAlreadyExist: { content: "Organize already exist." },
+  emailAlreadyExist: { content: "Email already exist." },
+  createOrganizeError: { content: "Create organize error." },
+  userUnauthorized: { content: "User has not permission." },
 };
 
 const ORDER_DIRECTION = {
@@ -40,6 +46,18 @@ const ROOM_TYPES = {
   direct: "DIRECT",
 };
 
+const USER_ROLES = {
+  admin: "ADMIN",
+  staff: "STAFF",
+};
+
+const convertToken = (token) => {
+  if (!token) {
+    return "";
+  }
+  return token.replace("Bearer ", "");
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -50,4 +68,6 @@ module.exports = {
   saltRounds,
   DEFAULT_PASSWORD,
   ROOM_TYPES,
+  USER_ROLES,
+  convertToken,
 };

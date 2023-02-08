@@ -1,12 +1,22 @@
-const verifyToken = (token) => {
-        return new Promise((resolve,reject)=>{
-            jwt.verify(token,PRIVATE_KEY, (err,result)=>{
-                if(err) {
-                    return reject(err)
-                }
-                resolve(result)
-            })
-        })
-}
+const jwt = require("jsonwebtoken");
+const { httpCode } = require("../utils/constant");
 
-module.exports  = verifyToken;
+const verifyToken = (req, res, next) => {
+  const token =
+    req.body.token || req.query.token || req.headers["authorization"];
+
+  if (!token) {
+    return res
+      .status(httpCode.forbidden)
+      .send("A token is required for authentication");
+  }
+  try {
+    const decoded = jwt.verify(token, process.env?.TOKEN_KEY);
+    req.user = decoded;
+  } catch (err) {
+    return res.status(httpCode.unauthorize).send("Invalid Token");
+  }
+  return next();
+};
+
+module.exports = verifyToken;

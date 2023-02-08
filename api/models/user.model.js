@@ -4,9 +4,17 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
+    lastName: {
+      type: String,
+      required: false,
+    },
+    firstName: {
+      type: String,
+      required: false,
+    },
     username: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -14,7 +22,7 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     userStatus: {
       type: String, // "Online - offline - busy - others"
@@ -22,7 +30,11 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      required: true,
+      required: false,
+    },
+    role: {
+      type: String,
+      required: false, // ADMIN || STAFF
     },
   },
   {

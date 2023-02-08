@@ -32,7 +32,7 @@ const getRoomByUserId = async (req, res) => {
 
   if (isPaging || !!paging) {
     roomsByUserId = await Room.find({
-      users: {
+      userIds: {
         $in: [ObjectIdMongodb(userId)],
       },
     })
@@ -41,7 +41,7 @@ const getRoomByUserId = async (req, res) => {
       .limit(paging?.size || 10);
   } else {
     roomsByUserId = await Room.find({
-      users: {
+      userIds: {
         $in: [ObjectIdMongodb(userId)],
       },
     });
@@ -74,7 +74,7 @@ const getRoomByUserId = async (req, res) => {
     const ownerIdInRoomToString = room?.ownerId?.toString();
     let ownerName = "";
 
-    ownerListing.map((owner) => {
+    ownerListing.forEach((owner) => {
       if (owner?._id?.toString() === ownerIdInRoomToString) {
         ownerName = owner?.username || "";
       }
@@ -87,7 +87,7 @@ const getRoomByUserId = async (req, res) => {
   let remainingMemberIdsOfRoomsTypeDirect = [];
   let remainingMemberOfRoomsTypeDirect = [];
   roomsTypeDirect.forEach((room) => {
-    room?.users?.forEach((id) => {
+    room?.userIds?.forEach((id) => {
       if (id?.toString() !== userId.toString()) {
         remainingMemberIdsOfRoomsTypeDirect.push(id);
       }
@@ -110,15 +110,15 @@ const getRoomByUserId = async (req, res) => {
   const convertRoomsTypeDirect = roomsTypeDirect.map((room) => {
     let roomName = "";
     let remainingMemberId = "";
-    room?.users?.forEach((id) => {
+    room?.userIds?.forEach((id) => {
       if (id?.toString() !== userId.toString()) {
         remainingMemberId = id?.toString();
       }
     });
 
-    remainingMemberOfRoomsTypeDirect.map((item) => {
+    remainingMemberOfRoomsTypeDirect.forEach((item) => {
       if (item?._id?.toString() === remainingMemberId) {
-        roomName = item?.username || "";
+        roomName = `${item?.firstName || ""} ${item?.lastName || ""}`.trim();
       }
     });
 
