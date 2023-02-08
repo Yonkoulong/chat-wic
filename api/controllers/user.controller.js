@@ -6,9 +6,16 @@ const {
   ObjectIdMongodb,
   saltRounds,
   DEFAULT_PASSWORD,
+  convertToken,
+  USER_ROLES,
 } = require("../utils/constant");
-const { isObjectIdInMongodb, isArray } = require("../utils/validation");
+const {
+  isObjectIdInMongodb,
+  isArray,
+  verifyToken,
+} = require("../utils/validation");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const getUsers = async (_req, res) => {
   //create an array of documents
@@ -87,6 +94,13 @@ const putUserDetail = async (req, res) => {
 
 const postUser = async (req, res) => {
   const { email, password } = req?.body;
+  const token = req?.headers?.authorization;
+  const currentUser = verifyToken(convertToken(token));
+  if (currentUser?.role !== USER_ROLES.admin) {
+    return res
+      .status(httpCode.unauthorize)
+      .json(responseError.userUnauthorized);
+  }
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUser = {
     username: "",

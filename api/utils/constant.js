@@ -29,6 +29,7 @@ const responseError = {
   organizeAlreadyExist: { content: "Organize already exist." },
   emailAlreadyExist: { content: "Email already exist." },
   createOrganizeError: { content: "Create organize error." },
+  userUnauthorized: { content: "User has not permission." },
 };
 
 const ORDER_DIRECTION = {
@@ -50,6 +51,13 @@ const USER_ROLES = {
   staff: "STAFF",
 };
 
+const convertToken = (token) => {
+  if (!token) {
+    return "";
+  }
+  return token.replace("Bearer ", "");
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -61,4 +69,5 @@ module.exports = {
   DEFAULT_PASSWORD,
   ROOM_TYPES,
   USER_ROLES,
+  convertToken,
 };

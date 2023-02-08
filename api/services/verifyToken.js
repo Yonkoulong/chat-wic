@@ -3,7 +3,7 @@ const { httpCode } = require("../utils/constant");
 
 const verifyToken = (req, res, next) => {
   const token =
-    req.body.token || req.query.token || req.headers["x-access-token"];
+    req.body.token || req.query.token || req.headers["authorization"];
 
   if (!token) {
     return res
