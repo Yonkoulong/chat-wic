@@ -14,7 +14,7 @@ import {
   SignupTitleHeading
 } from "./Signup.styles";
 import { StyledTextField } from "@/shared/components/TextField";
-import { StyledLableTextField } from "@/shared/components/Typography";
+import { StyledLabelTextField } from "@/shared/components/Typography";
 
 export const Signup = () => {
   const { control, handleSubmit } = useForm();
@@ -38,9 +38,9 @@ export const Signup = () => {
 
         <SignupFormWrapper>
           <SignupForm onSubmit={handleSubmit(onSubmit)}>
-            <StyledLableTextField>
+            <StyledLabelTextField>
                 Email <span className="require-field">*</span>
-            </StyledLableTextField>
+            </StyledLabelTextField>
             <Controller
               name="email"
               control={control}
