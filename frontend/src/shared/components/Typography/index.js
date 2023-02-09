@@ -1,9 +1,9 @@
 import { Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import styled  from 'styled-components';
 
 export const StyledLableTextField = styled(Typography)`
 
-    .styled-required-filed {
+    .require-field {
         color: red;
     }
 `

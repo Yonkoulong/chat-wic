@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-
-import { Signup } from '@/pages/Auth/signup'
-// import { ProtectedRoute } from './shared/HOC'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+
+// import { ProtectedRoute } from './shared/HOC'
+import { Signup } from '@/pages/Auth/Signup';
 
 const router = createBrowserRouter([
   {
@@ -12,9 +12,6 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />
-  },
-  {
-    path: "/home"
   }
 
 ])
