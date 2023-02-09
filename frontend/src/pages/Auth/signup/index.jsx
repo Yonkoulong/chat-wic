@@ -11,13 +11,20 @@ import {
   SignupTitleDesc,
   SignupFormWrapper,
   SignupForm,
-  SignupTitleHeading
+  SignupTitleHeading,
+  SingUpInputContainer, 
+  SignUpButtonSubmit
 } from "./Signup.styles";
-import { StyledTextField } from "@/shared/components/TextField";
-import { StyledLabelTextField } from "@/shared/components/Typography";
+import { StyledTextField, StyledLabelTextField, ControllerInput} from "@/shared/components";
+
+const defaultValues = {
+  organizeName : "",
+  email : "",
+  password : ""
+};
 
 export const Signup = () => {
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, formState: { errors } } = useForm({defaultValues});
 
   const onSubmit = (data) => {
     console.log(data);
@@ -38,30 +45,64 @@ export const Signup = () => {
 
         <SignupFormWrapper>
           <SignupForm onSubmit={handleSubmit(onSubmit)}>
-            <StyledLabelTextField>
-                Email <span className="require-field">*</span>
-            </StyledLabelTextField>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <StyledTextField
-                  {...field}
-                  fullWidth
-                  size="small"
-                  type="text"
-                  placeholder="Enter email"
-                  error={error !== undefined}
-                  helperText={error?.message}
-                />
-              )}
-              rules={{
-                required: {
-                  value: true,
-                  message: "Email is required"
-                }
-              }}
-            />
+            <SingUpInputContainer>
+              <StyledLabelTextField>
+                  Organization name <span className="require-field">*</span>
+              </StyledLabelTextField>
+              <ControllerInput 
+                control={control} 
+                errors={errors} 
+                fieldNameErrorMessage="Organization name" 
+                fieldName="organizeName" 
+                required={true}>
+                  {(field) => <StyledTextField
+                      {...field}
+                      fullWidth
+                      size="small"
+                      type="text"
+                      placeholder="Enter organization name"
+                    />}
+              </ControllerInput>
+            </SingUpInputContainer>
+            <SingUpInputContainer>
+              <StyledLabelTextField>
+                  Email <span className="require-field">*</span>
+                  <ControllerInput 
+                    control={control} 
+                    errors={errors} 
+                    fieldNameErrorMessage="Email" 
+                    fieldName="email" 
+                    required={true}>
+                    {(field) => <StyledTextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        type="email"
+                        placeholder="Enter email"
+                      />}
+              </ControllerInput>
+              </StyledLabelTextField>
+            </SingUpInputContainer>
+            <SingUpInputContainer>
+              <StyledLabelTextField>
+                  Password <span className="require-field">*</span>
+                  <ControllerInput 
+                    control={control} 
+                    errors={errors} 
+                    fieldNameErrorMessage="Password" 
+                    fieldName="password" 
+                    required={true}>
+                      {(field) => <StyledTextField
+                          {...field}
+                          fullWidth
+                          size="small"
+                          type="password"
+                          placeholder="Enter password"
+                        />}
+              </ControllerInput>
+              </StyledLabelTextField>
+            </SingUpInputContainer>
+            <SignUpButtonSubmit type="submit">Submit</SignUpButtonSubmit>
           </SignupForm>
         </SignupFormWrapper>
       </SignupWrapper>

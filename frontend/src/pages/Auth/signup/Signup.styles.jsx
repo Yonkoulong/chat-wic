@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {Box} from '@mui/material';
+import { Box, Button } from '@/shared/components';
 
 export const SignupContainer = styled.div`
     width: 100%;
@@ -27,5 +27,10 @@ export const SignupFormWrapper = styled(Box)``
 export const SignupForm = styled.form`
         
 `
+
+export const SingUpInputContainer = styled(Box)`
+`
+
+export const SignUpButtonSubmit = styled(Button)``
 
 
