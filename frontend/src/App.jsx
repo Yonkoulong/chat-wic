@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 // import { ProtectedRoute } from './shared/HOC'
-import { Signup } from '@/pages/Auth/Signup';
+import { AuthView } from '@/pages/Auth';
 
 const router = createBrowserRouter([
   {
@@ -11,7 +11,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/signup",
-    element: <Signup />
+    element: <AuthView />
+  },
+  {
+    path: "/signin",
+    element: <AuthView />
   }
 
 ])

@@ -1,20 +1,19 @@
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import {
-  SignupContainer,
-  ImageWrapper,
-  Image,
-  SignupWrapper,
-  SignupLogo,
-  SignupTitle,
-  SignupTitleDesc,
-  SignupFormWrapper,
-  SignupForm,
-  SignupTitleHeading,
-  SingUpInputContainer, 
-  SignUpButtonSubmit
-} from "./Signup.styles";
+  SignUpContainer,
+  SignUpWrapper,
+  SignUpLogo,
+  SignUpTitle,
+  SignUpTitleDesc,
+  SignUpFormWrapper,
+  SignUpForm,
+  SignUpTitleHeading,
+  SignUpInputContainer, 
+  SignUpButtonSubmit,
+} from "./SignUp.styles";
+
 import { StyledTextField, StyledLabelTextField, ControllerInput} from "@/shared/components";
 
 const defaultValues = {
@@ -23,7 +22,7 @@ const defaultValues = {
   password : ""
 };
 
-export const Signup = () => {
+export const SignUp = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({defaultValues});
 
   const onSubmit = (data) => {
@@ -31,22 +30,18 @@ export const Signup = () => {
   };
 
   return (
-    <SignupContainer>
-      <ImageWrapper>
-        <Image src="" alt="" />
-      </ImageWrapper>
+    <SignUpContainer>
+      <SignUpWrapper>
+        <SignUpLogo>WIC</SignUpLogo>
+        <SignUpTitle>
+          <SignUpTitleHeading>Create your organization</SignUpTitleHeading>
+          <SignUpTitleDesc>Enter the fields below to get started</SignUpTitleDesc>
+        </SignUpTitle>
 
-      <SignupWrapper>
-        <SignupLogo>WIC</SignupLogo>
-        <SignupTitle>
-          <SignupTitleHeading>Create your organization</SignupTitleHeading>
-          <SignupTitleDesc>Enter the fields below to get started</SignupTitleDesc>
-        </SignupTitle>
-
-        <SignupFormWrapper>
-          <SignupForm onSubmit={handleSubmit(onSubmit)}>
-            <SingUpInputContainer>
-              <StyledLabelTextField>
+        <SignUpFormWrapper>
+          <SignUpForm onSubmit={handleSubmit(onSubmit)}>
+            <SignUpInputContainer>
+              <StyledLabelTextField component='span'>
                   Organization name <span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput 
@@ -63,10 +58,12 @@ export const Signup = () => {
                       placeholder="Enter organization name"
                     />}
               </ControllerInput>
-            </SingUpInputContainer>
-            <SingUpInputContainer>
-              <StyledLabelTextField>
+            </SignUpInputContainer>
+           
+            <SignUpInputContainer>
+              <StyledLabelTextField component='span'>
                   Email <span className="require-field">*</span>
+                </StyledLabelTextField>
                   <ControllerInput 
                     control={control} 
                     errors={errors} 
@@ -81,32 +78,33 @@ export const Signup = () => {
                         placeholder="Enter email"
                       />}
               </ControllerInput>
-              </StyledLabelTextField>
-            </SingUpInputContainer>
-            <SingUpInputContainer>
+            </SignUpInputContainer>
+            
+            <SignUpInputContainer>
               <StyledLabelTextField>
                   Password <span className="require-field">*</span>
-                  <ControllerInput 
-                    control={control} 
-                    errors={errors} 
-                    fieldNameErrorMessage="Password" 
-                    fieldName="password" 
-                    required={true}>
-                      {(field) => <StyledTextField
-                          {...field}
-                          fullWidth
-                          size="small"
-                          type="password"
-                          placeholder="Enter password"
-                        />}
-              </ControllerInput>
               </StyledLabelTextField>
-            </SingUpInputContainer>
-            <SignUpButtonSubmit type="submit">Submit</SignUpButtonSubmit>
-          </SignupForm>
-        </SignupFormWrapper>
-      </SignupWrapper>
-    </SignupContainer>
+              <ControllerInput 
+                  control={control} 
+                  errors={errors} 
+                  fieldNameErrorMessage="Password" 
+                  fieldName="password" 
+                  required={true}>
+                    {(field) => <StyledTextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        type="password"
+                        placeholder="Enter password"
+                      />}
+              </ControllerInput>
+            </SignUpInputContainer>
+            
+            <SignUpButtonSubmit type="submit">Login</SignUpButtonSubmit>
+          </SignUpForm>
+        </SignUpFormWrapper>
+      </SignUpWrapper>
+    </SignUpContainer>
   );
 };
 
