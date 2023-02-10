@@ -40,12 +40,13 @@ export const SignIn = () => {
     try { 
       const respData = await postSignIn(data);
       if(respData) {
-        localStorage.setItem('user_token', respData.data?.token);
-        toast("Sign in successfully")
+        console.log(respData?.data?.token);
+        localStorage.setItem('token', respData?.data?.token);
+        toast.success("Sign in successfully.")
       }
-      console.log(respData);
     } catch (error) {
-      throw error
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
     }
   };
 

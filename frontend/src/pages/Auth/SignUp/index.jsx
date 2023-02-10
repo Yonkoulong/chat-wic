@@ -30,9 +30,12 @@ export const SignUp = () => {
   const onSubmit = async(data) => {
     try {
       const respData = await postSignUpOrganization(data);
-      toast("Register successfully")
+      if(respData){
+        toast.success("Register organizaion successfully.")
+      }
     } catch(error) {
-      throw error;
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
     }
     reset();
   };

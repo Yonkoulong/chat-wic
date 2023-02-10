@@ -8,6 +8,7 @@ const {
   saltRounds,
   IUserStatus,
   ObjectIdMongodb,
+  USER_ROLES
 } = require("../utils/constant");
 const { isArray } = require("../utils/validation");
 
@@ -72,6 +73,7 @@ const postRegister = async (req, res) => {
     avatar: "",
     firstName: "",
     lastName: "",
+    role : USER_ROLES.admin
   };
 
   try {
