@@ -4,7 +4,7 @@ import { Box } from "@/shared/components";
 
 const TextFieldErrorMessage = ({ errors, fieldName }) => {
   return (
-    <Box>
+    <Box sx={{height : 10}}>
       <ErrorMessage
         errors={errors}
         name={fieldName}
