@@ -23,6 +23,7 @@ import {
 } from "@/shared/components";
 import {  toast } from 'react-toastify';
 import { postSignIn } from '@/services/auth.services';
+import { redirectTo } from "@/shared/utils/history";
 
 const defaultValues = {
   email: "",
@@ -42,7 +43,8 @@ export const SignIn = () => {
       if(respData) {
         console.log(respData?.data?.token);
         localStorage.setItem('token', respData?.data?.token);
-        toast.success("Sign in successfully.")
+        toast.success("Sign in successfully.");
+        redirectTo("/signup");
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

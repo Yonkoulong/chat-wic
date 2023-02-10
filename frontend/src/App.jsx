@@ -1,29 +1,37 @@
-import React, { useState } from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import React, { useState, useLayoutEffect } from 'react';
+import { RouterProvider, createBrowserRouter, Routes, Route, Router } from 'react-router-dom';
+import { routes } from "@/app/routes";
+import history from "@/shared/utils/history";
 
-// import { ProtectedRoute } from './shared/HOC'
-import { AuthView } from '@/pages/Auth';
+export const CustomRouter = ({ basename, children, history }) => {
+  const [state, setState] = useState({
+    action: history.action,
+    location: history.location,
+  });
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <div>Hello</div>
-  },
-  {
-    path: "/signup",
-    element: <AuthView />
-  },
-  {
-    path: "/signin",
-    element: <AuthView />
-  }
+  useLayoutEffect(() => history.listen(setState), [history]);
 
-])
+  return (
+    <Router
+      basename={basename}
+      children={children}
+      location={state.location}
+      navigationType={state.action}
+      navigator={history}
+    />
+  );
+};
 
 function App() {
 
   return (
-    <RouterProvider router={router}/>    
+    <CustomRouter history={history}>
+    <div>
+      <Routes>
+        {routes.map((item) => <Route key={item.path} path={item.path} exact element={item.element} />)}
+      </Routes>
+    </div>
+  </CustomRouter> 
   )
 }
 
