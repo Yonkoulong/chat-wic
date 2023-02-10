@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
-import { RouterProvider, createBrowserRouter, Routes, Route, Router } from 'react-router-dom';
+import {Routes, Route, Router } from 'react-router-dom';
 import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 
@@ -26,11 +26,9 @@ function App() {
 
   return (
     <CustomRouter history={history}>
-    <div>
       <Routes>
         {routes.map((item) => <Route key={item.path} path={item.path} exact element={item.element} />)}
       </Routes>
-    </div>
   </CustomRouter> 
   )
 }
