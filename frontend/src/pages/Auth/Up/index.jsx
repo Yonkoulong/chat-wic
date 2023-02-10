@@ -21,6 +21,8 @@ import {
   StyledLabelTextField,
   ControllerInput,
 } from "@/shared/components";
+import {  toast } from 'react-toastify';
+import { postSignIn } from '@/services/auth.services';
 
 const defaultValues = {
   email: "",
@@ -34,8 +36,17 @@ export const SignIn = () => {
     formState: { errors },
   } = useForm({ defaultValues });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try { 
+      const respData = await postSignIn(data);
+      if(respData) {
+        localStorage.setItem('user_token', respData.data?.token);
+        toast("Sign in successfully")
+      }
+      console.log(respData);
+    } catch (error) {
+      throw error
+    }
   };
 
   return (
@@ -97,7 +108,7 @@ export const SignIn = () => {
               </ControllerInput>
             </SignInInputContainer>
 
-            <SignInFeatureWrapper>
+            {/* <SignInFeatureWrapper>
               <SignInInputContainer>
                 <ControllerInput
                   control={control}
@@ -108,8 +119,8 @@ export const SignIn = () => {
                 </ControllerInput>
                 <StyledLabelTextField>Remember me</StyledLabelTextField>
               </SignInInputContainer>
-            </SignInFeatureWrapper>
-            <SignInButtonSubmit type="submit">Submit</SignInButtonSubmit>
+            </SignInFeatureWrapper> */}
+            <SignInButtonSubmit type="submit">Login</SignInButtonSubmit>
 
             <SignInCreateAccount>
               Don't have an account? <Link to="/signup">Sign up</Link>

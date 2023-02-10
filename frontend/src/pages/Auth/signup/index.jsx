@@ -16,6 +16,7 @@ import {
 
 import { StyledTextField, StyledLabelTextField, ControllerInput} from "@/shared/components";
 import { postSignUpOrganization } from "@/services/auth.services";
+import {  toast } from 'react-toastify';
 
 const defaultValues = {
   organizeName : "",
@@ -24,11 +25,16 @@ const defaultValues = {
 };
 
 export const SignUp = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm({defaultValues});
+  const { control, handleSubmit, reset, formState: { errors } } = useForm({defaultValues});
 
   const onSubmit = async(data) => {
-    const respData = await postSignUpOrganization()
-    console.log(data, respData);
+    try {
+      const respData = await postSignUpOrganization(data);
+      toast("Register successfully")
+    } catch(error) {
+      throw error;
+    }
+    reset();
   };
 
   return (
@@ -102,7 +108,7 @@ export const SignUp = () => {
               </ControllerInput>
             </SignUpInputContainer>
             
-            <SignUpButtonSubmit type="submit">Login</SignUpButtonSubmit>
+            <SignUpButtonSubmit type="submit">Create</SignUpButtonSubmit>
           </SignUpForm>
         </SignUpFormWrapper>
       </SignUpWrapper>
