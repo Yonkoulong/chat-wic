@@ -15,6 +15,7 @@ import {
 } from "./SignUp.styles";
 
 import { StyledTextField, StyledLabelTextField, ControllerInput} from "@/shared/components";
+import { postSignUpOrganization } from "@/services/auth.services";
 
 const defaultValues = {
   organizeName : "",
@@ -25,8 +26,9 @@ const defaultValues = {
 export const SignUp = () => {
   const { control, handleSubmit, formState: { errors } } = useForm({defaultValues});
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async(data) => {
+    const respData = await postSignUpOrganization()
+    console.log(data, respData);
   };
 
   return (
