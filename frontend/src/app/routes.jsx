@@ -1,4 +1,5 @@
 import { AuthView } from '@/pages/Auth';
+import { ChatHome } from '@/pages/ChatView/ChatHome';
 
 export const routes =[
     {
@@ -12,5 +13,9 @@ export const routes =[
     {
       path: "/signin",
       element: <AuthView />
+    },
+    {
+      path: "/home",
+      element: <ChatHome />
     }
   ];
