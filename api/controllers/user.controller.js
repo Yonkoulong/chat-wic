@@ -24,16 +24,35 @@ const getUsersWithOrganizeId = async (req, res) => {
   const page = !!paging ? paging?.page : 1;
   const size = !!paging ? paging?.size : 10000;
   let usersWithOrganizeId = [];
+  let allUsers = [];
+  try {
+    allUsers = await User.find({ organizeId });
+  } catch (err) {
+    console.log(err);
+  }
+
   try {
     if (paging && !isPaging) {
       usersWithOrganizeId = await User.find({ organizeId })
         .skip(page)
         .limit(size);
     } else {
-      usersWithOrganizeId = await User.find({ organizeId });
+      usersWithOrganizeId = allUsers;
     }
 
-    return res.status(httpCode.ok).json(usersWithOrganizeId);
+    const data = {
+      content: usersWithOrganizeId,
+      paging: {
+        pageNumber: page,
+        pageSize: size,
+        totalPage: Math.ceil(
+          (allUsers?.length || 1) / (usersWithOrganizeId?.length || 1)
+        ),
+        totalRecord: allUsers?.length || 10,
+      },
+    };
+
+    return res.status(httpCode.ok).json(data);
   } catch {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
