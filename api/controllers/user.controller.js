@@ -19,24 +19,43 @@ const {
 } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
-const getUsersWithOrganizeId = async (req, res) => {
-  const { organizeId, paging, isPaging } = req.body;
+const postUsersWithOrganizeId = async (req, res) => {
+  const { organizeId, paging, isPaging, username, id, email, role } = req.body;
 
   const page = !!paging ? paging?.page : 1;
-  const size = !!paging ? paging?.size : 10000;
+  const size = !!paging ? paging?.size : 10;
   let usersWithOrganizeId = [];
   let allUsers = [];
+
+  // query user
+  const queryUser = { organizeId };
+  if (username) {
+    queryUser.username = { $regex: username };
+  }
+
+  if (id) {
+    queryUser._id = id;
+  }
+
+  if (email) {
+    queryUser.email = { $regex: email };
+  }
+
+  if (role) {
+    queryUser.role = { $regex: role };
+  }
+
+  console.log(queryUser);
+
   try {
-    allUsers = await User.find({ organizeId });
+    allUsers = await User.find(queryUser);
   } catch (err) {
     console.log(err);
   }
 
   try {
     if (paging && !isPaging) {
-      usersWithOrganizeId = await User.find({ organizeId })
-        .skip(page)
-        .limit(size);
+      usersWithOrganizeId = await User.find(queryUser).skip(page).limit(size);
     } else {
       usersWithOrganizeId = allUsers;
     }
@@ -246,8 +265,8 @@ const deleteUserByUserId = async (req, res) => {
 
 module.exports = [
   {
-    method: "get",
-    controller: getUsersWithOrganizeId,
+    method: "post",
+    controller: postUsersWithOrganizeId,
     routeName: "/users",
   },
   {
