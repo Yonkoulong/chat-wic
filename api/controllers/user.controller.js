@@ -18,14 +18,24 @@ const {
 } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
-const getUsers = async (_req, res) => {
-  //create an array of documents
-  try {
-    const users = await User.find({});
+const getUsersWithOrganizeId = async (req, res) => {
+  const { organizeId, paging, isPaging } = req.body;
 
-    return res.status(httpCode.ok).json(users);
+  const page = !!paging ? paging?.page : 1;
+  const size = !!paging ? paging?.size : 10000;
+  let usersWithOrganizeId = [];
+  try {
+    if (paging && !isPaging) {
+      usersWithOrganizeId = await User.find({ organizeId })
+        .skip(page)
+        .limit(size);
+    } else {
+      usersWithOrganizeId = await User.find({ organizeId });
+    }
+
+    return res.status(httpCode.ok).json(usersWithOrganizeId);
   } catch {
-    return res.status(httpCode.badRequest).json([]);
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 };
 
@@ -216,7 +226,7 @@ const deleteUserByUserId = async (req, res) => {
 module.exports = [
   {
     method: "get",
-    controller: getUsers,
+    controller: getUsersWithOrganizeId,
     routeName: "/users",
   },
   {
