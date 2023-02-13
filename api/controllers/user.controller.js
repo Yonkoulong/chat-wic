@@ -10,6 +10,7 @@ const {
   USER_ROLES,
   responseConstant,
   minLengthPassword,
+  calculateTotalPage,
 } = require("../utils/constant");
 const {
   isObjectIdInMongodb,
@@ -45,8 +46,9 @@ const getUsersWithOrganizeId = async (req, res) => {
       paging: {
         pageNumber: page,
         pageSize: size,
-        totalPage: Math.ceil(
-          (allUsers?.length || 1) / (usersWithOrganizeId?.length || 1)
+        totalPage: calculateTotalPage(
+          allUsers?.length || 1,
+          usersWithOrganizeId?.length || 1
         ),
         totalRecord: allUsers?.length || 10,
       },

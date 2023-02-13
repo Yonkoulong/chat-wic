@@ -66,6 +66,10 @@ const convertToken = (token) => {
 
 const minLengthPassword = 8;
 
+const calculateTotalPage = (allRecord = 10, record = 10) => {
+  return Math.ceil(allRecord / record);
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -80,4 +84,5 @@ module.exports = {
   convertToken,
   responseConstant,
   minLengthPassword,
+  calculateTotalPage,
 };
