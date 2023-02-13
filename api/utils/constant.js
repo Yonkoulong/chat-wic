@@ -30,6 +30,12 @@ const responseError = {
   emailAlreadyExist: { content: "Email already exist." },
   createOrganizeError: { content: "Create organize error." },
   userUnauthorized: { content: "User has not permission." },
+  wrongPayload: { content: "Payload is in wrong format." },
+  lengthPassword: { content: "Password must be great than 8 character." },
+};
+
+const responseConstant = {
+  deleteUserSuccessfully: { content: "Delete user successfully." },
 };
 
 const ORDER_DIRECTION = {
@@ -58,6 +64,8 @@ const convertToken = (token) => {
   return token.replace("Bearer ", "");
 };
 
+const minLengthPassword = 8;
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -70,4 +78,6 @@ module.exports = {
   ROOM_TYPES,
   USER_ROLES,
   convertToken,
+  responseConstant,
+  minLengthPassword,
 };

@@ -8,6 +8,8 @@ const {
   DEFAULT_PASSWORD,
   convertToken,
   USER_ROLES,
+  responseConstant,
+  minLengthPassword,
 } = require("../utils/constant");
 const {
   isObjectIdInMongodb,
@@ -15,7 +17,6 @@ const {
   verifyToken,
 } = require("../utils/validation");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 const getUsers = async (_req, res) => {
   //create an array of documents
@@ -96,11 +97,25 @@ const postUser = async (req, res) => {
   const { email, password } = req?.body;
   const token = req?.headers?.authorization;
   const currentUser = verifyToken(convertToken(token));
+
   if (currentUser?.role !== USER_ROLES.admin) {
     return res
       .status(httpCode.unauthorize)
       .json(responseError.userUnauthorized);
   }
+
+  if (password?.length < minLengthPassword) {
+    return res.status(httpCode.badRequest).json(responseError.lengthPassword);
+  }
+
+  const userWithEmail = await User.find({ email });
+
+  if (isArray(userWithEmail) && userWithEmail.length > 0) {
+    return res
+      .status(httpCode.badRequest)
+      .json(responseError.emailAlreadyExist);
+  }
+
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUser = {
     username: "",
@@ -171,6 +186,33 @@ const getResetPasswordByUserId = async (req, res) => {
   }
 };
 
+const deleteUserByUserId = async (req, res) => {
+  const { ids } = req.body;
+
+  if (!isArray(ids)) {
+    return res.status(httpCode.badRequest).json(responseError.wrongPayload);
+  }
+
+  const token = req?.headers?.authorization;
+  const currentUser = verifyToken(convertToken(token));
+  if (currentUser?.role !== USER_ROLES.admin) {
+    return res
+      .status(httpCode.unauthorize)
+      .json(responseError.userUnauthorized);
+  }
+
+  const organizeId = currentUser?.organizeId;
+
+  try {
+    await User.deleteMany({ _id: { $in: ids }, organizeId });
+    return res
+      .status(httpCode.ok)
+      .json(responseConstant.deleteUserSuccessfully);
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "get",
@@ -201,5 +243,10 @@ module.exports = [
     method: "get",
     controller: getResetPasswordByUserId,
     routeName: "/user/:id/reset-password",
+  },
+  {
+    method: "delete",
+    controller: deleteUserByUserId,
+    routeName: "/user/delete",
   },
 ];
