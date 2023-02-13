@@ -9,6 +9,7 @@ const {
   IUserStatus,
   ObjectIdMongodb,
   USER_ROLES,
+  minLengthPassword,
 } = require("../utils/constant");
 const { isArray } = require("../utils/validation");
 
@@ -46,17 +47,24 @@ const postRegister = async (req, res) => {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
-  const getOrganize = await Organize.find({ organizeName });
+  if (password?.length < minLengthPassword) {
+    return res.status(httpCode.badRequest).json(responseError.lengthPassword);
+  }
 
-  if (isArray(getOrganize) && getOrganize.length > 0) {
+  const organizationWithOrganizeName = await Organize.find({ organizeName });
+
+  if (
+    isArray(organizationWithOrganizeName) &&
+    organizationWithOrganizeName.length > 0
+  ) {
     return res
       .status(httpCode.badRequest)
       .json(responseError.organizeAlreadyExist);
   }
 
-  const getEmail = await User.find({ email });
+  const userWithEmail = await User.find({ email });
 
-  if (isArray(getEmail) && getEmail.length > 0) {
+  if (isArray(userWithEmail) && userWithEmail.length > 0) {
     return res
       .status(httpCode.badRequest)
       .json(responseError.emailAlreadyExist);
