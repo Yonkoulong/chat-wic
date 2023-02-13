@@ -8,7 +8,7 @@ const {
   saltRounds,
   IUserStatus,
   ObjectIdMongodb,
-  USER_ROLES
+  USER_ROLES,
 } = require("../utils/constant");
 const { isArray } = require("../utils/validation");
 
@@ -64,6 +64,7 @@ const postRegister = async (req, res) => {
 
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const _id = new ObjectIdMongodb();
+  const organizeId = new ObjectIdMongodb();
   const newUser = {
     _id,
     email,
@@ -73,7 +74,8 @@ const postRegister = async (req, res) => {
     avatar: "",
     firstName: "",
     lastName: "",
-    role : USER_ROLES.admin
+    role: USER_ROLES.admin,
+    organizeId,
   };
 
   try {
@@ -85,6 +87,7 @@ const postRegister = async (req, res) => {
   }
 
   const newOrganize = {
+    _id: organizeId,
     organizeName,
     ownerId: _id,
     active: true,

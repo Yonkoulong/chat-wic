@@ -110,6 +110,7 @@ const postUser = async (req, res) => {
     userStatus: IUserStatus.offline,
     firstName: "",
     lastName: "",
+    organizeId: currentUser?.organizeId,
   };
 
   try {

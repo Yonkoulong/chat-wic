@@ -20,6 +20,11 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+    organizeId: {
+      type: Schema.Types.ObjectId,
+      ref: "Organize",
+      required: false,
+    },
     password: {
       type: String,
       required: false,
