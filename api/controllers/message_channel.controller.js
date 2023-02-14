@@ -1,4 +1,4 @@
-const Message = require("../models/message_channel.model");
+const MessageChannel = require("../models/message_channel.model");
 const User = require("../models/user.model");
 const {
   httpCode,
@@ -11,7 +11,7 @@ const { isObjectIdInMongodb } = require("../utils/validation");
 const getMessagesChannel = async (_req, res) => {
   //create an array of documents
   try {
-    const message = await Message?.find({});
+    const message = await MessageChannel?.find({});
     return res.json(message);
   } catch {
     return res.json([]);
@@ -31,7 +31,7 @@ const postMessageChannel = async (req, res) => {
     };
 
     try {
-      await Message.create(newMessage);
+      await MessageChannel.create(newMessage);
       return res?.status(httpCode.ok).json(newMessage);
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -53,12 +53,12 @@ const getMessageChannelByRoomId = async (req, res) => {
 
   if (isObjectIdInMongodb(roomId)) {
     if (isPaging || !!paging) {
-      messageInRoom = await Message.find({ roomId })
+      messageInRoom = await MessageChannel.find({ roomId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
         .skip(paging?.page || 1)
         .limit(paging?.size || 10);
     } else {
-      messageInRoom = await Message.find({ roomId });
+      messageInRoom = await MessageChannel.find({ roomId });
     }
   }
 
