@@ -7,7 +7,7 @@ const http = require("http").Server(app);
 
 const setUpApp = async () => {
   setupMiddleware(app);
-  setUpSocketIO();
+  setUpSocketIO(http);
   return http.listen(process.env.PORT || 4000);
 };
 
