@@ -1,4 +1,4 @@
-const Message = require("../models/message.model");
+const Message = require("../models/message_channel.model");
 const User = require("../models/user.model");
 const {
   httpCode,
@@ -8,7 +8,7 @@ const {
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
-const getMessages = async (_req, res) => {
+const getMessagesChannel = async (_req, res) => {
   //create an array of documents
   try {
     const message = await Message?.find({});
@@ -18,7 +18,7 @@ const getMessages = async (_req, res) => {
   }
 };
 
-const postMessage = async (req, res) => {
+const postMessageChannel = async (req, res) => {
   const { content, roomId, senderId } = req.body;
 
   if (isObjectIdInMongodb(roomId) && isObjectIdInMongodb(senderId)) {
@@ -39,7 +39,7 @@ const postMessage = async (req, res) => {
   }
 };
 
-const getMessageByRoomId = async (req, res) => {
+const getMessageChannelByRoomId = async (req, res) => {
   const { roomId } = req?.params;
   if (!roomId)
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -84,11 +84,19 @@ const getMessageByRoomId = async (req, res) => {
 };
 
 module.exports = [
-  { method: "get", controller: getMessages, routeName: "/messages" },
-  { method: "post", controller: postMessage, routeName: "/message/create" },
   {
     method: "get",
-    controller: getMessageByRoomId,
-    routeName: "/message/:roomId",
+    controller: getMessagesChannel,
+    routeName: "/messages-channel",
+  },
+  {
+    method: "post",
+    controller: postMessageChannel,
+    routeName: "/message-channel/create",
+  },
+  {
+    method: "get",
+    controller: getMessageChannelByRoomId,
+    routeName: "/message-channel/:roomId",
   },
 ];
