@@ -10,7 +10,6 @@ export const CustomRouter = ({ basename, children, history }) => {
   });
 
   useLayoutEffect(() => history.listen(setState), [history]);
-
   return (
     <Router
       basename={basename}

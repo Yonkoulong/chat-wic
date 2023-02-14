@@ -17,6 +17,7 @@ import {
 import { StyledTextField, StyledLabelTextField, ControllerInput} from "@/shared/components";
 import { postSignUpOrganization } from "@/services/auth.services";
 import {  toast } from 'react-toastify';
+import { redirectTo } from '@/shared/utils/history';
 
 const defaultValues = {
   organizeName : "",
@@ -31,7 +32,8 @@ export const SignUp = () => {
     try {
       const respData = await postSignUpOrganization(data);
       if(respData){
-        toast.success("Register organizaion successfully.")
+        toast.success("Register organizaion successfully.");
+        redirectTo("/signin");
       }
     } catch(error) {
       const errorMessage = error?.response?.data?.content;

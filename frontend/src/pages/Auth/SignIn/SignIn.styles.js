@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import { Box, Button, Typography } from '@/shared/components';
 import { primaryColor, inActiveColor, whiteColor } from '@/shared/utils/colors.utils';
 
-export const SignInContainer = styled.div`
+export const SignInContainer = styled(Box)`
     width: 100%;
     padding: 24px 68px;
 `
