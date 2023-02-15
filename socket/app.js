@@ -8,6 +8,10 @@ const http = require("http").Server(app);
 const setUpApp = async () => {
   setupMiddleware(app);
   setUpSocketIO(http);
+
+  app.get("/api", (req, res) => {
+    res.send("this is home location");
+  });
   return http.listen(process.env.PORT || 4000);
 };
 
