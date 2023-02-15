@@ -4,7 +4,7 @@ let usersActive = [];
 const setUpSocketIO = (http) => {
   const socketConfig = socketIO(http, {
     cors: {
-      origin: process?.env?.PORT_CLIENT || "http://localhost:5173",
+      origin: process?.env?.PORT_CLIENT || "http://localhost:3000",
     },
   });
 
