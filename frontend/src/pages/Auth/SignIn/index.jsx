@@ -41,10 +41,9 @@ export const SignIn = () => {
     try { 
       const respData = await postSignIn(data);
       if(respData) {
-        console.log(respData?.data?.token);
         localStorage.setItem('token', respData?.data?.token);
         toast.success("Sign in successfully.");
-        redirectTo("/signup");
+        // redirectTo("/signup");
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
