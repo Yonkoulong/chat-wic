@@ -3,6 +3,6 @@ import React from 'react';
 export const Dashboard = () => {
 
     return (
-        <>This is dashboard</>
+        <>This is dashboard page</>
     )
 }

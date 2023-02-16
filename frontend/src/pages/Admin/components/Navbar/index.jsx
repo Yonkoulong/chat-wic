@@ -10,14 +10,14 @@ import { NavLinkCustomize } from "./NavLink";
 
 const navList = [
   {
-    to: "admin/dashboard",
+    to: "/admin/dashboard",
     icon: <PieChartSharpIcon />,
     title: "Dashboard",
   },
   {
-    to: "admin/members",
+    to: "/admin/members",
     icon: <GroupIcon />,
-    title: "Dashboard",
+    title: "Members",
   },
 ];
 
@@ -27,14 +27,16 @@ export const Navbar = () => {
       <NavbarListStyled>
         {navList.length > 0 &&
           navList.map((item) => {
+           return (
             <NavbarItemStyled>
               <NavLinkCustomize
                 to={item.to}
                 icon={item.icon}
                 title={item.title}
               />
-            </NavbarItemStyled>;
-          })}
+            </NavbarItemStyled>
+           ) 
+        })}
       </NavbarListStyled>
     </NavbarStyled>
   );

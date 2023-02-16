@@ -1,9 +1,11 @@
 import React, { useState, useLayoutEffect } from 'react';
-import {Routes, Route, Router } from 'react-router-dom';
+import {Routes, Route, Router, RouterProvider } from 'react-router-dom';
+import { ThemeProvider } from "@mui/material/styles";
 import { routes } from "@/app/routes";
+import theme from "@/theme";
 import history from "@/shared/utils/history";
 
-export const CustomRouter = ({ basename, children, history }) => {
+const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
     action: history.action,
     location: history.location,
@@ -24,11 +26,14 @@ export const CustomRouter = ({ basename, children, history }) => {
 function App() {
 
   return (
-    <CustomRouter history={history}>
-      <Routes>
-        {routes.map((item) => <Route key={item.path} path={item.path} exact element={item.element} />)}
-      </Routes>
-  </CustomRouter> 
+  //   <CustomRouter history={history}>
+  //     <Routes>
+  //       {routes.map((item) => <Route key={item.path} path={item.path} exact element={item.element} />)}
+  //     </Routes>
+  // </CustomRouter> 
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={routes} />
+    </ThemeProvider>
   )
 }
 
