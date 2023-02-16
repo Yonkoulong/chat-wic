@@ -34,7 +34,6 @@ import {
      draggable = false,
      setHeadCells = () => {},
      paging = { page: 1, size: 10 },
-     customTableBody,
    }
    ) => {
      const [page, setPage] = useState(paging?.page - 1 || 0);
