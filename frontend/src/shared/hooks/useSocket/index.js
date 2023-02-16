@@ -12,7 +12,10 @@ export const useSocket = ({ initAction }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   const connectSocket = () => {
-    const newSocket = new SockJs(SocketConnection);
+    const newSocket = new SockJs(SocketConnection, {
+      transports: ["websocket"],
+      rejectUnauthorized: false,
+    });
     const stompClient = Stomp.over(newSocket);
     setClient(stompClient);
 
