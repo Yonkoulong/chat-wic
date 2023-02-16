@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel, IconButton } from "@/shared/components";
 import styled from "styled-components";
-import {KeyboardArrowDownIcon, KeyboardArrowUpIcon} from "@mui/icons-material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { ORDER_DIRECTION } from "@/shared/utils/constant";
 
 const TableHeaderCellWithAction = ({ headCell, children, sort, toggleSort }) => {

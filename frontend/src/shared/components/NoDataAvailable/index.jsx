@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { Box } from "@/shared/components";
 
 const StyledBoxContainer = styled(Box)`
-     height : 200px;
-     display : flex;
-     text-align : center;
-     align-item : center;
+  height: 200px;
+  text-align: center;
+  align-item: center;
+  padding-top: 80px;
 `;
 
 export const NoDataAvailable = () => {

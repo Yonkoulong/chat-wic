@@ -21,3 +21,4 @@ export {
 } from "@mui/material";
 export { ControllerInput } from "./ControllerInput";
 export { NoDataAvailable } from "./NoDataAvailable";
+export { CommonTable } from "./Table";
