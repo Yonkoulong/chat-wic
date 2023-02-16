@@ -19,20 +19,20 @@ const headCellMembersListing = [
     label: "Name",
     optionComponent: false,
     hasSortIcon: true,
-    width: "60%",
+    width: "40%",
   },
   {
     id: "members",
     label: "Members",
     optionComponent: false,
     hasSortIcon: false,
-    width: "25%",
+    width: "40%",
   },
   {
     id: "actions",
     label: "Actions",
     hasSortIcon: false,
-    width: "5%",
+    width: "15%",
   },
 ]
 
