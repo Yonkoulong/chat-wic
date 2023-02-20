@@ -58,6 +58,13 @@ const USER_ROLES = {
   projectManager: "PROJECT_MANAGER",
 };
 
+const MESSAGE_TYPES = {
+  link: "LINK",
+  paragraph: "PARAGRAPH",
+  plainText: "PLAIN_TEXT",
+  image: "IMAGE",
+};
+
 const convertToken = (token) => {
   if (!token) {
     return "";
@@ -86,4 +93,5 @@ module.exports = {
   responseConstant,
   minLengthPassword,
   calculateTotalPage,
+  MESSAGE_TYPES,
 };
