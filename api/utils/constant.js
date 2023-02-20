@@ -55,6 +55,7 @@ const ROOM_TYPES = {
 const USER_ROLES = {
   admin: "ADMIN",
   staff: "STAFF",
+  projectManager: "PROJECT_MANAGER",
 };
 
 const convertToken = (token) => {
