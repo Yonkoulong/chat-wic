@@ -1,5 +1,6 @@
 import React from "react";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 import {
   MemberContainer,
@@ -10,29 +11,44 @@ import {
   MemberContentAction,
   MemberContentBody,
 } from "./Members.styles";
-import { ButtonCustomize } from "@/shared/components/Button";
-import { CommonTable } from "@/shared/components";
+import { CommonTable, ButtonCustomize, Typography, IconButton } from "@/shared/components";
+import { MemberSearchField } from "./components/MemberSearchField";
 
 const headCellMembersListing = [
   {
-    id: "name",
-    label: "Name",
-    optionComponent: false,
+    id: "_id",
+    label: "Member ID",
+    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="_id" {...props}/>),
     hasSortIcon: true,
-    width: "40%",
+    width: "20%",
   },
   {
-    id: "members",
-    label: "Members",
-    optionComponent: false,
-    hasSortIcon: false,
-    width: "40%",
+    id: "email",
+    label: "Email",
+    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="email" {...props}/>),
+    hasSortIcon: true,
+    width: "30%",
+  },
+  {
+    id: "createAt",
+    label: "Beginning Date",
+    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="createAt" {...props}/>),
+    hasSortIcon: true,
+    width: "20%",
+  },
+  {
+    id: "userStatus",
+    label: "Member Status",
+    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="userStatus" {...props}/>),
+    hasSortIcon: true,
+    width: "20%",
   },
   {
     id: "actions",
     label: "Actions",
+    optionComponent: false,
     hasSortIcon: false,
-    width: "15%",
+    width: "10%",
   },
 ]
 
@@ -82,13 +98,21 @@ export const Members = () => {
             return (
               <>
                 <TableCell>
-                    <div >{member.name}</div>
+                    <Typography variant="body2">{member?._id}</Typography>
                 </TableCell>
                 <TableCell>
-                  <div>{member?.totalAgents || "-"}</div>
+                  <Typography>{member?.email || "-"}</Typography>
                 </TableCell>
                 <TableCell>
-                  <div>kaka</div>
+                  <Typography>{member?.createAt || "-"}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography>{member?.userStatus || "-"}</Typography>
+                </TableCell>
+                <TableCell>
+                    <IconButton>
+                        <DeleteOutlineIcon />
+                    </IconButton>
                 </TableCell>
               </>
             );

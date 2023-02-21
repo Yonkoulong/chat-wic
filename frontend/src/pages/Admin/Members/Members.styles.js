@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@/shared/components';
 
 export const MemberContainer = styled(Box)`
-
+    padding: 20px;
 `
 
 export const LinkStyled = styled(Typography)`
