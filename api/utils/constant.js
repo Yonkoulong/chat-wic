@@ -55,6 +55,14 @@ const ROOM_TYPES = {
 const USER_ROLES = {
   admin: "ADMIN",
   staff: "STAFF",
+  projectManager: "PROJECT_MANAGER",
+};
+
+const MESSAGE_TYPES = {
+  link: "LINK",
+  paragraph: "PARAGRAPH",
+  plainText: "PLAIN_TEXT",
+  image: "IMAGE",
 };
 
 const convertToken = (token) => {
@@ -85,4 +93,5 @@ module.exports = {
   responseConstant,
   minLengthPassword,
   calculateTotalPage,
+  MESSAGE_TYPES,
 };

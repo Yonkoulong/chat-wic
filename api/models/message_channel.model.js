@@ -11,6 +11,11 @@ const messageChannelSchema = new Schema(
       trim: true,
     },
     channelId: { type: Schema.Types.ObjectId, ref: "Channel" },
+    type: {
+      type: String,
+      required: false,
+      trim: true,
+    },
   },
   {
     timestamps: true,
