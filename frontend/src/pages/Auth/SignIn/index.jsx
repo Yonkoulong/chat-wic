@@ -31,6 +31,7 @@ const defaultValues = {
 };
 
 export const SignIn = () => {
+  const history = unstable_HistoryRouter
   const {
     control,
     handleSubmit,
@@ -43,7 +44,7 @@ export const SignIn = () => {
       if(respData) {
         localStorage.setItem('token', respData?.data?.token);
         toast.success("Sign in successfully.");
-        // redirectTo("/signup");
+        redirectTo("/home");
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

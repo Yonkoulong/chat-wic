@@ -41,6 +41,10 @@ const userSchema = new Schema(
       type: String,
       required: false, // ADMIN || STAFF
     },
+    id: {
+      type: String,
+      required: false,
+    }
   },
   {
     timestamps: true,

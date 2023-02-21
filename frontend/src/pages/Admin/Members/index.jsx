@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
@@ -11,35 +11,37 @@ import {
   MemberContentAction,
   MemberContentBody,
 } from "./Members.styles";
-import { CommonTable, ButtonCustomize, Typography, IconButton } from "@/shared/components";
+import { CommonTable, ButtonCustomize, Typography, IconButton, TableCell } from "@/shared/components";
 import { MemberSearchField } from "./components/MemberSearchField";
+import { getMembersByOrganizeId } from "@/services/member.service"
+import { MAX_HEIFHT_TABLE, getDataList } from "@/shared/utils/constant";
 
-const headCellMembersListing = [
+const getHeadCellMembersListing = (props) => [
   {
     id: "_id",
     label: "Member ID",
-    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="_id" {...props}/>),
+    optionComponent: () => (<MemberSearchField placeHolder="Search" fieldName="id" {...props}/>),
     hasSortIcon: true,
     width: "20%",
   },
   {
     id: "email",
     label: "Email",
-    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="email" {...props}/>),
+    optionComponent: () => (<MemberSearchField placeHolder="Search" fieldName="email" {...props}/>),
     hasSortIcon: true,
     width: "30%",
   },
   {
-    id: "createAt",
+    id: "createdAt",
     label: "Beginning Date",
-    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="createAt" {...props}/>),
+    optionComponent: () => (<MemberSearchField placeHolder="Search" fieldName="createdAt" {...props}/>),
     hasSortIcon: true,
     width: "20%",
   },
   {
     id: "userStatus",
     label: "Member Status",
-    optionComponent: (props) => (<MemberSearchField placeHolder="Search" fieldName="userStatus" {...props}/>),
+    optionComponent: () => (<MemberSearchField placeHolder="Search" fieldName="userStatus" {...props}/>),
     hasSortIcon: true,
     width: "20%",
   },
@@ -52,14 +54,74 @@ const headCellMembersListing = [
   },
 ]
 
+const organizeId = "63e9e5d0a831c1390cd043db";
 
 export const Members = () => {
+  const [members, setMembers] = useState([]);
+  const [membersSelected, setMembersSelected] = useState([]);
+  const [totalRecord, setTotalRecord] = useState(10);
+  const [payloadRequest, setPayloadRequest] = useState({
+    organizeId,
+    id: "",
+    email : "",
+    pagination : { page : 1, size : 10 }
+  });
+  const [loading, setLoading] = useState(false);
+  
+
+  useEffect(() => {
+    setLoading(true);
+    (async() => {
+     try{
+      const { content, paging } = await getDataList(getMembersByOrganizeId, payloadRequest);
+      setMembers(content);
+      setPayloadRequest({...payloadRequest,pagination : {page : paging.page, size : paging.size}});
+      setTotalRecord(paging?.totalRecord || 10);
+     }finally{
+      setLoading(false);
+     }
+    })()
+  }, [])
 
   const toggleSort = () => {};
 
-  const handleCheckAllMember = () => {};
+  const handleCheckAllMember = (event) => {
+    const isChecked = event?.target?.checked;
+    if(isChecked){
+      const selected = members.map(member => member?._id)
+      setMembersSelected(selected);
+    }else{
+      setMembersSelected([])
+    }
+  };
+
+  const onChangePagination = async({page, size}) =>{
+    const newPayloadRequest = {...payloadRequest, pagination : {page, size}};
+    const { content, paging } = await getDataList(getMembersByOrganizeId, newPayloadRequest);
+    setMembers(content);
+    setPayloadRequest({...payloadRequest,pagination : {page : paging.page, size : paging.size}});
+    setTotalRecord(paging?.totalRecord || 10);
+  };
   
-  const handleSelectMember = () => {};
+  const handleSelectMember = (_event, rowId) => {
+    let newMembersSlected = [];
+
+    if(membersSelected.includes(rowId)){
+      newMembersSlected = membersSelected.filter(id => id !== rowId)
+    }else{
+      newMembersSlected = [...membersSelected, rowId]
+    }
+
+    setMembersSelected(newMembersSlected);
+  };
+
+  const handleSearch = async (value, fieldName) => {
+    const newPayloadRequest = {...payloadRequest, [fieldName] : value || ""};
+      const { content, paging } = await getDataList(getMembersByOrganizeId, newPayloadRequest);
+      setMembers(content);
+      setPayloadRequest({...newPayloadRequest,pagination : {page : paging.page, size : paging.size}});
+      setTotalRecord(paging?.totalRecord || 10);
+  }
 
   return (
     <MemberContainer>
@@ -83,16 +145,17 @@ export const Members = () => {
           hasCheckList={true}
           sort={{}}
           hasPagination={true}
-          headCells={headCellMembersListing}
-          dataList={[]}
-          selected={[]}
+          headCells={getHeadCellMembersListing({handleSearch, payloadRequest})}
+          dataList={members}
+          selected={membersSelected}
           handleSelect={handleSelectMember}
           handleSelectAllClick={handleCheckAllMember}
           toggleSort={toggleSort}
-          totalRecord={100}
-          paging={ { page: 1, size: 10 }}
-          maxHeight={700}
-          loading={false}
+          totalRecord={totalRecord}
+          paging={ { page: payloadRequest?.paginaion?.page || 1, size: payloadRequest?.paginaion?.size || 10 }}
+          maxHeight={MAX_HEIFHT_TABLE}
+          loading={loading}
+          onChangePagination={onChangePagination}
         >
           {(member) => {
             return (
@@ -104,7 +167,7 @@ export const Members = () => {
                   <Typography>{member?.email || "-"}</Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography>{member?.createAt || "-"}</Typography>
+                  <Typography>{member?.createdAt || "-"}</Typography>
                 </TableCell>
                 <TableCell>
                   <Typography>{member?.userStatus || "-"}</Typography>

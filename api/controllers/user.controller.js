@@ -20,7 +20,7 @@ const {
 const bcrypt = require("bcrypt");
 
 const postUsersWithOrganizeId = async (req, res) => {
-  const { organizeId, paging, isPaging, username, id, email, role } = req.body;
+  const { organizeId, paging, isPaging, username, id, email, role, userStatus } = req.body;
 
   const page = !!paging ? paging?.page : 1;
   const size = !!paging ? paging?.size : 10;
@@ -34,7 +34,7 @@ const postUsersWithOrganizeId = async (req, res) => {
   }
 
   if (id) {
-    queryUser._id = id;
+    queryUser.id = { $regex: id };
   }
 
   if (email) {
@@ -43,6 +43,10 @@ const postUsersWithOrganizeId = async (req, res) => {
 
   if (role) {
     queryUser.role = { $regex: role };
+  }
+
+  if (userStatus) {
+    queryUser.userStatus = { $regex: userStatus?.toUpperCase() };
   }
 
   console.log(queryUser);
@@ -63,8 +67,8 @@ const postUsersWithOrganizeId = async (req, res) => {
     const data = {
       content: usersWithOrganizeId,
       paging: {
-        pageNumber: page,
-        pageSize: size,
+        page: page,
+        size: size,
         totalPage: calculateTotalPage(
           allUsers?.length || 1,
           usersWithOrganizeId?.length || 1
@@ -167,8 +171,11 @@ const postUser = async (req, res) => {
   }
 
   const convertPassword = await bcrypt.hash(password, saltRounds);
+  const newUserId = new ObjectIdMongodb();
   const newUser = {
+    _id : newUserId,
     username: "",
+    id :newUserId?.toString(),
     email,
     password: convertPassword,
     avatar: "",

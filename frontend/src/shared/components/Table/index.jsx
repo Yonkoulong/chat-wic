@@ -34,6 +34,7 @@ export const CommonTable = ({
   draggable = false,
   setHeadCells = () => {},
   paging = { page: 1, size: 10 },
+  keyId = "_id"
 }) => {
   const [page, setPage] = useState(paging?.page - 1 || 0);
   const [rowsPerPage, setRowsPerPage] = useState(paging?.size || 10);
@@ -93,7 +94,7 @@ export const CommonTable = ({
             {!loading &&
               dataList.map((row, index) => {
                 const isItemSelected = hasCheckList
-                  ? isSelected(row.id)
+                  ? isSelected(row[keyId])
                   : false;
                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -109,10 +110,9 @@ export const CommonTable = ({
                     {hasCheckList && (
                       <TableCell width="3%" padding="none">
                         <Checkbox
-                          color="secondary"
                           onClick={(event) =>
                             handleSelect
-                              ? handleSelect(event, row.id || row.Id)
+                              ? handleSelect(event, row[keyId], row)
                               : ""
                           }
                           checked={isItemSelected}

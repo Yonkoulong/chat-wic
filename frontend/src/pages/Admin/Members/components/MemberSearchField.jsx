@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import styled, { css } from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import { TextField, InputAdornment } from "@/shared/components";
+import { useDebounce } from '@/shared/hooks';
 
 const TableCellSearchInput = styled(TextField)`
     ${({ theme: {  } }) => css`
@@ -16,11 +17,22 @@ const TableCellSearchInput = styled(TextField)`
     `} 
 `;
 
-export const MemberSearchField = ({ placeHolder, fieldName }) => {
-    
-    const handleSearchKey = () => {
+export const MemberSearchField = ({ placeHolder, fieldName, handleSearch, payloadRequest }) => {
+    const [searchKey, setSearchKey] = useState(payloadRequest[fieldName] || "");
+    const [isChangeSearchKey, setIsChangeSearchKey] = useState(false);
+    const debounceSearchKey = useDebounce(searchKey);
 
-    }
+    const handleChangeSeachKey = (event) => {
+        setIsChangeSearchKey(true);
+        setSearchKey(event.target?.value);
+    };
+
+    useEffect(() => {
+        if(isChangeSearchKey){
+            handleSearch(searchKey, fieldName);  
+        }
+    }, [debounceSearchKey])
+
 
     return (
         <>
@@ -29,8 +41,8 @@ export const MemberSearchField = ({ placeHolder, fieldName }) => {
                 fullWidth
                 name={fieldName}
                 size="small"
-                value={""}
-                onChange={handleSearchKey}
+                value={searchKey}
+                onChange={handleChangeSeachKey}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start" sx={{ cursor: "pointer" }}>

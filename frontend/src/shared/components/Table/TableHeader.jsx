@@ -76,7 +76,7 @@ export const EnhancedTableHeader = ({
             <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={rowCount > 0 && numSelected === rowCount}
-              onChange={onSelectAllClick}
+              onChange={(event) => onSelectAllClick(event)}
             />
           </TableHeadCell>
         )}
