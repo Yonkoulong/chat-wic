@@ -1,5 +1,5 @@
-import React, { useState, useLayoutEffect } from 'react';
-import {Routes, Route, Router, RouterProvider } from 'react-router-dom';
+import React, { useState, useLayoutEffect } from "react";
+import { Routes, Route, Router, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { routes } from "@/app/routes";
 import theme from "@/theme";
@@ -26,15 +26,32 @@ const CustomRouter = ({ basename, children, history }) => {
 function App() {
 
   return (
-  //   <CustomRouter history={history}>
-  //     <Routes>
-  //       {routes.map((item) => <Route key={item.path} path={item.path} exact element={item.element} />)}
-  //     </Routes>
-  // </CustomRouter> 
     <ThemeProvider theme={theme}>
-      <RouterProvider router={routes} />
+      <CustomRouter history={history}>
+        <Routes>
+          {routes.map((item) => {
+            return (
+              <Route
+                key={item.path}
+                path={item.path}       
+                element={item.element}
+              >
+                {item?.children &&
+                  item?.children.map((child) => (
+                    <Route
+                      key={child.path}
+                      path={child.path}             
+                      element={child.element}
+                    />
+                  ))}
+              </Route>
+            );
+          })}
+        </Routes>
+      </CustomRouter>
+      {/* <RouterProvider router={routes} /> */}
     </ThemeProvider>
-  )
+  );
 }
 
 export default App;

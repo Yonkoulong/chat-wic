@@ -6,7 +6,7 @@ import { Members } from '@/pages/Admin/Members';
 import { createBrowserRouter } from 'react-router-dom';
 
 
-export const routes = createBrowserRouter([
+export const routes = [
   {
     path: "/",
     element: <div>Hello</div>
@@ -37,4 +37,4 @@ export const routes = createBrowserRouter([
       }
     ]
   },
-]);
+];
