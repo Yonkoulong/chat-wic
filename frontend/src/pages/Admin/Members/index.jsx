@@ -74,6 +74,7 @@ export const Members = () => {
     pagination : { page : 1, size : 10 }
   });
   const [loading, setLoading] = useState(false);
+
   
 
   useEffect(() => {
@@ -128,7 +129,7 @@ export const Members = () => {
       setMembers(content);
       setPayloadRequest({...newPayloadRequest,pagination : {page : paging.page, size : paging.size}});
       setTotalRecord(paging?.totalRecord || 10);
-  }
+  };
 
   return (
     <MemberContainer>
@@ -142,7 +143,7 @@ export const Members = () => {
           <MemberContentTitle>Members</MemberContentTitle>
 
           <MemberContentAction>
-            <Box pr={2}><ButtonCustomize variant="contained">Delete Members</ButtonCustomize></Box>
+            <Box pr={2}><ButtonCustomize variant="contained" >Delete Members</ButtonCustomize></Box>
             <Box><ButtonCustomize variant="contained">Create Members</ButtonCustomize></Box>
           </MemberContentAction>
         </MemberContentHead>

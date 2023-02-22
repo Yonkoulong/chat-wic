@@ -1,7 +1,7 @@
 import { Box, Dialog, DialogActions, DialogContent } from "@/shared/components";
 import {
   IconWarning,
-  ButtonActionConFirm,
+  ButtonActionConfirm,
   ButtonActionCanCel,
   TextPopUpConfirm,
   DialogHeader,
@@ -33,9 +33,9 @@ export const PopUpConfirm = ({ open, onConfirm, onCancel, content }) => {
       </DialogContent>
       <DialogActions sx={{ padding: "20px 40px" }}>
         <ButtonActionCanCel onClick={handleClose}>CANCEL</ButtonActionCanCel>
-        <ButtonActionConFirm onClick={handleConFirm}>
+        <ButtonActionConfirm onClick={handleConFirm}>
           CONFIRM
-        </ButtonActionConFirm>
+        </ButtonActionConfirm>
       </DialogActions>
     </Dialog>
   );
