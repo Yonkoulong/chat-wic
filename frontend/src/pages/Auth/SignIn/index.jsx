@@ -12,7 +12,7 @@ import {
   SignInFormWrapper,
   SignInForm,
   SignInInputContainer,
-  SignInFeatureWrapper,
+  // SignInFeatureWrapper,
   SignInButtonSubmit,
   SignInCreateAccount,
 } from "./SignIn.styles";
@@ -31,7 +31,7 @@ const defaultValues = {
 };
 
 export const SignIn = () => {
-  const history = unstable_HistoryRouter
+
   const {
     control,
     handleSubmit,
@@ -44,7 +44,7 @@ export const SignIn = () => {
       if(respData) {
         localStorage.setItem('token', respData?.data?.token);
         toast.success("Sign in successfully.");
-        redirectTo("/home");
+        redirectTo("/admin");
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
