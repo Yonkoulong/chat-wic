@@ -20,7 +20,17 @@ const {
 const bcrypt = require("bcrypt");
 
 const postUsersWithOrganizeId = async (req, res) => {
-  const { organizeId, paging, isPaging, username, id, email, role, userStatus } = req.body;
+  const {
+    organizeId,
+    paging,
+    isPaging,
+    username,
+    id,
+    email,
+    role,
+    userStatus,
+    createdAt,
+  } = req.body;
 
   const page = !!paging ? paging?.page : 1;
   const size = !!paging ? paging?.size : 10;
@@ -47,6 +57,13 @@ const postUsersWithOrganizeId = async (req, res) => {
 
   if (userStatus) {
     queryUser.userStatus = { $regex: userStatus?.toUpperCase() };
+  }
+
+  if (createdAt?.from && createdAt?.to) {
+    queryUser.createdAt = {
+      $gte: ISODate(createdAt.from),
+      $lt: ISODate(createdAt.to),
+    };
   }
 
   console.log(queryUser);
@@ -173,9 +190,9 @@ const postUser = async (req, res) => {
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUserId = new ObjectIdMongodb();
   const newUser = {
-    _id : newUserId,
+    _id: newUserId,
     username: "",
-    id :newUserId?.toString(),
+    id: newUserId?.toString(),
     email,
     password: convertPassword,
     avatar: "",
