@@ -165,7 +165,12 @@ const putUserDetail = async (req, res) => {
 };
 
 const postUser = async (req, res) => {
-  const { email, password } = req?.body;
+  const { email, password, role } = req?.body;
+
+  if (!email || !password) {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+
   const token = req?.headers?.authorization;
   const currentUser = verifyToken(convertToken(token));
 
@@ -200,6 +205,7 @@ const postUser = async (req, res) => {
     firstName: "",
     lastName: "",
     organizeId: currentUser?.organizeId,
+    role: role || USER_ROLES.staff,
   };
 
   try {
