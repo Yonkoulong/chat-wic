@@ -12,9 +12,10 @@ const isArray = (arr) => {
 const verifyToken = (token) => {
   let decoded = "";
   try {
-    decoded = jwt.verify(token, process.env.TOKEN_KEY);
+    decoded = jwt?.verify(token, process.env.TOKEN_KEY);
   } catch (err) {
     console.log(err);
+    decoded = null;
   }
 
   return decoded;

@@ -171,8 +171,9 @@ const postUser = async (req, res) => {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
-  const token = req?.headers?.authorization;
-  const currentUser = verifyToken(convertToken(token));
+  const token = req?.headers?.authorization || req?.headers?.Authorization;
+  const userData = verifyToken(convertToken(token));
+  const currentUser = userData?.data;
 
   if (currentUser?.role !== USER_ROLES.admin) {
     return res
