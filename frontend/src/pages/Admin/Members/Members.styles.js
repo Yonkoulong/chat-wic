@@ -2,12 +2,16 @@ import styled, { css } from "styled-components";
 import { Box, Typography } from "@/shared/components";
 
 export const MemberContainer = styled(Box)`
-  padding: 20px;
+  padding: 20px 32px;
+  overflow-Y: auto;
+  max-height: 700px;
 `;
 
 export const LinkStyled = styled(Typography)``;
 
-export const MemberContent = styled(Box)``;
+export const MemberContent = styled(Box)`
+  padding: 40px 0;
+`;
 
 export const MemberContentHead = styled(Box)`
   display: flex;
@@ -27,4 +31,6 @@ export const MemberContentAction = styled(Box)`
   display: flex;
 `;
 
-export const MemberContentBody = styled(Box)``;
+export const MemberContentBody = styled(Box)`
+    margin-top: 32px;
+`;

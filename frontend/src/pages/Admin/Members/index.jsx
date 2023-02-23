@@ -12,7 +12,9 @@ import {
   MemberContentBody,
 } from "./Members.styles";
 import { CommonTable, ButtonCustomize, Typography, IconButton, TableCell, Box } from "@/shared/components";
+import { blackColor } from "@/shared/utils/colors.utils";
 import { MemberSearchField } from "./components/MemberSearchField";
+import { ModalCreateMember } from "./components/CreateMemberModal";
 import { getMembersByOrganizeId } from "@/services/member.service"
 import { MAX_HEIGHT_TABLE, getDataList, formatDate } from "@/shared/utils/constant";
 
@@ -74,8 +76,16 @@ export const Members = () => {
     pagination : { page : 1, size : 10 }
   });
   const [loading, setLoading] = useState(false);
+  const [openCreateMemberModal, setOpenCreateMemberModal] = useState(false);
 
   
+  const handleClickOpenModalCreateMember = () => {
+    setOpenCreateMemberModal(true);
+  };
+
+  const handleCloseOpenModalCreateMember = () => {
+    setOpenCreateMemberModal(false);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -135,7 +145,7 @@ export const Members = () => {
     <MemberContainer>
       <Breadcrumbs aria-label="breadcrumb">
         <LinkStyled>Admin</LinkStyled>
-        <LinkStyled>Members</LinkStyled>
+        <LinkStyled sx={{ fontWeight: "bold", color: blackColor }}>Members</LinkStyled>
       </Breadcrumbs>
 
       <MemberContent>
@@ -143,58 +153,60 @@ export const Members = () => {
           <MemberContentTitle>Members</MemberContentTitle>
 
           <MemberContentAction>
-            <Box pr={2}><ButtonCustomize variant="contained" >Delete Members</ButtonCustomize></Box>
-            <Box><ButtonCustomize variant="contained">Create Members</ButtonCustomize></Box>
+            <Box mr={2}><ButtonCustomize variant="contained" >Delete Members</ButtonCustomize></Box>
+            <Box><ButtonCustomize variant="contained" handleClick={handleClickOpenModalCreateMember}>Create Members</ButtonCustomize></Box>
           </MemberContentAction>
         </MemberContentHead>
 
         <MemberContentBody>
-        <CommonTable
-          hasCheckList={true}
-          sort={{}}
-          hasPagination={true}
-          headCells={getHeadCellMembersListing({handleSearch, payloadRequest})}
-          dataList={members}
-          selected={membersSelected}
-          handleSelect={handleSelectMember}
-          handleSelectAllClick={handleCheckAllMember}
-          toggleSort={toggleSort}
-          totalRecord={totalRecord}
-          paging={ { page: payloadRequest?.pagination?.page || 1, size: payloadRequest?.pagination?.size || 10 }}
-          maxHeight={MAX_HEIGHT_TABLE}
-          loading={loading}
-          onChangePagination={onChangePagination}
-        >
-          {(member) => {
-            return (
-              <>
-                <TableCell>
-                  <Typography variant="body2">{member?._id || "_"}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{member?.email || "-"}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{member?.username || "-"}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{formatDate(member?.createdAt) || "-"}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{member?.userStatus || "-"}</Typography>
-                </TableCell>
-                <TableCell>
-                    <IconButton>
-                        <DeleteOutlineIcon />
-                    </IconButton>
-                </TableCell>
-              </>
-            );
-          }}
-        </CommonTable>
-
+          <CommonTable
+            hasCheckList={true}
+            sort={{}}
+            hasPagination={true}
+            headCells={getHeadCellMembersListing({handleSearch, payloadRequest})}
+            dataList={members}
+            selected={membersSelected}
+            handleSelect={handleSelectMember}
+            handleSelectAllClick={handleCheckAllMember}
+            toggleSort={toggleSort}
+            totalRecord={totalRecord}
+            paging={ { page: payloadRequest?.pagination?.page || 1, size: payloadRequest?.pagination?.size || 10 }}
+            maxHeight={MAX_HEIGHT_TABLE}
+            loading={loading}
+            onChangePagination={onChangePagination}
+          >
+            {(member) => {
+              return (
+                <>
+                  <TableCell>
+                    <Typography variant="body2">{member?._id || "_"}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{member?.email || "-"}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{member?.username || "-"}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{formatDate(member?.createdAt) || "-"}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{member?.userStatus || "-"}</Typography>
+                  </TableCell>
+                  <TableCell>
+                      <IconButton>
+                          <DeleteOutlineIcon />
+                      </IconButton>
+                  </TableCell>
+                </>
+              );
+            }}
+          </CommonTable>
         </MemberContentBody>
       </MemberContent>
+
+      {/* modal create member */}
+      <ModalCreateMember open={openCreateMemberModal} onClose={setOpenCreateMemberModal}/>
     </MemberContainer>
   );
 };
