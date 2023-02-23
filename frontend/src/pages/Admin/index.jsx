@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import {
   AdminPageContainer,
   AdminNavbar,
@@ -8,6 +9,7 @@ import {
   AdminNavBody,
   AdminNavBottom,
   AdminContent,
+  AdminNavBottomText,
 } from "./Admin.styles";
 
 import { Navbar } from './components/Navbar'
@@ -23,7 +25,10 @@ export const AdminPage = () => {
             <AdminNavBody>
               <Navbar />
             </AdminNavBody>
-            <AdminNavBottom>Back to chat</AdminNavBottom>
+            <AdminNavBottom>
+              <ArrowCircleLeftIcon />
+              <AdminNavBottomText>Back to chat</AdminNavBottomText>  
+            </AdminNavBottom>
         </AdminNavbar>
         <AdminContent>
           <Outlet />

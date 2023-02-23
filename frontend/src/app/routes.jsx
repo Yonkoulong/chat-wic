@@ -33,7 +33,13 @@ export const routes = [
       },
       {
         path: '/admin/members',
-        element: <Members />
+        element: <Members />,
+        children: [
+          {
+            path: '/admin/members/edit',
+            element: <></>
+          }
+        ]
       }
     ]
   },

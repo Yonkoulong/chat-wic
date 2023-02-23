@@ -23,32 +23,36 @@ const CustomRouter = ({ basename, children, history }) => {
 };
 
 function App() {
-
   return (
     <ThemeProvider>
       <CustomRouter history={history}>
-      <Routes>
-        {routes.map((item) => {
-          return (
-            <Route
-              key={item.path}
-              path={item.path}       
-              element={item.element}
-            >
-              {item?.children &&
-                item?.children.map((child) => (
-                  <Route
-                    key={child.path}
-                    path={child.path}             
-                    element={child.element}
-                  />
-                ))}
-            </Route>
-          );
-        })}
-      </Routes>
+        <Routes>
+          {routes.map((item) => {
+            return (
+              <Route key={item?.path} path={item?.path} element={item?.element}>
+                {item?.children &&
+                  item?.children.map((child) => (
+                    <Route
+                      key={child?.path}
+                      path={child?.path}
+                      element={child?.element}
+                    >
+                      {child?.children &&
+                        child?.children.map((subChild) => (
+                          <Route
+                            key={subChild?.path}
+                            path={subChild?.path}
+                            element={subChild?.element}
+                          />
+                        ))}
+                    </Route>
+                  ))}
+              </Route>
+            );
+          })}
+        </Routes>
       </CustomRouter>
-    </ThemeProvider> 
+    </ThemeProvider>
   );
 }
 

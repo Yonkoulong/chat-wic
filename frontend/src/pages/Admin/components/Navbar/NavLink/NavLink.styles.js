@@ -10,7 +10,7 @@ export const NavLinkWrapper = styled(Box)`
 export const NavLinkTitle = styled(Typography)`
     ${({ theme: {  } }) => css`
         &&& {
-            
+            margin-left: 16px;
         }
     `}
 `
