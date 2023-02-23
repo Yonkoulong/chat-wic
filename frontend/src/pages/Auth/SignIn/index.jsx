@@ -24,6 +24,8 @@ import {
 import {  toast } from 'react-toastify';
 import { postSignIn } from '@/services/auth.services';
 import { redirectTo } from "@/shared/utils/history";
+import { useAppStore } from '@/stores/AppStore';
+
 
 const defaultValues = {
   email: "",
@@ -31,6 +33,7 @@ const defaultValues = {
 };
 
 export const SignIn = () => {
+  const setUserInfo = useAppStore((state) => state.setUserInfo);
 
   const {
     control,
@@ -42,6 +45,7 @@ export const SignIn = () => {
     try { 
       const respData = await postSignIn(data);
       if(respData) {
+        setUserInfo(respData?.data);
         localStorage.setItem('token', respData?.data?.token);
         toast.success("Sign in successfully.");
         redirectTo("/admin");

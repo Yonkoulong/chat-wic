@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import {
   AdminPageContainer,
@@ -11,10 +11,18 @@ import {
   AdminContent,
   AdminNavBottomText,
 } from "./Admin.styles";
-
-import { Navbar } from './components/Navbar'
+import { redirectTo } from "@/shared/utils/history";
+import { Navbar } from './components/Navbar';
+import { EditMember } from '@/pages/Admin/Members/components/EditMember';
 
 export const AdminPage = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if(location?.pathname === "/admin"){
+      redirectTo("/admin/dashboard")
+    }
+  }, [])
 
   return (
     <AdminPageContainer>

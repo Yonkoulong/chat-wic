@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {  toast } from 'react-toastify';
 import { useForm } from "react-hook-form";
 
 import {
@@ -15,6 +16,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { Select, MenuItem } from '@/shared/components';
+
+import { createMember } from '@/services/member.service';
+import { useMemberStore } from '@/stores/MemberStore';
 
 import {
   CreateMemberFormWrapper,
@@ -23,6 +28,8 @@ import {
   // CreateMemberFeatureWrapper,
   CreateMemberButtonSubmit,
 } from "./CreateMemberModal";
+
+import { SelectCustomize } from '@/shared/components/Select';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -62,25 +69,50 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
+export const USER_ROLES = {
+  staff : "STAFF",
+  projectManager : "PROJECT_MANAGER",
+}
+
+const roles = [
+  {
+    label: 'Staff',
+    value: USER_ROLES.staff
+  },
+  {
+    label: 'Project Manager',
+    value: USER_ROLES.projectManager
+  }
+]
+
 const defaultValues = {
   email: "",
   password: "",
+  role: "",
 };
 
 export const ModalCreateMember = ({ open, onClose }) => {
+  const { fetchMembers, setLoading } = useMemberStore((state) => state)
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm({ defaultValues });
 
   const onSubmit = async (data) => {
     try {
-      const respData = await postSignIn(data);
+      const respData = await createMember(data);
+      
       if (respData) {
-        localStorage.setItem("token", respData?.data?.token);
-        toast.success("Sign in successfully.");
-        redirectTo("/admin");
+        setLoading(true);
+        fetchMembers({
+          organizeId: "63e9e5d0a831c1390cd043db",
+          id: "",
+          email: "",
+          pagination: { page: 1, size: 10 },});
+        toast.success("Create member successfully.");
+        handleClose();
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -89,6 +121,11 @@ export const ModalCreateMember = ({ open, onClose }) => {
   };
 
   const handleClose = () => {
+    reset({
+      email: "",
+      password: "",
+      role: "",
+    });
     onClose(false);
   };
 
@@ -97,6 +134,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
       onClose={handleClose}
       aria-labelledby="customized-dialog-title"
       open={open}
+      fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
         Create member
@@ -120,7 +158,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
                     {...field}
                     fullWidth
                     size="small"
-                    type="email"
+                    type="text"
                     placeholder="Enter email"
                   />
                 )}
@@ -146,6 +184,25 @@ export const ModalCreateMember = ({ open, onClose }) => {
                     type="password"
                     placeholder="Enter password"
                   />
+                )}
+              </ControllerInput>
+            </CreateMemberInputContainer>
+
+            <CreateMemberInputContainer>
+              <StyledLabelTextField>
+                Role<span className="require-field">*</span>
+              </StyledLabelTextField>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="Role"
+                fieldName="role"
+                required={true}
+              >
+                {(field) => (
+                  <Select {...field} fullWidth size="small">
+                    {roles.map(option => <MenuItem key={option.value} value={option.value}><b>{option.label}</b></MenuItem>)}
+                  </Select>
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>

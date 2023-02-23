@@ -3,6 +3,7 @@ import { ChatHome } from '@/pages/ChatView/ChatHome';
 import { AdminPage } from '@/pages/Admin';
 import { Dashboard } from '@/pages/Admin/Dashboard';
 import { Members } from '@/pages/Admin/Members';
+import { EditMember } from '@/pages/Admin/Members/components/EditMember';
 import { createBrowserRouter } from 'react-router-dom';
 
 
@@ -36,8 +37,8 @@ export const routes = [
         element: <Members />,
         children: [
           {
-            path: '/admin/members/edit',
-            element: <></>
+            path: '/admin/members/:id',
+            element: <EditMember />
           }
         ]
       }
