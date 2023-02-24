@@ -275,7 +275,7 @@ const getResetPasswordByUserId = async (req, res) => {
   }
 };
 
-const postRefreshToken = async (req, res) => {
+const deleteUserByUserIds = async (req, res) => {
   const { ids } = req.body;
 
   if (!isArray(ids)) {
@@ -302,7 +302,7 @@ const postRefreshToken = async (req, res) => {
   }
 };
 
-const deleteUserByUserId = async (req, res) => {
+const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
   const currentUser = userData?.data;
@@ -349,12 +349,12 @@ module.exports = [
   },
   {
     method: "delete",
-    controller: deleteUserByUserId,
+    controller: deleteUserByUserIds,
     routeName: "/user/delete",
   },
   {
-    method: "post",
-    controller: postRefreshToken,
+    method: "get",
+    controller: getRefreshToken,
     routeName: "/user/refresh-token",
   },
 ];
