@@ -52,7 +52,6 @@ export const TextPopUpConfirm = styled(DialogContentText)`
 
 export const ButtonConFirm = styled(Button)`
   ${({ theme: { palette } }) => css`
-    ${console.log(theme, "theme ngu")};
     &&& {
       width: 100%;
       padding: 10px 20px;

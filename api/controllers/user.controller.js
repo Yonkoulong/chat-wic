@@ -23,7 +23,7 @@ const postUsersWithOrganizeId = async (req, res) => {
   const {
     organizeId,
     paging,
-    isPaging,
+    // isPaging,
     username,
     id,
     email,
@@ -66,16 +66,15 @@ const postUsersWithOrganizeId = async (req, res) => {
     };
   }
 
-  console.log(queryUser);
-
   try {
     allUsers = await User.find(queryUser);
   } catch (err) {
     console.log(err);
   }
 
+  console.log(paging);
   try {
-    if (paging && !isPaging) {
+    if (!!paging) {
       usersWithOrganizeId = await User.find(queryUser).skip(page).limit(size);
     } else {
       usersWithOrganizeId = allUsers;

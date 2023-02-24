@@ -99,7 +99,7 @@ export const Members = () => {
     organizeId,
     id: "",
     email: "",
-    pagination: { page: 1, size: 10 },
+    paging: { page: 1, size: 10 },
   });
   const [openCreateMemberModal, setOpenCreateMemberModal] = useState(false);
 
@@ -216,8 +216,8 @@ export const Members = () => {
             toggleSort={toggleSort}
             totalRecord={totalRecord}
             paging={{
-              page: payloadRequest?.pagination?.page || 1,
-              size: payloadRequest?.pagination?.size || 10,
+              page: payloadRequest?.paging?.page || 1,
+              size: payloadRequest?.paging?.size || 10,
             }}
             maxHeight={MAX_HEIGHT_TABLE}
             loading={loading}
