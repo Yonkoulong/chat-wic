@@ -32,6 +32,7 @@ const responseError = {
   userUnauthorized: { content: "User has not permission." },
   wrongPayload: { content: "Payload is in wrong format." },
   lengthPassword: { content: "Password must be great than 8 character." },
+  invalidEmail: { content: "Invalid email." },
 };
 
 const responseConstant = {

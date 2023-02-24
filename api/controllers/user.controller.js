@@ -181,6 +181,14 @@ const postUser = async (req, res) => {
       .json(responseError.userUnauthorized);
   }
 
+  if (email?.includes("@")) {
+    const domainOrganization = currentUser?.email?.split("@")[1];
+    const domainNewUser = email?.split("@")[1];
+    if (domainNewUser !== domainOrganization) {
+      return res.status(httpCode.badRequest).json(responseError.invalidEmail);
+    }
+  }
+
   if (password?.length < minLengthPassword) {
     return res.status(httpCode.badRequest).json(responseError.lengthPassword);
   }
