@@ -40,7 +40,7 @@ export const CommonTable = ({
   const [rowsPerPage, setRowsPerPage] = useState(paging?.size || 10);
   const [currentPageDropdownPage, setCurrentPageDropdownPage] = useState(1);
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event, newPage) => {
     onChangePagination({ page: newPage + 1, size: rowsPerPage });
     setPage(newPage);
   };
@@ -58,10 +58,10 @@ export const CommonTable = ({
     return toggleSort(key, { page: page + 1, size: rowsPerPage });
   };
 
-  useEffect(() => {
-    setPage(paging?.page - 1);
-    setRowsPerPage(paging?.size);
-  }, [paging]);
+  // useEffect(() => {
+  //   setPage(paging?.page - 1);
+  //   setRowsPerPage(paging?.size);
+  // }, [paging]);
 
   const currentPageList = useMemo(
     () =>
