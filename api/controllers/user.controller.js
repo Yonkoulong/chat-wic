@@ -175,7 +175,7 @@ const postUser = async (req, res) => {
   const userData = verifyToken(convertToken(token));
   const currentUser = userData?.data;
 
-  if (currentUser?.role !== USER_ROLES.admin) {
+  if (!!currentUser && currentUser?.role !== USER_ROLES.admin) {
     return res
       .status(httpCode.unauthorize)
       .json(responseError.userUnauthorized);

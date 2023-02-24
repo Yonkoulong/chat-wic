@@ -29,7 +29,7 @@ const postLogin = async (req, res) => {
 
     if (isMatchPassword) {
       const token = jwt.sign({ data: matchUser }, process.env.TOKEN_KEY, {
-        expiresIn: "12h",
+        expiresIn: "24h",
       });
       return res.status(httpCode.ok).json({ ...matchUser?._doc, token });
     } else {
