@@ -33,6 +33,7 @@ const responseError = {
   wrongPayload: { content: "Payload is in wrong format." },
   lengthPassword: { content: "Password must be great than 8 character." },
   invalidEmail: { content: "Invalid email." },
+  invalidToken: { content: "Your session has expired. Please login again." },
 };
 
 const responseConstant = {

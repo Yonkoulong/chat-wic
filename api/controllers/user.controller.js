@@ -275,7 +275,7 @@ const getResetPasswordByUserId = async (req, res) => {
   }
 };
 
-const deleteUserByUserId = async (req, res) => {
+const postRefreshToken = async (req, res) => {
   const { ids } = req.body;
 
   if (!isArray(ids)) {
@@ -300,6 +300,20 @@ const deleteUserByUserId = async (req, res) => {
   } catch {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
+};
+
+const deleteUserByUserId = async (req, res) => {
+  const token = req?.headers?.authorization || req?.headers?.Authorization;
+  const userData = verifyToken(convertToken(token));
+  const currentUser = userData?.data;
+  if (currentUser) {
+    const respData = {
+      content: { ...currentUser, token: convertToken(token) },
+    };
+    return res.status(httpCode.ok).json(respData);
+  }
+
+  return res.status(httpCode.badRequest).json(responseError.invalidToken);
 };
 
 module.exports = [
@@ -337,5 +351,10 @@ module.exports = [
     method: "delete",
     controller: deleteUserByUserId,
     routeName: "/user/delete",
+  },
+  {
+    method: "post",
+    controller: postRefreshToken,
+    routeName: "/user/refresh-token",
   },
 ];
