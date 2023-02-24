@@ -3,8 +3,8 @@ import { Box, Typography } from "@/shared/components";
 
 export const MemberContainer = styled(Box)`
   padding: 20px 32px;
-  overflow-Y: auto;
-  max-height: 700px;
+  // overflow-y: auto;
+  // max-height: 700px;
 `;
 
 export const LinkStyled = styled(Typography)``;
@@ -32,5 +32,5 @@ export const MemberContentAction = styled(Box)`
 `;
 
 export const MemberContentBody = styled(Box)`
-    margin-top: 32px;
+  margin-top: 32px;
 `;

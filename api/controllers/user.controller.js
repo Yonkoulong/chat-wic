@@ -72,10 +72,12 @@ const postUsersWithOrganizeId = async (req, res) => {
     console.log(err);
   }
 
-  console.log(paging);
   try {
     if (!!paging) {
-      usersWithOrganizeId = await User.find(queryUser).skip(page).limit(size);
+      const numberToSkip = (page - 1) * size;
+      usersWithOrganizeId = await User.find(queryUser)
+        .skip(numberToSkip)
+        .limit(size);
     } else {
       usersWithOrganizeId = allUsers;
     }
