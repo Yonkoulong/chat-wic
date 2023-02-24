@@ -35,12 +35,10 @@ export const routes = [
       {
         path: '/admin/members',
         element: <Members />,
-        children: [
-          {
-            path: '/admin/members/:id',
-            element: <EditMember />
-          }
-        ]
+      }, 
+      {
+        path: '/admin/members/:id',
+        element: <EditMember />
       }
     ]
   },
