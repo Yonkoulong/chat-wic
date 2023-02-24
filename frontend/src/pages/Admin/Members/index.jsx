@@ -118,7 +118,7 @@ export const Members = () => {
       fetchMembers(payloadRequest);
       setPayloadRequest({
         ...payloadRequest,
-        pagination: { page: paging.page, size: paging.size },
+        paging: { page: paging.page, size: paging.size },
       });
     } finally {
       //setLoading(false);
@@ -138,11 +138,11 @@ export const Members = () => {
   };
 
   const onChangePagination = ({ page, size }) => {
-    const newPayloadRequest = { ...payloadRequest, pagination: { page, size } };
+    const newPayloadRequest = { ...payloadRequest, paging: { page, size } };
     fetchMembers(newPayloadRequest);
     setPayloadRequest({
       ...payloadRequest,
-      pagination: { page: paging.page, size: paging.size },
+      paging: { page: paging.page, size: paging.size },
     });
   };
 
