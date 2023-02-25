@@ -26,7 +26,26 @@
 }
 
 html {
-  box-sizing: border-box;
+  box-sizing: border-box;  
+}
+
+html::-webkit-scrollbar {
+  width: 6px;
+}
+
+html::-webkit-scrollbar-track {
+  border-radius: 10px;
+  height: 60px;
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: #D8DDE2;
+  border-radius: 10px;
+  height: 60px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
 }
 
 a {

@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import {  toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 
 import {
   StyledTextField,
   StyledLabelTextField,
   ControllerInput,
+  Select,
+  MenuItem,
+  ButtonCustomize,
 } from "@/shared/components";
 import PropTypes from "prop-types";
-import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -16,20 +18,17 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { Select, MenuItem } from '@/shared/components';
 
-import { createMember } from '@/services/member.service';
-import { useMemberStore } from '@/stores/MemberStore';
+import { createMember } from "@/services/member.service";
+import { useMemberStore } from "@/stores/MemberStore";
 
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
-  CreateMemberButtonSubmit,
 } from "./CreateMemberModal";
 
-import { SelectCustomize } from '@/shared/components/Select';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -70,20 +69,20 @@ BootstrapDialogTitle.propTypes = {
 };
 
 export const USER_ROLES = {
-  staff : "STAFF",
-  projectManager : "PROJECT_MANAGER",
-}
+  staff: "STAFF",
+  projectManager: "PROJECT_MANAGER",
+};
 
 const roles = [
   {
-    label: 'Staff',
-    value: USER_ROLES.staff
+    label: "Staff",
+    value: USER_ROLES.staff,
   },
   {
-    label: 'Project Manager',
-    value: USER_ROLES.projectManager
-  }
-]
+    label: "Project Manager",
+    value: USER_ROLES.projectManager,
+  },
+];
 
 const defaultValues = {
   email: "",
@@ -92,25 +91,26 @@ const defaultValues = {
 };
 
 export const ModalCreateMember = ({ open, onClose }) => {
-  const { fetchMembers, setLoading } = useMemberStore((state) => state)
+  const { fetchMembers, setLoading } = useMemberStore((state) => state);
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm({ defaultValues });
 
   const onSubmit = async (data) => {
     try {
       const respData = await createMember(data);
-      
+
       if (respData) {
         setLoading(true);
         fetchMembers({
           organizeId: "63e9e5d0a831c1390cd043db",
           id: "",
           email: "",
-          pagination: { page: 1, size: 10 },});
+          pagination: { page: 1, size: 10 },
+        });
         toast.success("Create member successfully.");
         handleClose();
       }
@@ -201,17 +201,21 @@ export const ModalCreateMember = ({ open, onClose }) => {
               >
                 {(field) => (
                   <Select {...field} fullWidth size="small">
-                    {roles.map(option => <MenuItem key={option.value} value={option.value}><b>{option.label}</b></MenuItem>)}
+                    {roles.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        <b>{option.label}</b>
+                      </MenuItem>
+                    ))}
                   </Select>
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={handleClose}>
+            <ButtonCustomize variant="outlined" autoFocus handleClick={handleClose}>
               Cancel
-            </Button>
-            <CreateMemberButtonSubmit type="submit">Create</CreateMemberButtonSubmit>
+            </ButtonCustomize>
+            <ButtonCustomize variant="contained" type="submit">Create</ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>
       </CreateMemberFormWrapper>

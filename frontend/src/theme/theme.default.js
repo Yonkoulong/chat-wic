@@ -12,7 +12,7 @@ theme.palette = {
   primary: {
     main: "#E44160",
     light: "rgb(51, 51, 51)",
-    dark: "rgb(0, 0, 0)",
+    dark: "rgb(217 88 113)",
     contrastText: "#fafafa",
   },
   info: {

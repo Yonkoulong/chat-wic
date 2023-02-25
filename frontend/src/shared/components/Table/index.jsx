@@ -34,7 +34,7 @@ export const CommonTable = ({
   draggable = false,
   setHeadCells = () => {},
   paging = { page: 1, size: 10 },
-  keyId = "_id"
+  keyId = "_id",
 }) => {
   const [page, setPage] = useState(paging?.page - 1 || 0);
   const [rowsPerPage, setRowsPerPage] = useState(paging?.size || 10);
@@ -75,7 +75,25 @@ export const CommonTable = ({
   return (
     <>
       <TableContainer
-        style={{ boxShadow: "none", maxHeight: maxHeight || "unset" }}
+        style={{
+          boxShadow: "none",
+          maxHeight: maxHeight || "unset",
+        }}
+        sx={{
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-track": {
+            borderRadius: "10px",
+            height: "60px",
+          },
+          "::-webkit-scrollbar-thumb": {
+            backgroundColor: "#D8DDE2",
+            bordeRadius: "10px",
+            height: "60px",
+          },
+          "::-webkit-scrollbar-thumb:hover": {
+            opacity: "0.8",
+          },
+        }}
         component={Paper}
       >
         <Table stickyHeader={!!maxHeight} sx={{ minWidth: 650 }}>

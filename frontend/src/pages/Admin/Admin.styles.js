@@ -5,16 +5,27 @@ import { Typography } from "@mui/material";
 
 export const AdminPageContainer = styled(Box)`
   width: 100%;
-  height: 100vh;
-  display: flex;
-  // overflow: hidden;
+  
 `;
 
 export const AdminNavbar = styled(Box)`
+  height: 100vh;
   width: 20%;
-  background-color: #e0d5d5;
 
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  
+  overflow: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  background-color: #e0d5d5;
 `;
 
 export const AdminNavHead = styled(Box)`
@@ -60,5 +71,6 @@ export const AdminNavBottomText = styled(Typography)`
 `;
 
 export const AdminContent = styled(Box)`
-  width: 80%;
+  width: 100%;
+  padding-left: 20%;
 `;

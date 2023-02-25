@@ -1,6 +1,9 @@
 import React from "react";
 import { TextField, ButtonCustomize, Box } from "@/shared/components";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+import { primaryColor } from '@/shared/utils/colors.utils';
+
 
 import {
   LinkStyled,
@@ -30,17 +33,25 @@ export const EditMember = () => {
 
       <EditMemberContent>
         <EditMemberContentHead>
-          <EditMemberContentTitle>Edit Member</EditMemberContentTitle>
+          <ArrowCircleLeftIcon sx={{
+              fontSize: "30px",
+             ':hover': {
+              color: primaryColor,
+              cursor: "pointer"
+            }
+          }}/>
+          <EditMemberContentTitle variant="h4" component="h3">Edit Member</EditMemberContentTitle>
         </EditMemberContentHead>
 
         <EditMemberContentInfo>
           <EditMemberInfoRow>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                EmployeeID <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -48,37 +59,12 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                First Name <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
-                  id="standard-input"
-                  variant="standard"
-                  defaultValue="#1"
-                />
-              </EditMemberInfoItemValue>
-            </EditMemberInfoItem>
-          </EditMemberInfoRow>
-          <EditMemberInfoRow>
-            <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
-              </EditMemberInfoItemTitle>
-              <EditMemberInfoItemValue>
-                <TextField
-                  id="standard-input"
-                  variant="standard"
-                  defaultValue="#1"
-                />
-              </EditMemberInfoItemValue>
-            </EditMemberInfoItem>
-            <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
-              </EditMemberInfoItemTitle>
-              <EditMemberInfoItemValue>
-                <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -86,13 +72,15 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
           </EditMemberInfoRow>
+
           <EditMemberInfoRow>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                Email <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -100,11 +88,12 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                Last Name <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -112,10 +101,11 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
           </EditMemberInfoRow>
+          
           <EditMemberInfoRow>
             <EditMemberInfoItem>
               <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+                Role <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
@@ -126,11 +116,12 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                Date of Birth <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -138,10 +129,40 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
           </EditMemberInfoRow>
+
+          <EditMemberInfoRow>
+            <EditMemberInfoItem>
+              <EditMemberInfoItemTitle props="disabled">
+                Gender <span style={{ color: 'red' }}>*</span>
+              </EditMemberInfoItemTitle>
+              <EditMemberInfoItemValue>
+                <TextField
+                  id="standard-input"
+                  variant="standard"
+                  defaultValue="Male"
+                  disabled
+                />
+              </EditMemberInfoItemValue>
+            </EditMemberInfoItem>
+            <EditMemberInfoItem>
+              <EditMemberInfoItemTitle props="disabled">
+                Beginning Date <span style={{ color: 'red' }}>*</span>
+              </EditMemberInfoItemTitle>
+              <EditMemberInfoItemValue>
+                <TextField
+                  disabled
+                  id="standard-input"
+                  variant="standard"
+                  defaultValue="#1"
+                />
+              </EditMemberInfoItemValue>
+            </EditMemberInfoItem>
+          </EditMemberInfoRow>
+         
           <EditMemberInfoRow>
             <EditMemberInfoItem>
               <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+                Status <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
@@ -152,11 +173,12 @@ export const EditMember = () => {
               </EditMemberInfoItemValue>
             </EditMemberInfoItem>
             <EditMemberInfoItem>
-              <EditMemberInfoItemTitle>
-                EmployeeID<span>*</span>
+              <EditMemberInfoItemTitle props="disabled">
+                Seniorty <span style={{ color: 'red' }}>*</span>
               </EditMemberInfoItemTitle>
               <EditMemberInfoItemValue>
                 <TextField
+                  disabled
                   id="standard-input"
                   variant="standard"
                   defaultValue="#1"
@@ -173,11 +195,11 @@ export const EditMember = () => {
             variant="contained"
             
           >
-            Delete Members
+            Update
           </ButtonCustomize>
         </Box>
         <Box>
-          <ButtonCustomize variant="contained">Create Members</ButtonCustomize>
+          <ButtonCustomize variant="outlined">Cancel</ButtonCustomize>
         </Box>
       </EditMemberAction>
     </EditMemberContainer>

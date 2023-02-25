@@ -140,6 +140,7 @@ export const Members = () => {
   const onChangePagination = ({ page, size }) => {
     const newPayloadRequest = { ...payloadRequest, paging: { page, size } };
     fetchMembers(newPayloadRequest);
+    console.log(newPayloadRequest);
     setPayloadRequest({
       ...payloadRequest,
       paging: { page: paging.page, size: paging.size },
