@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import {
   StyledTextField,
@@ -98,6 +98,18 @@ export const ModalCreateMember = ({ open, onClose }) => {
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
+  
+  const watchFieldsInModalCreateMember = () => {
+    let isEnable = false;
+
+    const field = useWatch({control});
+    if(field?.email && field?.password && field?.role) {
+      isEnable = false;
+    } else {
+      isEnable = true;
+    }
+    return isEnable;
+  }    
 
   const onSubmit = async (data) => {
     try {
@@ -143,7 +155,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <CreateMemberInputContainer>
-              <StyledLabelTextField component="span">
+              <StyledLabelTextField>
                 Email <span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput
@@ -158,7 +170,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
                     {...field}
                     fullWidth
                     size="small"
-                    type="text"
+                    type="email"
                     placeholder="Enter email"
                   />
                 )}
@@ -215,7 +227,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
             <ButtonCustomize variant="outlined" autoFocus handleClick={handleClose}>
               Cancel
             </ButtonCustomize>
-            <ButtonCustomize variant="contained" type="submit">Create</ButtonCustomize>
+            <ButtonCustomize variant="contained" type="submit" disabled={watchFieldsInModalCreateMember()} >Create</ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>
       </CreateMemberFormWrapper>

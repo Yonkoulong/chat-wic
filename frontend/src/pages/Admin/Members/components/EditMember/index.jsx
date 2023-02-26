@@ -1,4 +1,6 @@
 import React from "react";
+import { useForm, useWatch } from "react-hook-form";
+
 import { TextField, ButtonCustomize, Box } from "@/shared/components";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
@@ -20,7 +22,38 @@ import {
 } from "./EditMember.styles";
 import { blackColor } from '@/shared/utils/colors.utils'
 
+const defaultValues = {
+  lastName: "",
+  firstName: "",
+  username: "",
+  email: "",
+  organization: 0,
+  password: "",
+  userStatus: "",
+  avatar: "",
+  role: ""
+}
+
 export const EditMember = () => {
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues });
+
+  const watchFieldsInModalCreateMember = () => {
+    let isEnable = false;
+
+    const field = useWatch({control});
+    if(field?.role && field?.userStatus && field?.password) {
+      isEnable = false;
+    } else {
+      isEnable = true;
+    }
+    return isEnable;
+  }    
+
   return (
     <EditMemberContainer>
       <Breadcrumbs aria-label="breadcrumb">
@@ -199,7 +232,7 @@ export const EditMember = () => {
           </ButtonCustomize>
         </Box>
         <Box>
-          <ButtonCustomize variant="outlined">Cancel</ButtonCustomize>
+          <ButtonCustomize variant="outlined" disabled={watchFieldsInModalCreateMember()}>Cancel</ButtonCustomize>
         </Box>
       </EditMemberAction>
     </EditMemberContainer>

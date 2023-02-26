@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, redirect } from 'react-router-dom';
+import { useAppStore } from '@/stores/AppStore';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowRoles = [] }) => {
+
     const [isLogged, setIsLogged] = useState();
 
     useEffect(() => {
-        const getUserLogged = localStorage.getItem("user_info");
-       setTimeout(()=> setIsLogged(!!getUserLogged), 3000)
+        const getUserLogged = localStorage.getItem("token");
+       setTimeout(()=> setIsLogged(!!getUserLogged), 500)
     },[]);
 
     if(isLogged === undefined) {
@@ -17,7 +19,7 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/signin"/>
     }
 
-    return children
+    return children;
 }
 
 export default ProtectedRoute

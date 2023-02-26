@@ -47,8 +47,8 @@ export const SignIn = () => {
       if(respData) {
         setUserInfo(respData?.data);
         localStorage.setItem('token', respData?.data?.token);
-        toast.success("Sign in successfully.");
         redirectTo("/admin");
+        toast.success("Sign in successfully.");
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

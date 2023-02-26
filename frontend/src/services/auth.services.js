@@ -1,7 +1,7 @@
-import { requestAxios } from "./http";
+import { requestAxios, noTokenAxios } from "./http";
 
 export async function postSignIn(payload) {
-  return requestAxios.post("/login", payload);
+  return noTokenAxios.post("/login", payload);
 }
 
 export async function postSignUpOrganization(payload) {

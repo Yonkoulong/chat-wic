@@ -1,45 +1,56 @@
-import { AuthView } from '@/pages/Auth';
-import { ChatHome } from '@/pages/ChatView/ChatHome';
-import { AdminPage } from '@/pages/Admin';
-import { Dashboard } from '@/pages/Admin/Dashboard';
-import { Members } from '@/pages/Admin/Members';
-import { EditMember } from '@/pages/Admin/Members/components/EditMember';
-import { createBrowserRouter } from 'react-router-dom';
-
+import { AuthView } from "@/pages/Auth";
+import { ChatHome } from "@/pages/ChatView/ChatHome";
+import { AdminPage } from "@/pages/Admin";
+import { Dashboard } from "@/pages/Admin/Dashboard";
+import { Members } from "@/pages/Admin/Members";
+import { EditMember } from "@/pages/Admin/Members/components/EditMember";
+import { PageNotFound } from "@/pages/404";
+import { ProtectedRoute, AuthorizationRoute } from "@/shared/HOC";
+import { enumRoles } from "@/shared/utils/constant";
 
 export const routes = [
   {
     path: "/",
-    element: <div>Hello</div>
+    element: <div>Hello</div>,
   },
   {
     path: "/signup",
-    element: <AuthView />
+    element: <AuthView />,
   },
   {
     path: "/signin",
-    element: <AuthView />
+    element: <AuthView />,
   },
   {
     path: "/home",
-    element: <ChatHome />
+    element: <ChatHome />,
   },
   {
-    path: '/admin',
-    element: <AdminPage />,
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <AuthorizationRoute allowRoles={[enumRoles.ADMIN]}>
+          <AdminPage />
+        </AuthorizationRoute>
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: '/admin/dashboard',
-        element: <Dashboard />
+        path: "/admin/dashboard",
+        element: <Dashboard />,
       },
       {
-        path: '/admin/members',
+        path: "/admin/members",
         element: <Members />,
-      }, 
+      },
       {
-        path: '/admin/members/:id',
-        element: <EditMember />
-      }
-    ]
+        path: "/admin/members/:id",
+        element: <EditMember />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <PageNotFound />,
   },
 ];

@@ -36,3 +36,9 @@ export const formatDate = (date) => {
 
   return moment(date).format("DD-MM-YYYY");
 };
+
+export const enumRoles = {
+  STAFF: "STAFF",
+  PROJECT_MANAGER: "PROJECT_MANAGER",
+  ADMIN: "ADMIN"
+}

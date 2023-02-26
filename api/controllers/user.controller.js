@@ -20,6 +20,18 @@ const {
 const bcrypt = require("bcrypt");
 
 const postUsersWithOrganizeId = async (req, res) => {
+  const token = req?.headers?.authorization || req?.headers?.Authorization;
+  const userData = verifyToken(convertToken(token));
+  
+  const currentUser = userData?.data;
+  console.log(currentUser);
+
+  if (!currentUser  || currentUser?.role !== USER_ROLES.admin) {
+    return res
+      .status(httpCode.unauthorize)
+      .json(responseError.userUnauthorized);
+  }
+
   const {
     organizeId,
     paging,
