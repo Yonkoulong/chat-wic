@@ -16,7 +16,12 @@ export const EditMemberContent = styled(Box)`
 export const EditMemberContentHead = styled(Box)`
     display: flex;
     align-items: center;
-`;
+    justify-content: space-between`;
+
+export const EditMemberContentHeadItem = styled(Box)`
+    display: flex;
+    align-items: center;
+`
 
 export const EditMemberContentTitle = styled(Typography)`
     ${({ theme }) => css`
@@ -28,6 +33,10 @@ export const EditMemberContentTitle = styled(Typography)`
     `}
 `;
 
+export const EditMemberContentForm = styled('form')`
+   
+`
+
 export const EditMemberContentInfo = styled(Box)`
     margin-top: 32px;
     border: 3px solid ${borderColor};
@@ -37,6 +46,7 @@ export const EditMemberContentInfo = styled(Box)`
     flex-direction: column;
     gap: 24px;
 `;
+
 
 export const EditMemberInfoRow = styled(Box)`
     display: flex;
@@ -51,9 +61,12 @@ export const EditMemberInfoItemTitle = styled(Typography)(({ props }) => ({
 }));
 
 
-export const EditMemberInfoItemValue = styled(Box)``;
+export const EditMemberInfoItemValue = styled(Box)`
+    width: 50%;
+`;
 
 export const EditMemberAction = styled(Box)`
         display: flex;
         align-items: center;
+        margin-top: 24px;
 `;

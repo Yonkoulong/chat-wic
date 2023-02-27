@@ -30,6 +30,7 @@ import {
 } from "@/shared/utils/constant";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
+import { PopUpConfirm } from '@/shared/components/Popup';
 
 const getHeadCellMembersListing = (props) => [
   {
@@ -102,7 +103,8 @@ export const Members = () => {
     paging: { page: 1, size: 10 },
   });
   const [openCreateMemberModal, setOpenCreateMemberModal] = useState(false);
-
+  const [openPopupConfirm, setOpenPopupConfirm] = useState(false)
+;
   const handleClickOpenModalCreateMember = () => {
     setOpenCreateMemberModal(true);
   };
@@ -246,9 +248,9 @@ export const Members = () => {
                   <TableCell onClick={() => redirectTo(`/admin/members/${member?._id}`)} sx={{cursor: "pointer", userSelect: "none"}}>
                     <Typography>{member?.userStatus || "-"}</Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell >
                     <IconButton>
-                      <DeleteOutlineIcon />
+                      <DeleteOutlineIcon onClick={() => setOpenPopupConfirm(true)}/>
                     </IconButton>
                   </TableCell>
                 </>
@@ -257,7 +259,13 @@ export const Members = () => {
           </CommonTable>
         </MemberContentBody>
       </MemberContent>
-
+      {/* Popup confirm when delete member */}
+      <PopUpConfirm 
+        open={openPopupConfirm}
+        onCancel={() => console.log("cancel")}
+        onConfirm={() => console.log("test")}
+        content="Are you sure to delete member!"
+      />
       {/* modal create member */}
       <ModalCreateMember
         open={openCreateMemberModal}

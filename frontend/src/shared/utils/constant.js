@@ -42,3 +42,8 @@ export const enumRoles = {
   PROJECT_MANAGER: "PROJECT_MANAGER",
   ADMIN: "ADMIN"
 }
+
+export const enumMemberStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE"
+}

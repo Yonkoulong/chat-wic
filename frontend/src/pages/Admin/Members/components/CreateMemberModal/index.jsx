@@ -21,7 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { createMember } from "@/services/member.service";
 import { useMemberStore } from "@/stores/MemberStore";
-
+import { enumRoles } from "@/shared/utils/constant";
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
@@ -68,19 +68,14 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export const USER_ROLES = {
-  staff: "STAFF",
-  projectManager: "PROJECT_MANAGER",
-};
-
 const roles = [
   {
     label: "Staff",
-    value: USER_ROLES.staff,
+    value: enumRoles.STAFF,
   },
   {
     label: "Project Manager",
-    value: USER_ROLES.projectManager,
+    value: enumRoles.PROJECT_MANAGER,
   },
 ];
 
@@ -121,7 +116,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
           organizeId: "63e9e5d0a831c1390cd043db",
           id: "",
           email: "",
-          pagination: { page: 1, size: 10 },
+          paging: { page: 1, size: 10 },
         });
         toast.success("Create member successfully.");
         handleClose();

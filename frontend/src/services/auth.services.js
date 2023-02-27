@@ -7,3 +7,7 @@ export async function postSignIn(payload) {
 export async function postSignUpOrganization(payload) {
   return requestAxios.post("/organize/register", payload);
 }
+
+export async function getRefreshToken() {
+  return requestAxios.get("/user/refresh-token");
+}

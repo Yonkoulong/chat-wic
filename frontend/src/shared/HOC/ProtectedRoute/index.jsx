@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, redirect } from 'react-router-dom';
-import { useAppStore } from '@/stores/AppStore';
 
-const ProtectedRoute = ({ children, allowRoles = [] }) => {
+const ProtectedRoute = ({ children }) => {
 
     const [isLogged, setIsLogged] = useState();
 
@@ -22,4 +21,4 @@ const ProtectedRoute = ({ children, allowRoles = [] }) => {
     return children;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;
