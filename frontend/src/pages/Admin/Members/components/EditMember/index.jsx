@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useParams } from 'react-router-dom';
 
 import {
   TextField,
@@ -31,7 +32,7 @@ import {
 } from "./EditMember.styles";
 
 import { enumRoles, enumMemberStatus } from "@/shared/utils/constant";
-
+import { getMemberDetail } from "@/services/member.service";
 const defaultValues = {
   lastName: "",
   firstName: "",
@@ -73,6 +74,8 @@ export const EditMember = () => {
     formState: { errors },
   } = useForm({ defaultValues });
 
+  const { id } = useParams();
+  console.log(id);
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
 
@@ -84,6 +87,18 @@ export const EditMember = () => {
     }
     return isEnable;
   };
+
+  useEffect(() => {
+    (async() => {
+      try {
+        debugger
+        const resp = await getMemberDetail(id);
+        console.log(resp);
+      } catch (error) {
+        
+      }
+    })();
+  }, []);
 
   const onSubmit = async (data) => {
     try {

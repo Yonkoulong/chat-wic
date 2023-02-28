@@ -24,7 +24,6 @@ const postUsersWithOrganizeId = async (req, res) => {
   const userData = verifyToken(convertToken(token));
   
   const currentUser = userData?.data;
-  console.log(currentUser);
 
   if (!currentUser  || currentUser?.role !== USER_ROLES.admin) {
     return res
@@ -318,6 +317,7 @@ const deleteUserByUserIds = async (req, res) => {
 const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
+  console.log(userData);
   const currentUser = userData?.data;
   if (currentUser) {
     const respData = {
@@ -366,7 +366,7 @@ module.exports = [
     routeName: "/user/delete",
   },
   {
-    method: "get",
+    method: "post",
     controller: getRefreshToken,
     routeName: "/user/refresh-token",
   },

@@ -9,5 +9,5 @@ export async function postSignUpOrganization(payload) {
 }
 
 export async function getRefreshToken() {
-  return requestAxios.get("/user/refresh-token");
+  return requestAxios.post("/user/refresh-token", {});
 }

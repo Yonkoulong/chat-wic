@@ -9,4 +9,6 @@ export async function getMembersByOrganizeId(payload) {
     return requestAxios.post("/users", payload)
 }
 
- 
+export async function getMemberDetail(id) {
+    return requestAxios.get(`/user/${id}`);
+}

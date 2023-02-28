@@ -32,13 +32,13 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
-        // const resp = await getRefreshToken();
-        // // console.log(resp);
-        // if(resp) {
-        //   console.log(resp);
-        // }
+        const resp = await getRefreshToken();
+        // console.log(resp);
+        if(resp) {
+          console.log(resp);
+        }
       } catch (error) {
-        
+        console.log(error);
       }
     })();
   }, [])
