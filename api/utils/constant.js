@@ -34,6 +34,9 @@ const responseError = {
   lengthPassword: { content: "Password must be great than 8 character." },
   invalidEmail: { content: "Invalid email." },
   invalidToken: { content: "Your session has expired. Please login again." },
+  invalidEmailCase2: {
+    content: "The email domain must be belong domain to the organization.",
+  },
 };
 
 const responseConstant = {

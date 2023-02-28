@@ -22,10 +22,10 @@ const bcrypt = require("bcrypt");
 const postUsersWithOrganizeId = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
-  
+
   const currentUser = userData?.data;
 
-  if (!currentUser  || currentUser?.role !== USER_ROLES.admin) {
+  if (!currentUser || currentUser?.role !== USER_ROLES.admin) {
     return res
       .status(httpCode.unauthorize)
       .json(responseError.userUnauthorized);
@@ -197,7 +197,9 @@ const postUser = async (req, res) => {
     const domainOrganization = currentUser?.email?.split("@")[1];
     const domainNewUser = email?.split("@")[1];
     if (domainNewUser !== domainOrganization) {
-      return res.status(httpCode.badRequest).json(responseError.invalidEmail);
+      return res
+        .status(httpCode.badRequest)
+        .json(responseError.invalidEmailCase2);
     }
   }
 
@@ -317,7 +319,7 @@ const deleteUserByUserIds = async (req, res) => {
 const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
-  console.log(userData);
+  console.log(token);
   const currentUser = userData?.data;
   if (currentUser) {
     const respData = {
