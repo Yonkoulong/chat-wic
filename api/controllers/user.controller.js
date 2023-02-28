@@ -11,6 +11,7 @@ const {
   responseConstant,
   minLengthPassword,
   calculateTotalPage,
+  formatResponse
 } = require("../utils/constant");
 const {
   isObjectIdInMongodb,
@@ -120,7 +121,8 @@ const getUserDetail = async (req, res) => {
       // match user
       const user = await User.find({ _id: convertId });
       if (isArray(user) && user.length > 0) {
-        return res.status(httpCode.ok).json(user[0]);
+        
+        return res.status(httpCode.ok).json(formatResponse(user[0]));
       } else {
         return res.status(httpCode.notFound).json(responseError.notFound);
       }
@@ -319,7 +321,7 @@ const deleteUserByUserIds = async (req, res) => {
 const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
-  console.log(token);
+  
   const currentUser = userData?.data;
   if (currentUser) {
     const respData = {

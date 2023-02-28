@@ -4,6 +4,7 @@ import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
 
+import {  toast } from 'react-toastify';
 import { getRefreshToken } from '@/services/auth.services';
 import { useAppStore } from '@/stores/AppStore';
 
@@ -33,12 +34,12 @@ function App() {
     (async () => {
       try {
         const resp = await getRefreshToken();
-        // console.log(resp);
         if(resp) {
-          console.log(resp);
+          setUserInfo(resp?.data?.content);
         }
       } catch (error) {
-        console.log(error);
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
       }
     })();
   }, [])

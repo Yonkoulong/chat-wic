@@ -83,6 +83,14 @@ const calculateTotalPage = (allRecord = 10, record = 10) => {
   return Math.ceil(allRecord / record);
 };
 
+const formatResponse = (response) => {
+  const data = {
+    content: response
+  }
+
+  return data;
+}
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -99,4 +107,5 @@ module.exports = {
   minLengthPassword,
   calculateTotalPage,
   MESSAGE_TYPES,
+  formatResponse
 };

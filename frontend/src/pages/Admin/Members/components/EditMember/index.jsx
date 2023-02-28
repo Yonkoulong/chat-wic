@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 import {
   TextField,
@@ -13,6 +13,7 @@ import {
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import { primaryColor, blackColor } from "@/shared/utils/colors.utils";
+import { toast } from "react-toastify";
 
 import {
   LinkStyled,
@@ -28,22 +29,13 @@ import {
   EditMemberAction,
   EditMemberContentForm,
   EditMemberContentHeadItem,
-  
 } from "./EditMember.styles";
 
-import { enumRoles, enumMemberStatus } from "@/shared/utils/constant";
-import { getMemberDetail } from "@/services/member.service";
-const defaultValues = {
-  lastName: "",
-  firstName: "",
-  username: "",
-  email: "",
-  organization: 0,
-  password: "",
-  userStatus: "",
-  avatar: "",
-  role: "",
-};
+import {
+  enumRoles,
+  formatDate,
+} from "@/shared/utils/constant";
+import { getMemberDetail, putUserDetail } from "@/services/member.service";
 
 const roles = [
   {
@@ -56,31 +48,22 @@ const roles = [
   },
 ];
 
-const memberStatus = [
-  {
-    label: "Active",
-    value: enumMemberStatus.ACTIVE,
-  },
-  {
-    label: "Inactive",
-    value: enumMemberStatus.INACTIVE,
-  },
-];
-
 export const EditMember = () => {
+  const { id } = useParams();
+  const [memberInfo, setMemberInfo] = useState({});
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues });
+    setValue,
+  } = useForm();
 
-  const { id } = useParams();
-  console.log(id);
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (field?.role && field?.userStatus) {
+    if (field?.role) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -89,23 +72,45 @@ export const EditMember = () => {
   };
 
   useEffect(() => {
-    (async() => {
+    (async () => {
       try {
-        debugger
         const resp = await getMemberDetail(id);
-        console.log(resp);
+        if (resp) {
+          setMemberInfo(resp?.data?.content);
+          setValue('role', resp?.data?.content?.role);
+        }
       } catch (error) {
-        
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
       }
     })();
   }, []);
 
   const onSubmit = async (data) => {
     try {
-      console.log(data);
-    } catch (error) {}
+      if(memberInfo) {
+
+        const payload = {
+          ...memberInfo, role: data?.role
+        }
+
+        const resp = await putUserDetail(payload);
+
+        if(resp) {
+          toast.success('Update member infor successfully!');
+        }
+      }
+
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    }
   };
 
+  const handleResetPassword = () => {
+    
+  }
+  
   return (
     <EditMemberContainer>
       <Breadcrumbs aria-label="breadcrumb">
@@ -134,7 +139,9 @@ export const EditMember = () => {
           </EditMemberContentHeadItem>
 
           <EditMemberContentHeadItem>
-            <ButtonCustomize variant="contained">Reset Password</ButtonCustomize>
+            <ButtonCustomize variant="contained">
+              Reset Password
+            </ButtonCustomize>
           </EditMemberContentHeadItem>
         </EditMemberContentHead>
 
@@ -150,7 +157,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={memberInfo?.id || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -163,7 +171,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={memberInfo?.firstName || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -179,7 +188,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={memberInfo?.email || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -192,7 +202,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={memberInfo?.lastName || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -212,7 +223,7 @@ export const EditMember = () => {
                     required={true}
                   >
                     {(field) => (
-                      <Select {...field} fullWidth size="small">
+                      <Select {...field} fullWidth size="small" value={memberInfo?.role || field.value}>
                         {roles.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.label}
@@ -232,7 +243,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={formatDate(memberInfo?.updatedAt) || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -241,13 +253,14 @@ export const EditMember = () => {
             <EditMemberInfoRow>
               <EditMemberInfoItem>
                 <EditMemberInfoItemTitle props="disabled">
-                  Gender <span style={{ color: "red" }}>*</span>
+                  Username <span style={{ color: "red" }}>*</span>
                 </EditMemberInfoItemTitle>
                 <EditMemberInfoItemValue>
                   <TextField
                     id="standard-input"
                     variant="standard"
-                    defaultValue="Male"
+                    fullWidth
+                    value={memberInfo?.username || "-"}
                     disabled
                   />
                 </EditMemberInfoItemValue>
@@ -261,7 +274,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={formatDate(memberInfo?.createdAt) || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
@@ -273,23 +287,13 @@ export const EditMember = () => {
                   Status <span style={{ color: "red" }}>*</span>
                 </EditMemberInfoItemTitle>
                 <EditMemberInfoItemValue>
-                  <ControllerInput
-                    control={control}
-                    errors={errors}
-                    fieldNameErrorMessage="Status Member"
-                    fieldName="userStatus"
-                    required={true}
-                  >
-                    {(field) => (
-                      <Select {...field} fullWidth size="small">
-                        {memberStatus.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    )}
-                  </ControllerInput>
+                  <TextField
+                    disabled
+                    id="standard-input"
+                    variant="standard"
+                    fullWidth
+                    value={memberInfo?.userStatus || "-"}
+                  />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>
               <EditMemberInfoItem>
@@ -301,7 +305,8 @@ export const EditMember = () => {
                     disabled
                     id="standard-input"
                     variant="standard"
-                    defaultValue="#1"
+                    fullWidth
+                    value={formatDate(memberInfo?.createdAt) || "-"}
                   />
                 </EditMemberInfoItemValue>
               </EditMemberInfoItem>

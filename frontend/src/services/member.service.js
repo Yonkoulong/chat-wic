@@ -12,3 +12,15 @@ export async function getMembersByOrganizeId(payload) {
 export async function getMemberDetail(id) {
     return requestAxios.get(`/user/${id}`);
 }
+
+export async function putUserDetail(payload) {
+    return requestAxios.put(`/user/${payload?.id}/update-profile`, payload);
+}
+
+export async function getResetPasswordByUserId(id) {
+    return requestAxios.get(`/user/${id}/reset-password`);
+}
+
+export async function deleteUserByUserIds(payload) {
+    return requestAxios.delete("/user/delete", payload);
+}
