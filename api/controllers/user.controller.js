@@ -293,13 +293,15 @@ const getResetPasswordByUserId = async (req, res) => {
 
 const deleteUserByUserIds = async (req, res) => {
   const { ids } = req.body;
-
+  
   if (!isArray(ids)) {
     return res.status(httpCode.badRequest).json(responseError.wrongPayload);
   }
 
   const token = req?.headers?.authorization;
-  const currentUser = verifyToken(convertToken(token));
+  console.log(token);
+  const respToken = verifyToken(convertToken(token));
+  const currentUser = respToken?.data;
   if (currentUser?.role !== USER_ROLES.admin) {
     return res
       .status(httpCode.unauthorize)

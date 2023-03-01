@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
@@ -23,7 +24,7 @@ import { blackColor } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
 import { MemberSearchField } from "./components/MemberSearchField";
 import { ModalCreateMember } from "./components/CreateMemberModal";
-import { getMembersByOrganizeId } from "@/services/member.service";
+import { deleteUserByUserIds } from "@/services/member.service";
 import {
   MAX_HEIGHT_TABLE,
   formatDate,
@@ -109,9 +110,28 @@ export const Members = () => {
     setOpenCreateMemberModal(true);
   };
 
-  const handleCloseOpenModalCreateMember = () => {
-    setOpenCreateMemberModal(false);
-  };
+  const handleDeleteMember = async () => {
+    if(membersSelected && Array.isArray(membersSelected)) {
+      try {
+        const resp = await deleteUserByUserIds({ids: membersSelected});
+        setMembersSelected([]);
+        fetchMembers(payloadRequest);
+        toast.success('Delete member successfully!')
+      } catch (error) {
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
+      }
+    }
+  }
+
+  const handleClickOpenModalDeleteMember = (ids) => {
+    setOpenPopupConfirm(true);
+    setMembersSelected([...membersSelected, ids]);
+  }
+
+  const handleClosePopupDeleteMember = () => {
+    setOpenPopupConfirm(false);
+  }
 
   useEffect(() => {
    setLoading(true);
@@ -122,6 +142,9 @@ export const Members = () => {
         ...payloadRequest,
         paging: { page: paging.page, size: paging.size },
       });
+    } catch(error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
     } finally {
       //setLoading(false);
     }
@@ -187,6 +210,7 @@ export const Members = () => {
               <ButtonCustomize
                 variant="contained"
                 disabled={membersSelected?.length < 1}
+                onClick={() => handleDeleteMember()}
               >
                 Delete Members
               </ButtonCustomize>
@@ -248,8 +272,8 @@ export const Members = () => {
                     <Typography>{member?.userStatus || "-"}</Typography>
                   </TableCell>
                   <TableCell >
-                    <IconButton>
-                      <DeleteOutlineIcon onClick={() => setOpenPopupConfirm(true)}/>
+                    <IconButton onClick={() => handleClickOpenModalDeleteMember(member?.id)}>
+                      <DeleteOutlineIcon />
                     </IconButton>
                   </TableCell>
                 </>
@@ -261,8 +285,8 @@ export const Members = () => {
       {/* Popup confirm when delete member */}
       <PopUpConfirm 
         open={openPopupConfirm}
-        onCancel={() => console.log("cancel")}
-        onConfirm={() => console.log("test")}
+        onCancel={handleClosePopupDeleteMember}
+        onConfirm={() => handleDeleteMember()}
         content="Are you sure to delete member!"
       />
       {/* modal create member */}

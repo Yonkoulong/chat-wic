@@ -14,7 +14,7 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import { primaryColor, blackColor } from "@/shared/utils/colors.utils";
 import { toast } from "react-toastify";
-
+import { redirectTo } from '@/shared/utils/history';
 import {
   LinkStyled,
   EditMemberContainer,
@@ -132,6 +132,8 @@ export const EditMember = () => {
                   cursor: "pointer",
                 },
               }}
+
+              onClick={() => redirectTo('/admin/members')}
             />
             <EditMemberContentTitle variant="h4" component="h3">
               Edit Member
@@ -223,9 +225,9 @@ export const EditMember = () => {
                     required={true}
                   >
                     {(field) => (
-                      <Select {...field} fullWidth size="small" value={memberInfo?.role || field.value}>
+                      <Select {...field} fullWidth size="small" value={field?.value || ""}>
                         {roles.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
+                          <MenuItem key={option.value} value={option.value || ""}>
                             {option.label}
                           </MenuItem>
                         ))}

@@ -22,5 +22,6 @@ export async function getResetPasswordByUserId(id) {
 }
 
 export async function deleteUserByUserIds(payload) {
-    return requestAxios.delete("/user/delete", payload);
+    console.log(payload);
+    return requestAxios.delete("/user/delete", { data: payload });
 }
