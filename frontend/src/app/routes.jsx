@@ -52,7 +52,11 @@ export const routes = [
   },
   {
     path: '/chat',
-    element: <ProtectedRoute><ChatView /></ProtectedRoute>,
+    element: (
+      <ProtectedRoute>
+        <ChatView />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: '',

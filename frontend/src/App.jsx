@@ -4,9 +4,6 @@ import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
 
-import {  toast } from 'react-toastify';
-import { getRefreshToken } from '@/services/auth.services';
-import { useAppStore } from '@/stores/AppStore';
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -28,21 +25,7 @@ const CustomRouter = ({ basename, children, history }) => {
 
 
 function App() {
-  const setUserInfo = useAppStore((state) => state.setUserInfo);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const resp = await getRefreshToken();
-        if(resp) {
-          setUserInfo(resp?.data?.content);
-        }
-      } catch (error) {
-        const errorMessage = error?.response?.data?.content;
-        toast.error(errorMessage);
-      }
-    })();
-  }, [])
+  
 
   return (
     <ThemeProvider>

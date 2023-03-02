@@ -4,4 +4,6 @@ export const blackColor = '#000000';
 export const whiteColor = '#ffffff';
 export const borderColor = '#D8DDE2';
 export const inActiveColor = '#B4BAC0';
+export const hoverItemSidebarColor = "#1f2329";
+export const textColorItemSidebar = "#9ea2a8";
 
