@@ -23,7 +23,7 @@ const isAuthorizeRoleProjectManager = async (req, res, next) => {
   const userData = verifyToken(convertToken(token));
 
   const currentUser = userData?.data;
-  if (currentUser && currentUser?.role === USER_ROLES.projectManager) {
+  if (currentUser && currentUser?.role !== USER_ROLES.staff) {
     next();
   }
 

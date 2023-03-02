@@ -11,7 +11,7 @@ const {
   responseConstant,
   minLengthPassword,
   calculateTotalPage,
-  formatResponse
+  formatResponse,
 } = require("../utils/constant");
 const {
   isObjectIdInMongodb,
@@ -121,7 +121,6 @@ const getUserDetail = async (req, res) => {
       // match user
       const user = await User.find({ _id: convertId });
       if (isArray(user) && user.length > 0) {
-        
         return res.status(httpCode.ok).json(formatResponse(user[0]));
       } else {
         return res.status(httpCode.notFound).json(responseError.notFound);
@@ -178,7 +177,7 @@ const putUserDetail = async (req, res) => {
   }
 };
 
-const postUser = async (req, res) => {
+const posCreateUser = async (req, res) => {
   const { email, password, role } = req?.body;
 
   if (!email || !password) {
@@ -293,7 +292,7 @@ const getResetPasswordByUserId = async (req, res) => {
 
 const deleteUserByUserIds = async (req, res) => {
   const { ids } = req.body;
-  
+
   if (!isArray(ids)) {
     return res.status(httpCode.badRequest).json(responseError.wrongPayload);
   }
@@ -323,7 +322,7 @@ const deleteUserByUserIds = async (req, res) => {
 const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
-  
+
   const currentUser = userData?.data;
   if (currentUser) {
     const respData = {
@@ -353,7 +352,7 @@ module.exports = [
   },
   {
     method: "post",
-    controller: postUser,
+    controller: posCreateUser,
     routeName: "/user/create",
   },
   {

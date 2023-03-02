@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const messageDirectController = require("../controllers/message_direct.controller");
+const channelController = require("../controllers/channel.controller");
 
-messageDirectController.forEach((item) => {
+channelController.forEach((item) => {
   const { method, routeName, controller } = item;
   if (item?.isAuthorizeRoleAdmin) {
     router[method](routeName, AuthMiddleware.isAuthorizeRoleAdmin, controller);
