@@ -1,11 +1,22 @@
 const express = require("express");
 const router = express.Router();
+const AuthMiddleware = require("../middleware/isAuthorize");
 
 const auController = require("../controllers/auth.controller");
 
 auController.forEach((item) => {
   const { method, routeName, controller } = item;
-  router[method](routeName, controller);
+  if (item?.isAuthorizeRoleAdmin) {
+    router[method](routeName, AuthMiddleware.isAuthorizeRoleAdmin, controller);
+  } else if (item?.isAuthorizeRoleProjectManager) {
+    router[method](
+      routeName,
+      AuthMiddleware.isAuthorizeRoleProjectManager,
+      controller
+    );
+  } else {
+    router[method](routeName, controller);
+  }
 });
 
 module.exports = router;
