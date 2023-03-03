@@ -84,12 +84,13 @@ const calculateTotalPage = (allRecord = 10, record = 10) => {
 };
 
 const formatResponse = (response) => {
+  if (!response) return responseError.badRequest;
   const data = {
-    content: response
-  }
+    content: response,
+  };
 
   return data;
-}
+};
 
 module.exports = {
   httpCode,
@@ -107,5 +108,5 @@ module.exports = {
   minLengthPassword,
   calculateTotalPage,
   MESSAGE_TYPES,
-  formatResponse
+  formatResponse,
 };

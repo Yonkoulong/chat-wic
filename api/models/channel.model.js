@@ -8,7 +8,8 @@ const channelSchema = new Schema(
       type: String,
       required: false,
     },
-    userIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    userIds: [{ type: String, required: false }],
+    administratorsIds: [{ type: String, required: false }],
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false },
   },
   {

@@ -40,7 +40,17 @@ const postCreateChannel = async (req, res) => {
   }
 };
 
-const postGetChannelsByUserId = () => {};
+const postGetChannelsByUserId = async () => {
+  const { userId } = req?.params;
+  try {
+    const channelsByUserId = await ChannelModel.find({
+      userIds: { $in: [userId] },
+    });
+    return res.status(httpCode.ok).json(formatResponse(channelsByUserId));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
 
 module.exports = [
   {
