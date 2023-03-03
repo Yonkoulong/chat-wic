@@ -59,7 +59,15 @@ export const routes = [
     ),
     children: [
       {
-        path: '',
+        path: '/chat/home',
+        element: ''
+      },
+      {
+        path: '/chat/channel/:id',
+        element: ''
+      },
+      {
+        path: '/chat/direct/:id',
         element: ''
       }
     ]

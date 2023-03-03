@@ -1,11 +1,15 @@
 import React from 'react';
 import { RoomChatContainer } from './Room.styles';
 
+import { RoomHeader, RoomContent, BoxMessage } from './components';
+
 export const RoomChat = () => {
     
     return ( 
         <RoomChatContainer>
-            this is room
+            <RoomHeader />
+            <RoomContent />
+            <BoxMessage />
         </RoomChatContainer>
     )
 }

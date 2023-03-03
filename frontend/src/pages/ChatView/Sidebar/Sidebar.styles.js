@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { Box, Typography } from '@/shared/components';
-import { borderColor, whiteColor, hoverItemSidebarColor, textColorItemSidebar } from '@/shared/utils/colors.utils';
+import { blackColor, borderColor, whiteColor, hoverItemSidebarColor, textColorItemSidebar } from '@/shared/utils/colors.utils';
 
 export const SidebarContainer = styled(Box)`
     width: 20%;
@@ -33,6 +33,71 @@ export const SidebarHeaderItem = styled(Box)`
     }
 `
 
+export const SidebarHeaderAnchorUserInfo = styled(Box)`
+    border-radius: 10px;
+
+`;
+
+export const SidebarHeaderAnchorUserInfoWrapper = styled(Box)``
+
+export  const AnchorUserInfoHeader = styled(Box)`
+    padding: 16px;
+    border-bottom: 1px solid ${blackColor};
+
+    display: flex;
+    align-items: center;
+`
+
+export const AnchorUserInfoHeaderImage = styled('img')`
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+`
+
+export const AnchorUserInfoHeaderContent = styled(Box)`
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+`
+
+export const AnchorUserInfoTitle = styled(Box)``
+
+export const AnchorUserInfoTitleStatus = styled(Box)`
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    border: 1px solid ${borderColor};
+`;
+
+export const AnchorUserInfoTitleName = styled(Typography)`
+    
+`;
+
+export const AnchorUserInfoEmail = styled(Typography)`
+    ${() => css`
+        &&& {
+            color: #C7B8B8;
+        
+        }
+    `}
+`
+
+export const AnchorUserInfoBody = styled(Box)``
+
+export const AnchorUserInfoBodyTitle = styled(Box)``
+
+export const AnchorUserInfoBodyStatus = styled(Box)``
+
+export const AnchorUserInfoBodyText = styled(Box)``
+
+export const AnchorUserInfoBottom = styled(Box)``
+
+export const AnchorUserInfoBottomList = styled(Box)``
+
+export const AnchorUserInfoBottomItem = styled(Box)``
+
+export const AnchorUserInfoBottomItemText = styled(Typography)``
+
 export const SidebarHeaderItemImage = styled('img')`
     display: flex;
     width: 32px;
@@ -45,19 +110,21 @@ export const SidebarBody = styled(Box)`
 `
 
 export const SidebarBodyWrapper = styled(Box)`
-    padding: 24px 0px;
-    overflow: auto;
-    
-    -ms-overflow-style: 'none',  /* IE and Edge */
-    scrollbar-width: 'none',  /* Firefox */
+    ${() => css`
+        &&& {
+        padding: 24px 0px;
+        overflow: auto;
 
-    '&::-webkit-scrollbar' : {
-        display: none
+        -ms-overflow-style: none;/* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+
+        &::-webkit-scrollbar {
+            display: none
+        };
     }
+`}
 `
-
-
-
+    
 export const SidebarBodyList = styled(Box)`
     display: flex;
     flex-direction: column;
@@ -70,7 +137,7 @@ export const SidebarBodyItem = styled(Box)`
 
 export const SidebarBodyItemName = styled(Box)`
     display: flex;
-    align-item: center;
+    al}ign-item: center;
     padding: 0 16px;
 `
 
@@ -98,6 +165,7 @@ export const SidebarBodyItemRoomWrapper = styled(Box)`
 
     &:hover {
         background-color: ${hoverItemSidebarColor};
+        cursor: pointer;
     }
 `
 
