@@ -52,10 +52,22 @@ export const routes = [
   },
   {
     path: '/chat',
-    element: <ProtectedRoute><ChatView /></ProtectedRoute>,
+    element: (
+      <ProtectedRoute>
+        <ChatView />
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: '',
+        path: '/chat/home',
+        element: ''
+      },
+      {
+        path: '/chat/channel/:id',
+        element: ''
+      },
+      {
+        path: '/chat/direct/:id',
         element: ''
       }
     ]

@@ -1,0 +1,1 @@
+export { UilCommentMessageIcon } from '@/assets/icons/UilCommentMessageIcon';
