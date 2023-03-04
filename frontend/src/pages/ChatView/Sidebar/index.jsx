@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import Popover from "@mui/material/Popover";
 
-import { Box, Typography } from '@/shared/components';
+import { Box, Typography } from "@/shared/components";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MessageIcon from "@mui/icons-material/Message";
 import HomeIcon from "@mui/icons-material/Home";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SearchIcon from "@mui/icons-material/Search";
 import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import GridViewIcon from "@mui/icons-material/GridView";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-
+import { getChannelsByUser } from "@/services/channel.services";
+import { useAppStore } from "@/stores/AppStore";
+import { ModalCreateDirect, ModalCreateChannel } from '@/pages/ChatView/Components/Modal';
 import {
   SidebarContainer,
   SidebarWrapper,
@@ -34,11 +37,8 @@ import {
   SidebarFooterContent,
   SidebarFooterText,
   SidebarHeaderAnchorUserInfo,
-  SidebarHeaderAnchorUserInfoWrapper,
   AnchorUserInfoHeader,
   AnchorUserInfoHeaderImage,
-  AnchorUserInfoHeaderContent,
-  AnchorUserInfoTitle,
   AnchorUserInfoTitleStatus,
   AnchorUserInfoTitleName,
   AnchorUserInfoEmail,
@@ -47,20 +47,34 @@ import {
   AnchorUserInfoBodyStatus,
   AnchorUserInfoBodyText,
   AnchorUserInfoBottom,
-  AnchorUserInfoBottomList,
-  AnchorUserInfoBottomItem,
   AnchorUserInfoBottomItemText,
+  AnchorRoomTitle,
+  AnchorRoomWrapper,
+  AnchorRoomText,
 } from "./Sidebar.styles";
+import {
+  successColor,
+  errorColor,
+  primaryColor,
+} from "@/shared/utils/colors.utils";
+import { enumRoles } from "@/shared/utils/constant";
+import { redirectTo } from "@/shared/utils/history";
 
 const flexCenter = { display: "flex", alignItems: "center" };
 
 const Sidebar = () => {
+  const { userInfo } = useAppStore((state) => state);
+
   const [anchorUserInfo, setAnchorUserInfo] = useState(null);
   const [anchorRoom, setAnchorRoom] = useState(null);
   const [totalHeightSubtract, setTotalHeightSubtract] = useState(0);
+  const [openCreateChannelModal, setOpenCreateChannelModal] = useState(false);
+  const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] = useState(false);
 
   const SidebarHeaderRef = useRef(0);
   const SidebarBottomRef = useRef(0);
+  const [channels, setChannels] = useState([]);
+  const [directs, setDirects] = useState([]);
 
   const handleSetMaxHeightForSidebarBody = () => {
     if (SidebarHeaderRef.current && SidebarBottomRef.current) {
@@ -91,6 +105,16 @@ const Sidebar = () => {
     setAnchorRoom(null);
   };
 
+  const handleLogout = () => {};
+
+  const handleClickOpenModalCreateChannel = () => {
+    setOpenCreateChannelModal(true);
+  };
+
+  const handleClickOpenModalCreateDirect = () => {
+    setOpenCreateDirectMessageModal(true);
+  };
+
   const openAnchorUserInfo = Boolean(anchorUserInfo);
   const openAnchorRoom = Boolean(anchorRoom);
 
@@ -98,6 +122,18 @@ const Sidebar = () => {
     ? "anchor-user-info-popover"
     : undefined;
   const idAnchorRoom = openAnchorRoom ? "ancho-room-popover" : undefined;
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const payload = { userId: "63e9e5d0a831c1390cd043da" };
+        const respChannels = await getChannelsByUser(payload);
+        if (Array.isArray(respChannels?.data?.content)) {
+          setChannels(respChannels?.data?.content);
+        }
+      } catch {}
+    })();
+  }, []);
 
   return (
     <SidebarContainer>
@@ -118,12 +154,20 @@ const Sidebar = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
+                sx={{
+                  "& .MuiPaper-root": {
+                    borderRadius: "10px",
+                    top: '60px !important'
+                  },
+                }}
               >
                 <SidebarHeaderAnchorUserInfo>
                   <Box>
                     <AnchorUserInfoHeader>
                       <AnchorUserInfoHeaderImage src="/" />
-                      <Box sx={{ display: 'flex', flexDirection: 'column', ml: 1}}>
+                      <Box
+                        sx={{ display: "flex", flexDirection: "column", ml: 1 }}
+                      >
                         <Box sx={flexCenter}>
                           <AnchorUserInfoTitleStatus></AnchorUserInfoTitleStatus>
                           <AnchorUserInfoTitleName>
@@ -138,18 +182,56 @@ const Sidebar = () => {
 
                     <AnchorUserInfoBody>
                       <AnchorUserInfoBodyTitle>Status</AnchorUserInfoBodyTitle>
-                      <Box>
-                        <Box>
-                          <AnchorUserInfoBodyStatus></AnchorUserInfoBodyStatus>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                          margin: "8px 0 0",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            ":hover": {
+                              opacity: 0.8,
+                              cursor: "pointer",
+                            },
+                          }}
+                        >
+                          <AnchorUserInfoBodyStatus
+                            sx={{
+                              backgroundColor: successColor,
+                              border: "none",
+                            }}
+                          ></AnchorUserInfoBodyStatus>
                           <AnchorUserInfoBodyText>
                             online
                           </AnchorUserInfoBodyText>
                         </Box>
-                        <Box>
-                          <AnchorUserInfoBodyStatus></AnchorUserInfoBodyStatus>
-                          <AnchorUserInfoBodyText>Busy</AnchorUserInfoBodyText>
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            ":hover": {
+                              opacity: 0.8,
+                              cursor: "pointer",
+                            },
+                          }}
+                        >
+                          <AnchorUserInfoBodyStatus
+                            sx={{ backgroundColor: errorColor, border: "none" }}
+                          ></AnchorUserInfoBodyStatus>
+                          <AnchorUserInfoBodyText>busy</AnchorUserInfoBodyText>
                         </Box>
-                        <Box>
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            ":hover": {
+                              opacity: 0.8,
+                              cursor: "pointer",
+                            },
+                          }}
+                        >
                           <AnchorUserInfoBodyStatus></AnchorUserInfoBodyStatus>
                           <AnchorUserInfoBodyText>
                             offline
@@ -159,20 +241,57 @@ const Sidebar = () => {
                     </AnchorUserInfoBody>
 
                     <AnchorUserInfoBottom>
-                      <Box>
-                        <Box sx={flexCenter}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            ":hover": {
+                              color: primaryColor,
+                              cursor: "pointer",
+                            },
+                          }}
+                        >
                           <PersonIcon />
                           <AnchorUserInfoBottomItemText>
                             My account
                           </AnchorUserInfoBottomItemText>
                         </Box>
-                        <Box sx={flexCenter}>
-                          <GridViewIcon />
-                          <AnchorUserInfoBottomItemText>
-                            Admin management
-                          </AnchorUserInfoBottomItemText>
-                        </Box>
-                        <Box sx={flexCenter}>
+                        {userInfo?.role === enumRoles.ADMIN ? (
+                          <Box
+                            sx={{
+                              ...flexCenter,
+                              ":hover": {
+                                color: primaryColor,
+                                cursor: "pointer",
+                              },
+                            }}
+                            onClick={() => redirectTo("/admin")}
+                          >
+                            <GridViewIcon />
+                            <AnchorUserInfoBottomItemText>
+                              Admin management
+                            </AnchorUserInfoBottomItemText>
+                          </Box>
+                        ) : (
+                          <></>
+                        )}
+
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            ":hover": {
+                              color: primaryColor,
+                              cursor: "pointer",
+                            },
+                          }}
+                          onClick={() => handleLogout()}
+                        >
                           <KeyboardBackspaceIcon />
                           <AnchorUserInfoBottomItemText>
                             Logout
@@ -207,8 +326,55 @@ const Sidebar = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
+                sx={{
+                  "& .MuiPaper-root": {
+                    borderRadius: "10px",
+                    top: '56px !important'
+                  },
+                }}
               >
-                content
+                <Box
+                  sx={{
+                    padding: "16px",
+                  }}
+                >
+                  <AnchorRoomTitle>Create new</AnchorRoomTitle>
+                  <AnchorRoomWrapper>
+                    <Box
+                      sx={{
+                        ...flexCenter,
+                        ":hover": {
+                          color: primaryColor,
+                          cursor: "pointer",
+                        },
+                      }}
+
+                      onClick={handleClickOpenModalCreateChannel}
+                    >
+                      <Box component='h4' sx={{
+                        fontSize: "20px",
+                        fontWeight: 'bold',
+                        width: '24px',
+                        textAlign: 'center'
+                      }}>#</Box>
+                      <AnchorRoomText>Channel</AnchorRoomText>
+                    </Box>
+                    <Box
+                      sx={{
+                        ...flexCenter,
+                        ":hover": {
+                          color: primaryColor,
+                          cursor: "pointer",
+                        },
+                      }}
+
+                      onClick={handleClickOpenModalCreateDirect}
+                    >
+                      <ChatBubbleOutlineIcon />
+                      <AnchorRoomText>Direct message</AnchorRoomText>
+                    </Box>
+                  </AnchorRoomWrapper>
+                </Box>
               </Popover>
             </SidebarHeaderItem>
           </SidebarHeaderList>
@@ -225,11 +391,23 @@ const Sidebar = () => {
                   <SidebarBodyItemNameText>Channels</SidebarBodyItemNameText>
                 </SidebarBodyItemName>
                 <SidebarBodyItemRooms>
-                  <SidebarBodyItemRoomWrapper>
-                    <SidebarBodyItemRoomImage />
-                    <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
-                    <SidebarBodyItemRoomName>User-1</SidebarBodyItemRoomName>
-                  </SidebarBodyItemRoomWrapper>
+                  {channels.length > 0 &&
+                    channels.map((channel) => {
+                      return (
+                        <SidebarBodyItemRoomWrapper key={channel?._id}>
+                          <SidebarBodyItemRoomImage
+                            src="https://cdnimgen.vietnamplus.vn/uploaded/wbxx/2021_09_09/fourteen_foreign_tv_channels_to_end_broadcast_in_vietnam.jpg"
+                            alt="logo"
+                          />
+                          <SidebarBodyItemRoomStatus
+                            sx={{ backgroundColor: "red" }}
+                          />
+                          <SidebarBodyItemRoomName>
+                            {channel?.channelName || "-"}
+                          </SidebarBodyItemRoomName>
+                        </SidebarBodyItemRoomWrapper>
+                      );
+                    })}
                 </SidebarBodyItemRooms>
               </SidebarBodyItem>
 
@@ -269,6 +447,18 @@ const Sidebar = () => {
           </SidebarFooterWrapper>
         </SidebarFooter>
       </SidebarWrapper>
+
+      {/* modal create channel */}
+      <ModalCreateChannel
+        open={openCreateChannelModal}
+        onClose={setOpenCreateChannelModal}
+      />
+
+      {/* modal create direct */}
+      <ModalCreateDirect
+        open={openCreateDirectMessageModal}
+        onClose={setOpenCreateDirectMessageModal}
+      />
     </SidebarContainer>
   );
 };

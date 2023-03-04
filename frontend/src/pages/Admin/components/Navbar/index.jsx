@@ -26,9 +26,9 @@ export const Navbar = () => {
     <NavbarStyled>
       <NavbarListStyled>
         {navList.length > 0 &&
-          navList.map((item) => {
+          navList.map((item, index) => {
            return (
-            <NavbarItemStyled key={item}>
+            <NavbarItemStyled key={index}>
               <NavLinkCustomize
                 to={item.to}
                 icon={item.icon}

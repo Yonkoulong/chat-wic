@@ -90,7 +90,6 @@ const getHeadCellMembersListing = (props) => [
   },
 ];
 
-const organizeId = "63e9e5d0a831c1390cd043db";
 
 export const Members = () => {
   const { members, fetchMembers, paging, totalRecord, loading, setLoading} = useMemberStore((state) => state);
@@ -98,7 +97,7 @@ export const Members = () => {
 
   const [membersSelected, setMembersSelected] = useState([]);
   const [payloadRequest, setPayloadRequest] = useState({
-    organizeId,
+    organizeId: userInfo?.organizeId,
     id: "",
     email: "",
     paging: { page: 1, size: 10 },

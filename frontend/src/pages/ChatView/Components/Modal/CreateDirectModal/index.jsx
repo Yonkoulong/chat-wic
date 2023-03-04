@@ -28,7 +28,7 @@ import {
   CreateMemberForm,
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
-} from "./CreateMemberModal";
+} from "./CreateDirectModal.styles";
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -86,7 +86,7 @@ const defaultValues = {
   role: "",
 };
 
-export const ModalCreateMember = ({ open, onClose }) => {
+export const ModalCreateDirect = ({ open, onClose }) => {
   const { fetchMembers, setLoading } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
 

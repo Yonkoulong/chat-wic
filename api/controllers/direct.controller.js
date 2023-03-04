@@ -40,11 +40,11 @@ const postCreateDirect = async (req, res) => {
   }
 };
 
-const postGetDirectsByUserId = async () => {
+const postGetDirectsByUserId = async (req, res) => {
   const { userId } = req?.params;
   try {
     const channelsByUserId = await DirectModel.find({
-      userIds: { $eq: userId },
+      userIds: { $in: [userId] },
     });
     return res.status(httpCode.ok).json(formatResponse(channelsByUserId));
   } catch {

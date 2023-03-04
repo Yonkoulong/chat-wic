@@ -13,7 +13,6 @@ import {
 } from "./Admin.styles";
 import { redirectTo } from "@/shared/utils/history";
 import { Navbar } from './components/Navbar';
-import { EditMember } from '@/pages/Admin/Members/components/EditMember';
 
 export const AdminPage = () => {
   const location = useLocation();
@@ -35,7 +34,7 @@ export const AdminPage = () => {
             </AdminNavBody>
             <AdminNavBottom>
               <ArrowCircleLeftIcon />
-              <AdminNavBottomText>Back to chat</AdminNavBottomText>  
+              <AdminNavBottomText onClick={() => redirectTo('/chat')}>Back to chat</AdminNavBottomText>  
             </AdminNavBottom>
         </AdminNavbar>
         <AdminContent>

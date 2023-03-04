@@ -40,7 +40,7 @@ const postCreateChannel = async (req, res) => {
   }
 };
 
-const postGetChannelsByUserId = async () => {
+const postGetChannelsByUserId = async (req, res) => {
   const { userId } = req?.params;
   try {
     const channelsByUserId = await ChannelModel.find({

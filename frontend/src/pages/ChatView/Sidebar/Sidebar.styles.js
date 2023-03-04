@@ -34,23 +34,22 @@ export const SidebarHeaderItem = styled(Box)`
 `
 
 export const SidebarHeaderAnchorUserInfo = styled(Box)`
-    border-radius: 10px;
 
 `;
 
 export const SidebarHeaderAnchorUserInfoWrapper = styled(Box)``
 
-export  const AnchorUserInfoHeader = styled(Box)`
+export const AnchorUserInfoHeader = styled(Box)`
     padding: 16px;
-    border-bottom: 1px solid ${blackColor};
+    border-bottom: 1px solid ${borderColor};
 
     display: flex;
     align-items: center;
 `
 
 export const AnchorUserInfoHeaderImage = styled('img')`
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
 `
 
@@ -60,8 +59,6 @@ export const AnchorUserInfoHeaderContent = styled(Box)`
     margin-left: 8px;
 `
 
-export const AnchorUserInfoTitle = styled(Box)``
-
 export const AnchorUserInfoTitleStatus = styled(Box)`
     border-radius: 50%;
     width: 14px;
@@ -70,33 +67,85 @@ export const AnchorUserInfoTitleStatus = styled(Box)`
 `;
 
 export const AnchorUserInfoTitleName = styled(Typography)`
-    
+    ${() => css`
+        &&& {
+            margin-left: 8px;
+
+        }
+    `}
 `;
 
 export const AnchorUserInfoEmail = styled(Typography)`
     ${() => css`
         &&& {
             color: #C7B8B8;
-        
+            font-size: 12px;
         }
     `}
 `
 
-export const AnchorUserInfoBody = styled(Box)``
+export const AnchorUserInfoBody = styled(Box)`
+    padding: 16px;
+    border-bottom: 1px solid ${borderColor};
+`
 
 export const AnchorUserInfoBodyTitle = styled(Box)``
 
-export const AnchorUserInfoBodyStatus = styled(Box)``
+export const AnchorUserInfoBodyStatus = styled(Box)`
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    border: 1px solid ${borderColor};
+`
 
-export const AnchorUserInfoBodyText = styled(Box)``
+export const AnchorUserInfoBodyText = styled(Typography)`
+    ${() => css`
+        &&& {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+    `}
+`
 
-export const AnchorUserInfoBottom = styled(Box)``
+export const AnchorUserInfoBottom = styled(Box)`
+    padding: 16px;
+`
 
 export const AnchorUserInfoBottomList = styled(Box)``
 
 export const AnchorUserInfoBottomItem = styled(Box)``
 
-export const AnchorUserInfoBottomItemText = styled(Typography)``
+export const AnchorUserInfoBottomItemText = styled(Typography)`
+    ${() => css`
+        &&& {
+            margin-left: 8px;
+        }
+    `}
+`
+
+export const AnchorRoomTitle = styled(Typography)`
+    ${() => css`
+        &&& {
+            font-size: 14px;
+        }
+    `}
+`
+
+export const AnchorRoomWrapper = styled(Box)`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+`
+
+export const AnchorRoomText = styled(Typography)`
+    ${() => css`
+        &&& {
+            margin-left: 8px;
+        }
+    `}
+`
+
 
 export const SidebarHeaderItemImage = styled('img')`
     display: flex;
@@ -124,7 +173,7 @@ export const SidebarBodyWrapper = styled(Box)`
     }
 `}
 `
-    
+
 export const SidebarBodyList = styled(Box)`
     display: flex;
     flex-direction: column;
