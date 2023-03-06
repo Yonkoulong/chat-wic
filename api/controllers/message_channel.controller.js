@@ -5,6 +5,8 @@ const {
   responseError,
   ORDER_DIRECTION,
   ObjectIdMongodb,
+  formatResponse,
+  MESSAGE_TYPES,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -18,16 +20,22 @@ const getMessagesChannel = async (_req, res) => {
 };
 
 const postMessageChannel = async (req, res) => {
-  const { content, channelId, messageFrom } = req.body;
+  const { channelId } = req?.params;
+  const { content, messageFrom, type } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const convertChannelIdToObjectIdMongo = ObjectIdMongodb(channelId);
     const newMessage = {
-      senderId: convertMessageFromToObjectIdMongo,
+      messageFrom: convertMessageFromToObjectIdMongo,
       content,
-      roomId: convertChannelIdToObjectIdMongo,
+      channelId: convertChannelIdToObjectIdMongo,
+      type: type || MESSAGE_TYPES.plainText,
     };
+
+    if (type === MESSAGE_TYPES.image) {
+      newMessage.srcImage = content;
+    }
 
     try {
       await MessageChannel.create(newMessage);
@@ -79,7 +87,7 @@ const getMessageChannelByChannelId = async (req, res) => {
     return { ...message?._doc, senderName };
   });
 
-  return res.status(httpCode.ok).json(convertMessageInChannel);
+  return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
 };
 
 module.exports = [
@@ -91,7 +99,7 @@ module.exports = [
   {
     method: "post",
     controller: postMessageChannel,
-    routeName: "/message-channel/create",
+    routeName: "/message-channel/:channelId/create",
   },
   {
     method: "post",

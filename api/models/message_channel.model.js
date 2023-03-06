@@ -16,6 +16,10 @@ const messageChannelSchema = new Schema(
       required: false,
       trim: true, //LINK, PLAIN-TEXT, PARAGRAPH, IMAGE
     },
+    srcImage: {
+      type: Buffer,
+      required: false,
+    },
   },
   {
     timestamps: true,
