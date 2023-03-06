@@ -14,7 +14,7 @@ const messageChannelSchema = new Schema(
     type: {
       type: String,
       required: false,
-      trim: true,
+      trim: true, //LINK, PLAIN-TEXT, PARAGRAPH, IMAGE
     },
   },
   {

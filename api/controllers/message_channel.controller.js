@@ -9,7 +9,6 @@ const {
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const getMessagesChannel = async (_req, res) => {
-  //create an array of documents
   try {
     const message = await MessageChannel?.find({});
     return res.json(message);
@@ -19,15 +18,15 @@ const getMessagesChannel = async (_req, res) => {
 };
 
 const postMessageChannel = async (req, res) => {
-  const { content, roomId, senderId } = req.body;
+  const { content, channelId, messageFrom } = req.body;
 
-  if (isObjectIdInMongodb(roomId) && isObjectIdInMongodb(senderId)) {
-    const convertSenderId = ObjectIdMongodb(senderId);
-    const convertRoomId = ObjectIdMongodb(roomId);
+  if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
+    const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
+    const convertChannelIdToObjectIdMongo = ObjectIdMongodb(channelId);
     const newMessage = {
-      senderId: convertSenderId,
+      senderId: convertMessageFromToObjectIdMongo,
       content,
-      roomId: convertRoomId,
+      roomId: convertChannelIdToObjectIdMongo,
     };
 
     try {
@@ -39,37 +38,37 @@ const postMessageChannel = async (req, res) => {
   }
 };
 
-const getMessageChannelByRoomId = async (req, res) => {
-  const { roomId } = req?.params;
-  if (!roomId)
+const getMessageChannelByChannelId = async (req, res) => {
+  const { channelId } = req?.params;
+  if (!channelId)
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
 
-  const { paging, isPaging } = req?.body;
+  const { paging } = req?.body;
   const orderCreatedAt = paging?.orders?.createdAt;
 
-  // declare message in room
+  let messageInChannel = [];
 
-  let messageInRoom = [];
-
-  if (isObjectIdInMongodb(roomId)) {
-    if (isPaging || !!paging) {
-      messageInRoom = await MessageChannel.find({ roomId })
+  if (isObjectIdInMongodb(channelId)) {
+    if (!!paging) {
+      const { page, size } = paging;
+      const numberToSkip = (page - 1) * size;
+      messageInChannel = await MessageChannel.find({ channelId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
-        .skip(paging?.page || 1)
+        .skip(numberToSkip)
         .limit(paging?.size || 10);
     } else {
-      messageInRoom = await MessageChannel.find({ roomId });
+      messageInChannel = await MessageChannel.find({ channelId });
     }
   }
 
-  const senderIds = messageInRoom?.map((message) => {
-    if (isObjectIdInMongodb(message?.senderId)) {
-      return ObjectIdMongodb(message.senderId);
+  const senderIds = messageInChannel?.map((message) => {
+    if (isObjectIdInMongodb(message?.messageFrom)) {
+      return ObjectIdMongodb(message.messageFrom);
     }
   });
   const senders = await User.find({ _id: { $in: senderIds } });
-  const convertMessageInRoom = messageInRoom?.map((message) => {
-    const senderIdToString = message?.senderId?.toString();
+  const convertMessageInChannel = messageInChannel?.map((message) => {
+    const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
     senders?.forEach((sender) => {
       if (senderIdToString === sender?._id?.toString()) {
@@ -80,7 +79,7 @@ const getMessageChannelByRoomId = async (req, res) => {
     return { ...message?._doc, senderName };
   });
 
-  return res.status(httpCode.ok).json(convertMessageInRoom);
+  return res.status(httpCode.ok).json(convertMessageInChannel);
 };
 
 module.exports = [
@@ -95,8 +94,8 @@ module.exports = [
     routeName: "/message-channel/create",
   },
   {
-    method: "get",
-    controller: getMessageChannelByRoomId,
-    routeName: "/message-channel/:roomId",
+    method: "post",
+    controller: getMessageChannelByChannelId,
+    routeName: "/message-channel/:channelId",
   },
 ];
