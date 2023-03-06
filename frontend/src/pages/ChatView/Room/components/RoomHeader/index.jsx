@@ -1,29 +1,149 @@
-import React from 'react';
-import PhoneIcon from '@mui/icons-material/Phone';
-import GroupIcon from '@mui/icons-material/Group';
-import SearchIcon from '@mui/icons-material/Search';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { UilCommentMessageIcon } from '@/assets/icons';
+import React, { useState } from "react";
+import Popover from "@mui/material/Popover";
+
+import PhoneIcon from "@mui/icons-material/Phone";
+import GroupIcon from "@mui/icons-material/Group";
+import SearchIcon from "@mui/icons-material/Search";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+
+import { UilCommentMessageIcon } from "@/assets/icons";
+import { Box } from "@/shared/components";
+import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
+import { RoomHeaderItemImage, RoomHeaderItemName } from "./RoomHeader.styles";
+
+const flexCenter = {
+  display: "flex",
+  alignItems: "center",
+};
 
 export const RoomHeader = () => {
+  const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
 
-    return (
-        <RoomHeaderContainer>
-            <RoomHeaderWrapper>
-                <RoomHeaderList>
-                    <RoomHeaderItem>
-                        <RoomHeaderItemImage src="/"/>
-                        <RoomHeaderItemName></RoomHeaderItemName>
-                    </RoomHeaderItem>
-                    <RoomHeaderItem>
-                        <PhoneIcon />
-                        <UilCommentMessageIcon />
-                        <GroupIcon />
-                        <SearchIcon />
-                        <MoreVertIcon />
-                    </RoomHeaderItem>
-                </RoomHeaderList>
-            </RoomHeaderWrapper>
-        </RoomHeaderContainer>
-    )
-}
+  const handleClickOpenAnchorMoreFeatures = (event) => {
+    setAnchorMoreFeatures(event.currentTarget);
+  };
+
+  const handleCloseAnchorMoreFeatures = () => {
+    setAnchorMoreFeatures(null);
+  };
+
+  const openAnchorMoreFeatures = Boolean(anchorMoreFeatures);
+
+  const idAnchorMoreFeatures = openAnchorMoreFeatures
+    ? "anchor-more-features-popover"
+    : undefined;
+
+  return (
+    <Box>
+      <Box
+        sx={{
+          padding: "16px 24px",
+          borderBottom: `3px solid ${borderColor}`,
+        }}
+      >
+        <Box
+          sx={{
+            ...flexCenter,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box
+            sx={{
+              ...flexCenter,
+            }}
+          >
+            <RoomHeaderItemImage src="/" />
+            <RoomHeaderItemName>Room name</RoomHeaderItemName>
+          </Box>
+          <Box
+            sx={{
+              ...flexCenter,
+            }}
+          >
+            <Box
+              sx={{
+                m: "0 10px",
+                ...flexCenter,
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            >
+              <PhoneIcon />
+            </Box>
+            <Box
+              sx={{
+                m: "0 10px",
+                ...flexCenter,
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            >
+              <UilCommentMessageIcon viewBox="0 0 60 60" />
+            </Box>
+            <Box
+              sx={{
+                m: "0 10px",
+                ...flexCenter,
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            >
+              <GroupIcon />
+            </Box>
+            <Box
+              sx={{
+                m: "0 10px",
+                ...flexCenter,
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            >
+              <SearchIcon />
+            </Box>
+            <Box
+              sx={{
+                m: "0 0 0 10px",
+                ...flexCenter,
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            >
+              <MoreVertIcon
+                aria-describedby={idAnchorMoreFeatures}
+                onClick={handleClickOpenAnchorMoreFeatures}
+              />
+              <Popover
+                id={idAnchorMoreFeatures}
+                anchorEl={anchorMoreFeatures}
+                open={openAnchorMoreFeatures}
+                onClose={handleCloseAnchorMoreFeatures}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                sx={{
+                  "& .MuiPaper-root": {
+                    borderRadius: "10px",
+                    top: "60px !important",
+                  },
+                }}
+              >
+                <Box>Hello</Box>
+              </Popover>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+};

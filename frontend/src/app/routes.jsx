@@ -8,6 +8,7 @@ import { ChatView } from "@/pages/ChatView";
 import { PageNotFound } from "@/pages/404";
 import { ProtectedRoute, AuthorizationRoute } from "@/shared/HOC";
 import { enumRoles } from "@/shared/utils/constant";
+import { RoomChat } from '@/pages/ChatView/Room';
 
 export const routes = [
   {
@@ -64,11 +65,11 @@ export const routes = [
       },
       {
         path: '/chat/channel/:id',
-        element: ''
+        element: <RoomChat />
       },
       {
         path: '/chat/direct/:id',
-        element: ''
+        element: <RoomChat />
       }
     ]
   },

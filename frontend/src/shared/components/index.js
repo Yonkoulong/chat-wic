@@ -25,6 +25,7 @@ export {
   DialogActions,
   DialogContent,
 } from "@mui/material";
+export { TextareaAutosize } from '@mui/base';
 export { ControllerInput } from "./ControllerInput";
 export { NoDataAvailable } from "./NoDataAvailable";
 export { CommonTable } from "./Table";

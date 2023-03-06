@@ -100,7 +100,7 @@ const Sidebar = () => {
   const handleClickOpenAnchorRoom = (event) => {
     setAnchorRoom(event.currentTarget);
   };
-
+  
   const handleCloseAnchorRoom = () => {
     setAnchorRoom(null);
   };
@@ -121,7 +121,7 @@ const Sidebar = () => {
   const idAnchorUserInfo = openAnchorUserInfo
     ? "anchor-user-info-popover"
     : undefined;
-  const idAnchorRoom = openAnchorRoom ? "ancho-room-popover" : undefined;
+  const idAnchorRoom = openAnchorRoom ? "anchor-room-popover" : undefined;
 
   useEffect(() => {
     (async () => {
