@@ -1,29 +1,16 @@
 const ChannelModel = require("../models/channel.model");
+const UserModel = require("../models/user.model");
 const {
   httpCode,
-  IUserStatus,
   responseError,
-  ObjectIdMongodb,
-  saltRounds,
-  DEFAULT_PASSWORD,
-  convertToken,
-  USER_ROLES,
-  responseConstant,
-  minLengthPassword,
-  calculateTotalPage,
   formatResponse,
 } = require("../utils/constant");
-const {
-  isObjectIdInMongodb,
-  isArray,
-  verifyToken,
-} = require("../utils/validation");
-const bcrypt = require("bcrypt");
+const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 
 const postCreateChannel = async (req, res) => {
   const { channelName, userIds, ownerId } = req?.body;
 
-  if (!isArray(userIds && isObjectIdInMongodb(ownerId))) {
+  if (!isArray(userIds) && isObjectIdInMongodb(ownerId)) {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
@@ -52,6 +39,49 @@ const postGetChannelsByUserId = async (req, res) => {
   }
 };
 
+const postGetChannelDetail = async (req, res) => {
+  const { channelId } = req?.params;
+  try {
+    const channels = await ChannelModel.find({
+      _id: channelId,
+    });
+
+    let channelById = isArray(channels) ? channels[0]?._doc : {};
+    if (channelById?.ownerId) {
+      try {
+        const usersByOwnerId = await UserModel.find({
+          _id: channelById?.ownerId,
+        });
+
+        const ownerInfo = isArray(usersByOwnerId)
+          ? usersByOwnerId[0]?._doc
+          : {};
+        // push userinfo
+        channelById = { ...channelById, ownerInfo };
+      } catch {}
+    }
+
+    if (isArray(channelById?.userIds)) {
+      try {
+        membersByUserIds = await UserModel.find({
+          id: {
+            $in: channelById?.userIds,
+          },
+        });
+
+        channelById = {
+          ...channelById,
+          membersInChannel: membersByUserIds || [],
+        };
+      } catch {}
+    }
+
+    return res.status(httpCode.ok).json(formatResponse(channelById));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "post",
@@ -63,5 +93,10 @@ module.exports = [
     method: "post",
     controller: postGetChannelsByUserId,
     routeName: "/channel/:userId/list",
+  },
+  {
+    method: "post",
+    controller: postGetChannelDetail,
+    routeName: "/channel/:channelId",
   },
 ];
