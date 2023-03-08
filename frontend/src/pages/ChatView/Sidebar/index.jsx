@@ -394,7 +394,7 @@ const Sidebar = () => {
                   {channels.length > 0 &&
                     channels.map((channel) => {
                       return (
-                        <SidebarBodyItemRoomWrapper key={channel?._id}>
+                        <SidebarBodyItemRoomWrapper key={channel?._id} onClick={() => redirectTo(`/chat/channel/${channel?._id}`)}>
                           <SidebarBodyItemRoomImage
                             src="https://cdnimgen.vietnamplus.vn/uploaded/wbxx/2021_09_09/fourteen_foreign_tv_channels_to_end_broadcast_in_vietnam.jpg"
                             alt="logo"

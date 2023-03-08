@@ -47,3 +47,18 @@ export const enumMemberStatus = {
   ACTIVE: "ACTIVE",
   INACTIVE: "INACTIVE"
 }
+
+export const enumPopupFeatures = {
+  CALLING: 'calling',
+  THREAD: 'thread',
+  MEMBERS: 'members',
+  USER_INFO: 'user_info',
+  SEARCH: 'search',
+  FILE: 'file',
+  TODO_LIST: 'todo_list'
+}
+
+export const enumTypeRooms = {
+  CHANNEL: 'channel',
+  DIRECT: 'direct'
+}

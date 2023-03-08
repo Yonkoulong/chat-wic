@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { Box, Typography } from '@/shared/components';
-import { borderColor, inActiveColor } from '@/shared/utils/colors.utils';
+import { borderColor, inActiveColor, whiteColor } from '@/shared/utils/colors.utils';
 
 export const RoomContentContainer = styled(Box)`
     
@@ -15,6 +15,7 @@ export const MessageList = styled(Box)`
 export const MessageItem = styled(Box)`
     display: flex;
     padding: 8px 0px 8px 24px;
+    position: relative;
 
     &:hover {
         cursor: pointer;
@@ -64,4 +65,13 @@ export const TimeMessage = styled(Typography)`
 
 export const MessageContentBox = styled(Box)`
     
+`
+
+export const InteractMessageWrapper = styled(Box)`
+    position: absolute;
+    border-radius: 10px;
+    border: 2px solid #F8EFEF;
+    background-color: ${whiteColor};
+    top: -20px;
+    right: 10px;
 `

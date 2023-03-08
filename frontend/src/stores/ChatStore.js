@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 
-const useChatStore = create((set) => {
-    
-})
+export const useChatStore = create((set) => ({
+    messages: [],
+
+    setMessages: (payload) => {
+        set({ messages: payload})
+    }
+}));
