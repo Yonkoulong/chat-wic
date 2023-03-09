@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography } from "@/shared/components";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {
+  LucideQuoteIcon,
+  SymbolsAddReactionOutlineIcon,
+  UilCommentMessageIcon,
+} from "@/assets/icons";
 import {
   MessageList,
   MessageItem,
@@ -12,8 +17,58 @@ import {
   UserName,
   TimeMessage,
   MessageContentBox,
+  InteractMessageWrapper,
 } from "./RoomContent.styles";
+import { useRoomStore } from "@/stores/RoomStore";
+import { useChatStore } from "@/stores/ChatStore";
+import { primaryColor } from "@/shared/utils/colors.utils";
+import { enumTypeRooms } from "@/shared/utils/constant";
+import { getMessageChannelByChannelId } from "@/services/channel.services";
+import { toast } from "react-toastify";
+
+const flexCenter = {
+  display: "flex",
+  alignItems: "center",
+};
+
 export const RoomContent = () => {
+  const roomInfo = useRoomStore((state) => state.roomInfo);
+  const typeRoom = useRoomStore((state) => state.typeRoom);
+  const messages = useChatStore((state) => state.messages);
+  const setMessages = useChatStore((state) => state.setMessages);
+
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseOver = () => {
+    setIsHovering(true);
+  };
+
+  const handleMouseOut = () => {
+    setIsHovering(false);
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let resp;
+
+        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+          resp = await getMessageChannelByChannelId({
+            channelId: roomInfo?._id,
+          });
+
+          setMessages(resp?.data?.content);
+        }
+
+        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+        }
+      } catch (error) {
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
+      }
+    })();
+  }, [roomInfo, typeRoom]);
+
   return (
     <RoomContentContainer>
       <Box>
@@ -25,210 +80,77 @@ export const RoomContent = () => {
           }}
         >
           <MessageList>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
-            <MessageItem>
-              <UserImageWrapper>
-                <UserImage src="" />
-              </UserImageWrapper>
-              <MessageContentWrapper>
-                <MessageTitle>
-                  <UserName>Long</UserName>
-                  <TimeMessage>14:20</TimeMessage>
-                </MessageTitle>
-                <MessageContentBox>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Eveniet odio sunt recusandae doloremque sapiente delectus
-                  quasi ullam ut aspernatur aliquam. Aperiam eveniet voluptate
-                  velit, modi voluptates dolor nemo consectetur odio.
-                </MessageContentBox>
-              </MessageContentWrapper>
-            </MessageItem>
+            {messages &&
+              messages?.map((message) => {
+                return (
+                  <MessageItem
+                    onMouseOver={handleMouseOver}
+                    onMouseOut={handleMouseOut}
+                  >
+                    <UserImageWrapper>
+                      <UserImage src="" />
+                    </UserImageWrapper>
+
+                    {isHovering ? (
+                      <InteractMessageWrapper>
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            padding: "8px 4px",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              m: "0 8px",
+                              ...flexCenter,
+                            }}
+                          >
+                            <LucideQuoteIcon viewBox="0 0 60 60" />
+                          </Box>
+                          <Box
+                            sx={{
+                              m: "0 8px",
+                              ...flexCenter,
+                            }}
+                          >
+                            <SymbolsAddReactionOutlineIcon viewBox="0 0 60 60" />
+                          </Box>
+                          <Box
+                            sx={{
+                              m: "0 8px",
+                              ...flexCenter,
+                            }}
+                          >
+                            <UilCommentMessageIcon viewBox="0 0 60 60" />
+                          </Box>
+                          <Box
+                            sx={{
+                              m: "0 8px",
+                              ...flexCenter,
+                              ":hover": {
+                                color: primaryColor,
+                                cursor: "pointer",
+                              },
+                            }}
+                          >
+                            <MoreVertIcon />
+                          </Box>
+                        </Box>
+                      </InteractMessageWrapper>
+                    ) : null}
+
+                    <MessageContentWrapper>
+                      <MessageTitle>
+                        <UserName>{message?.senderName}</UserName>
+                        <TimeMessage>{message?.createdAt}</TimeMessage>
+                      </MessageTitle>
+                      <MessageContentBox>
+                        {message?.content}
+                      </MessageContentBox>
+                    </MessageContentWrapper>
+                  </MessageItem>
+                );
+              })}
           </MessageList>
         </Box>
       </Box>

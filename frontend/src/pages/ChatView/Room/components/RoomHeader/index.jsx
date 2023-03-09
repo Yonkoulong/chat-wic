@@ -10,6 +10,7 @@ import { UilCommentMessageIcon } from "@/assets/icons";
 import { Box } from "@/shared/components";
 import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
 import { RoomHeaderItemImage, RoomHeaderItemName } from "./RoomHeader.styles";
+import { useRoomStore } from "@/stores/RoomStore";
 
 const flexCenter = {
   display: "flex",
@@ -17,8 +18,10 @@ const flexCenter = {
 };
 
 export const RoomHeader = () => {
+  const roomInfo = useRoomStore((state) => state.roomInfo);
+  const typeRoom = useRoomStore((state) => state.typeRoom);
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
-
+  
   const handleClickOpenAnchorMoreFeatures = (event) => {
     setAnchorMoreFeatures(event.currentTarget);
   };
@@ -53,7 +56,7 @@ export const RoomHeader = () => {
             }}
           >
             <RoomHeaderItemImage src="/" />
-            <RoomHeaderItemName>Room name</RoomHeaderItemName>
+            <RoomHeaderItemName>{roomInfo?.channelName}</RoomHeaderItemName>
           </Box>
           <Box
             sx={{
