@@ -16,7 +16,6 @@ const ProtectedRoute = ({ children }) => {
                 if(resp) {
                     setUserInfo(resp?.data?.content);
                     setIsLogged(!!resp);
-                    console.log(!!resp);
                 }
             } catch (error) {
                 const errorMessage = error?.response?.data?.content;

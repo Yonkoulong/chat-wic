@@ -62,3 +62,4 @@ export const enumTypeRooms = {
   CHANNEL: 'channel',
   DIRECT: 'direct'
 }
+

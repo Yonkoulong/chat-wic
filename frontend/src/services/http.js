@@ -25,8 +25,9 @@ requestAxios.interceptors.request.use(function (config) {
 
   config.headers = {
     ...config.headers,
-    Authorization: `Bearer ${token && token}`
+    Authorization: `Bearer ${token}`
   }
+  console.log(token);
   return config;
 }, function (error) {
   // Do something with request error

@@ -69,6 +69,7 @@ BootstrapDialogTitle.propTypes = {
 
 const defaultValues = {
   channelName: "",
+  description: "",
 };
 
 export const ModalCreateChannel = ({ open, onClose }) => {
@@ -126,15 +127,36 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   };
 
   const handleGetUsers = async () => {
-    try{
+    try {
       fetchMembers({
         organizeId: userInfo?.organizeId,
         id: "",
         email: "",
       });
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
     }
-    catch{}
   };
+
+  const handleSelectedMember = (member) => {
+    debugger
+    if( !member ) return;
+    const newListMemberSelected = membersSelected?.find((memberSelected) => memberSelected?.id === member?.id);
+    
+    if(!newListMemberSelected) {
+      setMembersSelected(prev => [...prev, member])
+    }
+  }
+
+  const handleUnSelectedMember = (member) => {
+    if( !member ) return;
+    const memberUnSelected = membersSelected?.filter((memberSelected) => memberSelected?.id !== member?.id);
+    
+    if(memberUnSelected.length > 0) {
+      setMembersSelected(prev => [...prev, member]);
+    }
+  }
 
   return (
     <BootstrapDialog
@@ -185,6 +207,8 @@ export const ModalCreateChannel = ({ open, onClose }) => {
                 {(field) => (
                   <SelectMultipleInput
                     onOpenDropdown={handleGetUsers}
+                    handleSelected={handleSelectedMember}
+                    handleUnSelected={handleUnSelectedMember}
                     dataList={members}
                     dataSelected={membersSelected}
                   />

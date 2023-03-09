@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { Box, Typography } from '@/shared/components';
-import { borderColor, inActiveColor, whiteColor } from '@/shared/utils/colors.utils';
+import { borderColor, inActiveColor, whiteColor, hoverTextColor } from '@/shared/utils/colors.utils';
 
 export const RoomContentContainer = styled(Box)`
     
@@ -19,7 +19,7 @@ export const MessageItem = styled(Box)`
 
     &:hover {
         cursor: pointer;
-        background-color: #F8EFEF;
+        background-color: ${hoverTextColor};
     }
 `
 

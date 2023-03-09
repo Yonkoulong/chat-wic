@@ -10,7 +10,7 @@ import {
   AuthViewImage,
 } from "./Auth.styles";
 import  AuthImage  from '@/assets/image/backgroundAuth.jpg';
-import { useSocket } from "@/shared/hooks/useSocket";
+// import { useSocket } from "@/shared/hooks/useSocket";
 
 const AuthRoute = {
   SIGN_UP: "/signup",
@@ -19,9 +19,9 @@ const AuthRoute = {
 
 export const AuthView = () => {
   let location = useLocation();
-  const { client, isConnected } = useSocket({
-    initAction : client => console.log(client)
-  });
+  // const { client, isConnected } = useSocket({
+  //   initAction : client => console.log(client)
+  // });
 
   const handleAuthViewContentComponent = (location) => {
     if (location === AuthRoute.SIGN_UP) {
