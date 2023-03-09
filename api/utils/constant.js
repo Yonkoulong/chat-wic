@@ -83,11 +83,15 @@ const calculateTotalPage = (allRecord = 10, record = 10) => {
   return Math.ceil(allRecord / record);
 };
 
-const formatResponse = (response) => {
+const formatResponse = (response, paging) => {
   if (!response) return responseError.badRequest;
   const data = {
     content: response,
   };
+
+  if (!!paging) {
+    data.paging = paging;
+  }
 
   return data;
 };
