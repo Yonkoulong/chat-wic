@@ -44,7 +44,7 @@ const userSchema = new Schema(
     id: {
       type: String,
       required: false,
-    }
+    },
   },
   {
     timestamps: true,

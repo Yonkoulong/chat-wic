@@ -37,14 +37,14 @@ export const RoomContent = () => {
   const messages = useChatStore((state) => state.messages);
   const setMessages = useChatStore((state) => state.setMessages);
 
-  const [isHovering, setIsHovering] = useState(false);
+  const [idMessageHovering, setIdMessageHovering] = useState(null);
 
-  const handleMouseOver = () => {
-    setIsHovering(true);
+  const handleMouseOver = (message) => {
+    setIdMessageHovering(message?._id);
   };
 
   const handleMouseOut = () => {
-    setIsHovering(false);
+    setIdMessageHovering(null);
   };
 
   useEffect(() => {
@@ -81,17 +81,18 @@ export const RoomContent = () => {
         >
           <MessageList>
             {messages &&
-              messages?.map((message) => {
+              messages?.map((message, index) => {
                 return (
                   <MessageItem
-                    onMouseOver={handleMouseOver}
+                    onMouseOver={() => handleMouseOver(message)}
                     onMouseOut={handleMouseOut}
+                    key={message?._id || index}
                   >
                     <UserImageWrapper>
-                      <UserImage src="" />
+                      <UserImage src={message?.avatar || ""} />
                     </UserImageWrapper>
 
-                    {isHovering ? (
+                    {idMessageHovering === message?._id ? (
                       <InteractMessageWrapper>
                         <Box
                           sx={{
