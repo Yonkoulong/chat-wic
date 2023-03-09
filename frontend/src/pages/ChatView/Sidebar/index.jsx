@@ -109,10 +109,12 @@ const Sidebar = () => {
 
   const handleClickOpenModalCreateChannel = () => {
     setOpenCreateChannelModal(true);
+    setAnchorRoom(null);
   };
 
   const handleClickOpenModalCreateDirect = () => {
     setOpenCreateDirectMessageModal(true);
+    setAnchorRoom(null);
   };
 
   const openAnchorUserInfo = Boolean(anchorUserInfo);

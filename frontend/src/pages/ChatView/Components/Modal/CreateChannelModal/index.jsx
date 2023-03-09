@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -6,8 +6,7 @@ import {
   StyledTextField,
   StyledLabelTextField,
   ControllerInput,
-  Select,
-  MenuItem,
+  SelectMultipleInput,
   ButtonCustomize,
 } from "@/shared/components";
 import PropTypes from "prop-types";
@@ -29,7 +28,6 @@ import {
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
 } from "./CreateChannelModal.styles";
-
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -69,26 +67,14 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const roles = [
-  {
-    label: "Staff",
-    value: enumRoles.STAFF,
-  },
-  {
-    label: "Project Manager",
-    value: enumRoles.PROJECT_MANAGER,
-  },
-];
-
 const defaultValues = {
-  email: "",
-  password: "",
-  role: "",
+  channelName: "",
 };
 
 export const ModalCreateChannel = ({ open, onClose }) => {
-  const { fetchMembers, setLoading } = useMemberStore((state) => state);
+  const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
+  const [membersSelected, setMembersSelected] = useState([]);
 
   const {
     control,
@@ -96,18 +82,18 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
-  
+
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
 
-    const field = useWatch({control});
-    if(field?.email && field?.password && field?.role) {
+    const field = useWatch({ control });
+    if (field?.channelName && field?.userIds) {
       isEnable = false;
     } else {
       isEnable = true;
     }
     return isEnable;
-  }    
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -139,6 +125,17 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     onClose(false);
   };
 
+  const handleGetUsers = async () => {
+    try{
+      fetchMembers({
+        organizeId: userInfo?.organizeId,
+        id: "",
+        email: "",
+      });
+    }
+    catch{}
+  };
+
   return (
     <BootstrapDialog
       onClose={handleClose}
@@ -147,20 +144,20 @@ export const ModalCreateChannel = ({ open, onClose }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create member
+        Create channel
       </BootstrapDialogTitle>
       <CreateMemberFormWrapper>
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <CreateMemberInputContainer>
               <StyledLabelTextField>
-                Email <span className="require-field">*</span>
+                Channel name <span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Email"
-                fieldName="email"
+                fieldNameErrorMessage="Channel name"
+                fieldName="channelName"
                 required={true}
               >
                 {(field) => (
@@ -168,64 +165,48 @@ export const ModalCreateChannel = ({ open, onClose }) => {
                     {...field}
                     fullWidth
                     size="small"
-                    type="email"
-                    placeholder="Enter email"
+                    type="text"
+                    placeholder="Enter channel name"
                   />
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>
-
             <CreateMemberInputContainer>
               <StyledLabelTextField>
-                Password <span className="require-field">*</span>
+                Members<span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Password"
-                fieldName="password"
+                fieldNameErrorMessage="Members"
+                fieldName="userIds"
                 required={true}
               >
                 {(field) => (
-                  <StyledTextField
-                    {...field}
-                    fullWidth
-                    size="small"
-                    type="password"
-                    placeholder="Enter password"
+                  <SelectMultipleInput
+                    onOpenDropdown={handleGetUsers}
+                    dataList={members}
+                    dataSelected={membersSelected}
                   />
-                )}
-              </ControllerInput>
-            </CreateMemberInputContainer>
-
-            <CreateMemberInputContainer>
-              <StyledLabelTextField>
-                Role<span className="require-field">*</span>
-              </StyledLabelTextField>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Role"
-                fieldName="role"
-                required={true}
-              >
-                {(field) => (
-                  <Select {...field} fullWidth size="small">
-                    {roles.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <b>{option.label}</b>
-                      </MenuItem>
-                    ))}
-                  </Select>
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>
           </DialogContent>
           <DialogActions>
-            <ButtonCustomize variant="outlined" autoFocus handleClick={handleClose}>
+            <ButtonCustomize
+              variant="outlined"
+              autoFocus
+              handleClick={handleClose}
+            >
               Cancel
             </ButtonCustomize>
-            <ButtonCustomize variant="contained" type="submit" disabled={watchFieldsInModalCreateMember()} >Create</ButtonCustomize>
+            <ButtonCustomize
+              variant="contained"
+              type="submit"
+              disabled={watchFieldsInModalCreateMember()}
+            >
+              Create
+            </ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>
       </CreateMemberFormWrapper>
