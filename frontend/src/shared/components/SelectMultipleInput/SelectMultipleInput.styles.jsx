@@ -4,6 +4,7 @@ import {
   Typography,
   Menu,
   Box,
+  Avatar,
 } from "@/shared/components";
 import styled, { css } from "styled-components";
 import { hoverTextColor } from "@/shared/utils/colors.utils";
@@ -38,12 +39,15 @@ export const StyledSelectMultipleContentItem = styled(Box)`
 export const StyledItemImageWrapper = styled(Box)`
   width: 32px;
   height: 32px;
-  border: 1px solid;
 `;
 
-export const StyledSelectItemImage = styled("img")`
-  width: 100%;
-  object-fit: contain;
+export const StyledSelectItemImage = styled(Avatar)`
+  &&& {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 5px;
+  }
 `;
 
 export const StyledSlectItemText = styled(Typography)`

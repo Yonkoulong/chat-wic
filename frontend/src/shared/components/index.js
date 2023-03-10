@@ -26,6 +26,7 @@ export {
   DialogContent,
   Chip,
   Menu,
+  Avatar,
 } from "@mui/material";
 export { TextareaAutosize } from "@mui/base";
 export { ControllerInput } from "./ControllerInput";

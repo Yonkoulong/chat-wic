@@ -19,7 +19,8 @@ const postLogin = async (req, res) => {
     const mapUserWithEmail = await User.find({ email });
     let matchUser = {};
     if (isArray(mapUserWithEmail) && mapUserWithEmail.length > 0) {
-      matchUser = mapUserWithEmail[0];
+      // remove avatar on token
+      matchUser = { ...mapUserWithEmail[0]?._doc, avatar: "" };
     }
 
     const isMatchPassword = await bcrypt.compare(

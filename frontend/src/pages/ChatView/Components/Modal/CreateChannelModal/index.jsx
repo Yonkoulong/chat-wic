@@ -140,23 +140,27 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   };
 
   const handleSelectedMember = (member) => {
-    debugger
-    if( !member ) return;
-    const newListMemberSelected = membersSelected?.find((memberSelected) => memberSelected?.id === member?.id);
-    
-    if(!newListMemberSelected) {
-      setMembersSelected(prev => [...prev, member])
+    if (!member) return;
+    const memberId = member?.id;
+    const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
+    let newMembersSelected = [];
+    if (membersSelectedIds?.includes(memberId)) {
+      newMembersSelected = membersSelected?.filter(
+        (member) => member?.id !== memberId
+      );
+    } else {
+      newMembersSelected = [...membersSelected, member];
     }
-  }
+    setMembersSelected(newMembersSelected);
+  };
 
   const handleUnSelectedMember = (member) => {
-    if( !member ) return;
-    const memberUnSelected = membersSelected?.filter((memberSelected) => memberSelected?.id !== member?.id);
-    
-    if(memberUnSelected.length > 0) {
-      setMembersSelected(prev => [...prev, member]);
-    }
-  }
+    if (!member) return;
+    const newMembersUnSelected = membersSelected?.filter(
+      (memberSelected) => memberSelected?.id !== member?.id
+    );
+    setMembersSelected(newMembersUnSelected);
+  };
 
   return (
     <BootstrapDialog
@@ -207,8 +211,8 @@ export const ModalCreateChannel = ({ open, onClose }) => {
                 {(field) => (
                   <SelectMultipleInput
                     onOpenDropdown={handleGetUsers}
-                    handleSelected={handleSelectedMember}
-                    handleUnSelected={handleUnSelectedMember}
+                    handleSelectedMember={handleSelectedMember}
+                    handleUnSelectedMember={handleUnSelectedMember}
                     dataList={members}
                     dataSelected={membersSelected}
                   />
