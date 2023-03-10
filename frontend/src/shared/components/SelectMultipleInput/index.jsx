@@ -50,7 +50,9 @@ export const SelectMultipleInput = ({
         <StyledTextField
           onClick={handleOpenDropdown}
           fullWidth
-          readOnly={true}
+          inputProps={{
+            readOnly: true,
+          }}
           InputProps={{
             startAdornment: (
               <StyledChipContainer>
@@ -60,7 +62,7 @@ export const SelectMultipleInput = ({
                       size="small"
                       key={item[keyId] || index}
                       tabIndex={-1}
-                      sx={{ mx: 1, my : 0.5 }}
+                      sx={{ mx: 1, my: 0.5 }}
                       label={item?.email}
                       avatar={<Avatar alt="Natacha" src={item?.avatar || ""} />}
                       onDelete={() => handleUnSelectedMember(item)}
