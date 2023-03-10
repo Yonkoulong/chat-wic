@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { useForm, useWatch } from "react-hook-form";
+import { set, useForm, useWatch } from "react-hook-form";
 
 import {
   StyledTextField,
@@ -76,6 +76,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
   const [membersSelected, setMembersSelected] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const {
     control,
@@ -127,8 +128,9 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   };
 
   const handleGetUsers = async () => {
+    setLoading(true);
     try {
-      fetchMembers({
+      await fetchMembers({
         organizeId: userInfo?.organizeId,
         id: "",
         email: "",
@@ -136,6 +138,8 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -215,6 +219,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
                     handleUnSelectedMember={handleUnSelectedMember}
                     dataList={members}
                     dataSelected={membersSelected}
+                    loading={loading}
                   />
                 )}
               </ControllerInput>

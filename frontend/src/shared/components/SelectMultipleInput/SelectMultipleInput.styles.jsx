@@ -50,10 +50,19 @@ export const StyledSelectItemImage = styled(Avatar)`
   }
 `;
 
-export const StyledSlectItemText = styled(Typography)`
+export const StyledSelectItemText = styled(Typography)`
   ${() => css`
     &&& {
       margin-left: 8px;
     }
+  `}
+`;
+
+export const StyledChipContainer = styled(Box)`
+  ${() => css`
+    display: flex;
+    max-width: 100%;
+    width: 100%;
+    flex-wrap: wrap;
   `}
 `;

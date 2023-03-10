@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import { StyledTextField } from "@/shared/components/TextField";
 import Chip from "@mui/material/Chip";
@@ -11,31 +11,32 @@ import {
   StyledSelectMultipleContentItem,
   StyledItemImageWrapper,
   StyledSelectItemImage,
-  StyledSlectItemText,
+  StyledSelectItemText,
+  StyledChipContainer,
 } from "./SelectMultipleInput.styles";
 import { handleEmailToName } from "@/shared/utils/utils";
-import { hoverTextColor, whiteColor } from "@/shared/utils/colors.utils";
+import { selectedColor, whiteColor } from "@/shared/utils/colors.utils";
+import { CircularProgress } from "@mui/material";
 
 export const SelectMultipleInput = ({
   width = 568,
   dataList = [],
-  keyId = "_id",
+  keyId = "id",
   keyValue = "username",
   dataSelected = [],
   handleSelectedMember,
   handleUnSelectedMember,
   onOpenDropdown,
+  loading = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const searchRef = useRef();
 
   const isSelected = (item) =>
     dataSelected?.map((item) => item[keyId])?.includes(item[keyId]);
 
   const handleOpenDropdown = async (event) => {
     setAnchorEl(event?.currentTarget);
-    searchRef?.current?.focus();
     !!onOpenDropdown && onOpenDropdown();
   };
 
@@ -45,23 +46,29 @@ export const SelectMultipleInput = ({
 
   return (
     <>
-      <StyledSelectMultipleContainer onClick={handleOpenDropdown}>
+      <StyledSelectMultipleContainer>
         <StyledTextField
+          onClick={handleOpenDropdown}
           fullWidth
-          ref={searchRef}
-          readOnly
+          readOnly={true}
           InputProps={{
-            startAdornment: dataSelected?.map((item) => {
-              return (
-                <Chip
-                  key={item}
-                  tabIndex={-1}
-                  label={item?.email}
-                  avatar={<Avatar alt="Natacha" src="" />}
-                  onDelete={() => handleUnSelectedMember(item)}
-                />
-              );
-            }),
+            startAdornment: (
+              <StyledChipContainer>
+                {dataSelected?.map((item, index) => {
+                  return (
+                    <Chip
+                      size="small"
+                      key={item[keyId] || index}
+                      tabIndex={-1}
+                      sx={{ mx: 1, my : 0.5 }}
+                      label={item?.email}
+                      avatar={<Avatar alt="Natacha" src={item?.avatar || ""} />}
+                      onDelete={() => handleUnSelectedMember(item)}
+                    />
+                  );
+                })}
+              </StyledChipContainer>
+            ),
           }}
         />
       </StyledSelectMultipleContainer>
@@ -81,32 +88,47 @@ export const SelectMultipleInput = ({
         open={open}
         onClose={handleCloseDropdown}
       >
-          <StyledSelectMultipleDropdownContainer>
-            {Array.isArray(dataList) &&
-              dataList.map((item) => {
-                return (
-                  <StyledSelectMultipleContentItem
-                    key={item?.id}
-                    onClick={() => !!handleSelectedMember && handleSelectedMember(item)}
-                    sx={{
-                      backgroundColor: isSelected(item)
-                        ? hoverTextColor
-                        : whiteColor,
-                    }}
-                  >
-                    <StyledItemImageWrapper>
-                      <StyledSelectItemImage
-                        src={item?.avatar || ""}
-                        alt="avatar"
-                      />
-                    </StyledItemImageWrapper>
-                    <StyledSlectItemText>
-                      {handleEmailToName(item?.email) || "unknown"}
-                    </StyledSlectItemText>
-                  </StyledSelectMultipleContentItem>
-                );
-              })}
-          </StyledSelectMultipleDropdownContainer>
+        <StyledSelectMultipleDropdownContainer>
+          {dataList?.length < 1 && !loading && (
+            <StyledSelectMultipleContentItem>
+              Empty
+            </StyledSelectMultipleContentItem>
+          )}
+          {!loading &&
+            dataList?.length > 0 &&
+            dataList.map((item) => {
+              return (
+                <StyledSelectMultipleContentItem
+                  key={item?.id}
+                  onClick={() =>
+                    !!handleSelectedMember && handleSelectedMember(item)
+                  }
+                  sx={{
+                    backgroundColor: isSelected(item)
+                      ? selectedColor
+                      : whiteColor,
+                  }}
+                >
+                  <StyledItemImageWrapper>
+                    <StyledSelectItemImage
+                      src={item?.avatar || ""}
+                      alt="avatar"
+                    />
+                  </StyledItemImageWrapper>
+                  <StyledSelectItemText>
+                    {handleEmailToName(item?.email) || "unknown"}
+                  </StyledSelectItemText>
+                </StyledSelectMultipleContentItem>
+              );
+            })}
+          {loading && (
+            <StyledSelectMultipleContentItem
+              sx={{ justifyContent: "center", height: 100 }}
+            >
+              <CircularProgress sx={{ color: "black" }} />
+            </StyledSelectMultipleContentItem>
+          )}
+        </StyledSelectMultipleDropdownContainer>
       </StyledSelectMultipleMenu>
     </>
   );
