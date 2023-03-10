@@ -27,6 +27,7 @@ export {
   Chip,
   Menu,
   Avatar,
+  OutlinedInput,
 } from "@mui/material";
 export { TextareaAutosize } from "@mui/base";
 export { ControllerInput } from "./ControllerInput";

@@ -1,10 +1,9 @@
 import {
-  DialogContentText,
-  Button,
   Typography,
   Menu,
   Box,
   Avatar,
+  OutlinedInput,
 } from "@/shared/components";
 import styled, { css } from "styled-components";
 import { hoverTextColor } from "@/shared/utils/colors.utils";
@@ -65,4 +64,8 @@ export const StyledChipContainer = styled(Box)`
     width: 100%;
     flex-wrap: wrap;
   `}
+`;
+
+export const StyledOutlineInput = styled(OutlinedInput)`
+  ${() => css``}
 `;

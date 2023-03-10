@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-
-import { StyledTextField } from "@/shared/components/TextField";
 import Chip from "@mui/material/Chip";
 import Avatar from "@mui/material/Avatar";
 
@@ -13,6 +11,7 @@ import {
   StyledSelectItemImage,
   StyledSelectItemText,
   StyledChipContainer,
+  StyledOutlineInput,
 } from "./SelectMultipleInput.styles";
 import { handleEmailToName } from "@/shared/utils/utils";
 import { selectedColor, whiteColor } from "@/shared/utils/colors.utils";
@@ -28,6 +27,7 @@ export const SelectMultipleInput = ({
   handleUnSelectedMember,
   onOpenDropdown,
   loading = false,
+  placeholder = "Enter",
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -47,31 +47,34 @@ export const SelectMultipleInput = ({
   return (
     <>
       <StyledSelectMultipleContainer>
-        <StyledTextField
+        <StyledOutlineInput
           onClick={handleOpenDropdown}
           fullWidth
-          inputProps={{
-            readOnly: true,
+          readOnly
+          sx={{
+            "& input": {
+              display: dataSelected?.length > 0 ? "none" : "block",
+            },
           }}
-          InputProps={{
-            startAdornment: (
-              <StyledChipContainer>
-                {dataSelected?.map((item, index) => {
-                  return (
-                    <Chip
-                      size="small"
-                      key={item[keyId] || index}
-                      tabIndex={-1}
-                      sx={{ mx: 1, my: 0.5 }}
-                      label={item?.email}
-                      avatar={<Avatar alt="Natacha" src={item?.avatar || ""} />}
-                      onDelete={() => handleUnSelectedMember(item)}
-                    />
-                  );
-                })}
-              </StyledChipContainer>
-            ),
-          }}
+          size="small"
+          placeholder={placeholder}
+          startAdornment={
+            <StyledChipContainer>
+              {dataSelected?.map((item, index) => {
+                return (
+                  <Chip
+                    size="small"
+                    key={item[keyId] || index}
+                    tabIndex={-1}
+                    sx={{ mx: 1, my: 0.5 }}
+                    label={item?.email}
+                    avatar={<Avatar alt="logo" src={item?.avatar || ""} />}
+                    onDelete={() => handleUnSelectedMember(item)}
+                  />
+                );
+              })}
+            </StyledChipContainer>
+          }
         />
       </StyledSelectMultipleContainer>
       <StyledSelectMultipleMenu
