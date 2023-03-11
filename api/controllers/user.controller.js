@@ -135,11 +135,11 @@ const getUserDetail = async (req, res) => {
 
 const putUserDetail = async (req, res) => {
   const { id } = req?.params;
-  const { username, email, password, userStatus, avatar } = req.body;
+  const { username, email, password, userStatus, avatar, role } = req.body;
   const convertId = ObjectIdMongodb(id);
   const matchUser = await User.find({ _id: convertId });
 
-  if (!username && !email && !password && !userStatus && !avatar) {
+  if (!username && !email && !password && !userStatus && !avatar && !role) {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
@@ -153,11 +153,13 @@ const putUserDetail = async (req, res) => {
 
   if (isArray(matchUser) && matchUser.length > 0) {
     const userUpdated = {
+      ...matchUser[0]?._doc,
       username: username || matchUser[0]?.username,
       email: email || matchUser[0]?.email,
       password: newPassword,
       userStatus: userStatus || matchUser[0]?.userStatus,
       avatar: avatar || matchUser[0]?.avatar,
+      role: role || matchUser[0]?.role,
     };
     try {
       await User.updateOne(
