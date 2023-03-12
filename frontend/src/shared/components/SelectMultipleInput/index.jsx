@@ -25,9 +25,12 @@ export const SelectMultipleInput = ({
   dataSelected = [],
   handleSelectedMember,
   handleUnSelectedMember,
+  handleSearch,
   onOpenDropdown,
   loading = false,
   placeholder = "Enter",
+  inputFocusRef,
+  field
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -40,23 +43,34 @@ export const SelectMultipleInput = ({
     !!onOpenDropdown && onOpenDropdown();
   };
 
+  const handleSearchMultipleItem = (e) => {
+    if(e.target.value != '') {
+      handleSearch(e);
+      if(!open) {
+        setAnchorEl(e?.currentTarget)
+      }
+    }
+  }
+
   const handleCloseDropdown = () => {
     setAnchorEl(null);
   };
-
+  
   return (
     <>
       <StyledSelectMultipleContainer>
         <StyledOutlineInput
+          ref={inputFocusRef}
+          onChange={(e) => handleSearchMultipleItem(e)}
           onClick={handleOpenDropdown}
           fullWidth
-          readOnly
           sx={{
             "& input": {
-              display: dataSelected?.length > 0 ? "none" : "block",
+              width: 'unset'
             },
           }}
           size="small"
+          type="text"
           placeholder={placeholder}
           startAdornment={
             <StyledChipContainer>

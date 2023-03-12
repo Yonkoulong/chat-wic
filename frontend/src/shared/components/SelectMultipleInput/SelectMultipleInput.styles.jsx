@@ -60,7 +60,7 @@ export const StyledSelectItemText = styled(Typography)`
 export const StyledChipContainer = styled(Box)`
   ${() => css`
     display: flex;
-    max-width: 100%;
+    max-width: max-content;
     width: 100%;
     flex-wrap: wrap;
   `}
