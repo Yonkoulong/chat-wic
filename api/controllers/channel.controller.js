@@ -9,7 +9,7 @@ const {
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 
 const postCreateChannel = async (req, res) => {
-  const { channelName, userIds, ownerId } = req?.body;
+  const { channelName, userIds, ownerId, description } = req?.body;
 
   if (!isArray(userIds) && isObjectIdInMongodb(ownerId)) {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
@@ -22,6 +22,7 @@ const postCreateChannel = async (req, res) => {
     channelName,
     userIds: allUserIds,
     ownerId,
+    description,
   };
   try {
     await ChannelModel?.create(newChannel);
