@@ -326,9 +326,11 @@ const getRefreshToken = async (req, res) => {
   const userData = verifyToken(convertToken(token));
 
   const currentUser = userData?.data;
+  const userId = currentUser?.id;
+  const userById = await User.find({ id: userId });
   if (currentUser) {
     const respData = {
-      content: { ...currentUser, token: convertToken(token) },
+      content: { ...userById[0]?._doc, token: convertToken(token) },
     };
     return res.status(httpCode.ok).json(respData);
   }

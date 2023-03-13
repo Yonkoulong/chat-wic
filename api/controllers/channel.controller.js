@@ -4,6 +4,7 @@ const {
   httpCode,
   responseError,
   formatResponse,
+  ObjectIdMongodb,
 } = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 
@@ -13,15 +14,18 @@ const postCreateChannel = async (req, res) => {
   if (!isArray(userIds) && isObjectIdInMongodb(ownerId)) {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
+  const channelId = new ObjectIdMongodb();
+  const allUserIds = [...userIds, ownerId];
 
   const newChannel = {
+    _id: channelId,
     channelName,
-    userIds,
+    userIds: allUserIds,
     ownerId,
   };
   try {
     await ChannelModel?.create(newChannel);
-    return res?.status(httpCode.ok).json({ content: newChannel });
+    return res?.status(httpCode.ok).json(formatResponse(newChannel));
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
