@@ -89,7 +89,7 @@ export const RoomContent = () => {
                     key={message?._id || index}
                   >
                     <UserImageWrapper>
-                      <UserImage src={message?.avatar || ""} />
+                      <UserImage src={message?.avatar || ""} alt="image"/>
                     </UserImageWrapper>
 
                     {idMessageHovering === message?._id ? (
