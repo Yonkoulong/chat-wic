@@ -128,7 +128,7 @@ const Sidebar = () => {
   useEffect(() => {
     (async () => {
       try {
-        const payload = { userId: "63e9e5d0a831c1390cd043da" };
+        const payload = { userId: userInfo?._id };
         const respChannels = await getChannelsByUser(payload);
         if (Array.isArray(respChannels?.data?.content)) {
           setChannels(respChannels?.data?.content);

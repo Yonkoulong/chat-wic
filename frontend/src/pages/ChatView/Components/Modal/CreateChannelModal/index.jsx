@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
-import { set, useForm, useWatch } from "react-hook-form";
 
 import {
   StyledTextField,
@@ -18,10 +18,11 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { createMember } from "@/services/member.service";
+import { postChannel } from "@/services/channel.services";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
-import { enumRoles } from "@/shared/utils/constant";
+import { redirectTo } from "@/shared/utils/history";
+
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
@@ -70,13 +71,18 @@ BootstrapDialogTitle.propTypes = {
 const defaultValues = {
   channelName: "",
   description: "",
+  ownerId: 0,
+  userIds: [],
 };
 
 export const ModalCreateChannel = ({ open, onClose }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
+
   const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const inputFocusRef = useRef();
 
   const {
     control,
@@ -87,8 +93,8 @@ export const ModalCreateChannel = ({ open, onClose }) => {
 
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
-
     const field = useWatch({ control });
+
     if (field?.channelName && field?.userIds) {
       isEnable = false;
     } else {
@@ -99,18 +105,20 @@ export const ModalCreateChannel = ({ open, onClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const respData = await createMember(data);
+      const newPayloadChannel = {
+        ...data,
+        userIds: membersSelected,
+        ownerId: userInfo?._id,
+      };
+
+      const respData = await postChannel(newPayloadChannel);
 
       if (respData) {
+        const idChannel = respData?.data?.content?._id;
         setLoading(true);
-        fetchMembers({
-          organizeId: userInfo?.organizeId,
-          id: "",
-          email: "",
-          paging: { page: 1, size: 10 },
-        });
-        toast.success("Create member successfully.");
+        toast.success("Create channel successfully.");
         handleClose();
+        redirectTo(`/chat/channel/${idChannel}`);
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -120,9 +128,10 @@ export const ModalCreateChannel = ({ open, onClose }) => {
 
   const handleClose = () => {
     reset({
-      email: "",
-      password: "",
-      role: "",
+      channelName: "",
+      description: "",
+      ownerId: 0,
+      userIds: [],
     });
     onClose(false);
   };
@@ -138,8 +147,9 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
+      handleFocusInputAfterClick();
     }
   };
 
@@ -147,6 +157,8 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     if (!member) return;
     const memberId = member?.id;
     const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
+    const inputRef = inputFocusRef.current.querySelector("input");
+
     let newMembersSelected = [];
     if (membersSelectedIds?.includes(memberId)) {
       newMembersSelected = membersSelected?.filter(
@@ -155,7 +167,14 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     } else {
       newMembersSelected = [...membersSelected, member];
     }
+
+    if (inputRef.value != "") {
+      inputRef.value = "";
+      handleGetUsers();
+    }
+
     setMembersSelected(newMembersSelected);
+    handleFocusInputAfterClick();
   };
 
   const handleUnSelectedMember = (member) => {
@@ -164,6 +183,28 @@ export const ModalCreateChannel = ({ open, onClose }) => {
       (memberSelected) => memberSelected?.id !== member?.id
     );
     setMembersSelected(newMembersUnSelected);
+    handleFocusInputAfterClick();
+  };
+
+  const handleSearchMember = async (e) => {
+    setLoading(true);
+    try {
+      await fetchMembers({
+        organizeId: userInfo?.organizeId,
+        id: "",
+        email: e.target.value,
+        paging: { page: 1, size: 10 },
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFocusInputAfterClick = () => {
+    const inputRef = inputFocusRef.current;
+    inputRef.querySelector("input").focus();
   };
 
   return (
@@ -202,6 +243,28 @@ export const ModalCreateChannel = ({ open, onClose }) => {
               </ControllerInput>
             </CreateMemberInputContainer>
             <CreateMemberInputContainer>
+              <StyledLabelTextField>Description</StyledLabelTextField>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="Channel description"
+                fieldName="description"
+                required={false}
+              >
+                {(field) => (
+                  <StyledTextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    type="text"
+                    placeholder="Enter channel description"
+                    multiline
+                    rows={4}
+                  />
+                )}
+              </ControllerInput>
+            </CreateMemberInputContainer>
+            <CreateMemberInputContainer>
               <StyledLabelTextField>
                 Members<span className="require-field">*</span>
               </StyledLabelTextField>
@@ -210,16 +273,20 @@ export const ModalCreateChannel = ({ open, onClose }) => {
                 errors={errors}
                 fieldNameErrorMessage="Members"
                 fieldName="userIds"
-                required={true}
+                required={false}
               >
                 {(field) => (
                   <SelectMultipleInput
+                    {...field}
+                    inputFocusRef={inputFocusRef}
+                    handleSearch={handleSearchMember}
                     onOpenDropdown={handleGetUsers}
                     handleSelectedMember={handleSelectedMember}
                     handleUnSelectedMember={handleUnSelectedMember}
                     dataList={members}
                     dataSelected={membersSelected}
                     loading={loading}
+                    placeholder="Add member"
                   />
                 )}
               </ControllerInput>
