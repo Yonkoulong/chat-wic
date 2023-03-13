@@ -78,13 +78,15 @@ const getMessageChannelByChannelId = async (req, res) => {
   const convertMessageInChannel = messageInChannel?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
+    let avatar = "";
     senders?.forEach((sender) => {
       if (senderIdToString === sender?._id?.toString()) {
         senderName = sender?.username || "";
+        avatar = sender?.avatar;
       }
     });
 
-    return { ...message?._doc, senderName };
+    return { ...message?._doc, senderName, avatar };
   });
 
   return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
