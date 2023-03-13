@@ -107,7 +107,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     try {
       const newPayloadChannel = {
         ...data,
-        userIds: membersSelected,
+        userIds: membersSelected?.map(mem => mem?.id),
         ownerId: userInfo?._id,
       };
 
