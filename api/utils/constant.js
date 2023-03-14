@@ -1,4 +1,5 @@
 const MongoDB = require("mongodb");
+const { isArray } = require("./validation");
 const ObjectIdMongodb = MongoDB.ObjectId;
 
 const httpCode = {
@@ -96,6 +97,17 @@ const formatResponse = (response, paging) => {
   return data;
 };
 
+const getItemById = async (Model, _id) => {
+  let data = {};
+  try {
+    const items = Model?.find({ _id });
+    if (isArray(items) && items?.length > 0) {
+      return (data = items[0]);
+    }
+  } catch {}
+  return data;
+};
+
 module.exports = {
   httpCode,
   IUserStatus,
@@ -113,4 +125,5 @@ module.exports = {
   calculateTotalPage,
   MESSAGE_TYPES,
   formatResponse,
+  getItemById,
 };

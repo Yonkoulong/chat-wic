@@ -7,6 +7,7 @@ const {
   ObjectIdMongodb,
   formatResponse,
   MESSAGE_TYPES,
+  getItemById,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -76,7 +77,7 @@ const getMessageChannelByChannelId = async (req, res) => {
     }
   });
   const senders = await User.find({ _id: { $in: senderIds } });
-  const convertMessageInChannel = messageInChannel?.map(async (message) => {
+  const convertMessageInChannel = messageInChannel?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
     let avatar = "";
@@ -90,10 +91,9 @@ const getMessageChannelByChannelId = async (req, res) => {
 
     if (message?.replyId) {
       try {
-        const messageReplyById = await MessageChannel.find({ _id: replyId });
-        if (messageReplyById?.length > 0) {
-          replyMessage = messageReplyById[0];
-        }
+        getItemById(MessageChannel, message?.replyId).then(
+          (data) => (replyMessage = data)
+        );
       } catch (err) {
         console.log(err);
       }
