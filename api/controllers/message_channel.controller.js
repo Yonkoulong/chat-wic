@@ -88,9 +88,13 @@ const getMessageChannelByChannelId = async (req, res) => {
     });
 
     if (message?.replyId) {
-      const messageReplyById = await MessageChannel.find({ _id: replyId });
-      if (messageReplyById?.length > 0) {
-        replyMessage = messageReplyById[0];
+      try {
+        const messageReplyById = await MessageChannel.find({ _id: replyId });
+        if (messageReplyById?.length > 0) {
+          replyMessage = messageReplyById[0];
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
 
