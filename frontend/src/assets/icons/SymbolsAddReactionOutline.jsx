@@ -7,8 +7,8 @@ export const SymbolsAddReactionOutlineIcon = (props) => {
       {...props}
       viewBox="0 0 61 60"
       sx={{
-        width: "1em",
-        height: "1em",
+        width: ".7em",
+        height: ".7em",
         ":hover": {
           path: {
             fill: primaryColor,

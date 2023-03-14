@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import EmojiPicker from 'emoji-picker-react';
 import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography } from "@/shared/components";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -106,7 +107,7 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <LucideQuoteIcon viewBox="0 0 60 60" />
+                            <LucideQuoteIcon />
                           </Box>
                           <Box
                             sx={{
@@ -114,7 +115,7 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <SymbolsAddReactionOutlineIcon viewBox="0 0 60 60" />
+                            <SymbolsAddReactionOutlineIcon />
                           </Box>
                           <Box
                             sx={{
@@ -122,11 +123,11 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <UilCommentMessageIcon viewBox="0 0 60 60" />
+                            <UilCommentMessageIcon />
                           </Box>
                           <Box
                             sx={{
-                              m: "0 8px",
+                              m: "0 8px 0 0",
                               ...flexCenter,
                               ":hover": {
                                 color: primaryColor,
@@ -134,7 +135,7 @@ export const RoomContent = () => {
                               },
                             }}
                           >
-                            <MoreVertIcon />
+                            <MoreVertIcon sx={{ fontSize: '20px'}} />
                           </Box>
                         </Box>
                       </InteractMessageWrapper>

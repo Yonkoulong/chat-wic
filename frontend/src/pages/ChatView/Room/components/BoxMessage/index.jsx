@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { useParams } from "react-router-dom";
+
 import { Box, TextareaAutosize } from "@/shared/components";
 import {
   SymbolsAttachFileIcon,
@@ -7,8 +9,17 @@ import {
   FluentTaskAddIcon,
 } from "@/assets/icons";
 
+import SendIcon from "@mui/icons-material/Send";
+import { useAppStore } from "@/stores/AppStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { BoxMessageContainer } from "./BoxMessage.styles";
-import { borderColor } from "@/shared/utils/colors.utils";
+import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
+import { typesMessage } from "@/shared/utils/constant";
+import { hasWhiteSpace } from "@/shared/utils/utils";
+import {
+  postMessageChannel,
+  getMessageChannelByChannelId,
+} from "@/services/channel.services";
 
 const flexCenter = {
   display: "flex",
@@ -16,10 +27,55 @@ const flexCenter = {
 };
 
 export const BoxMessage = () => {
+  const { id } = useParams();
+  const userInfo = useAppStore((state) => state.userInfo);
+  const setMessages = useChatStore((state) => state.setMessages);
 
-    const handleChat = (e) => {
-        console.log(e.target.value)
+  const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
+  const [isPostMessage, setIsPostMessage] = useState(false);
+  const textAreaRef = useRef(null);
+
+  const handleChat = (e) => {
+    if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
+      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {
+        postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
+      }
     }
+
+    //remove line break
+    if (!e.shiftKey && (e.key === "Enter" || e.charCode === 13)) {
+      e.preventDefault();
+      const textArea = textAreaRef.current;
+      textArea.value.replace("\n", "");
+    }
+  };
+
+  const handleChatChange = (e) => {
+    //Check show/hide send icon
+    if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
+      setIsDisplayIconChat(true);
+    } else {
+      setIsDisplayIconChat(false);
+    }
+  };
+
+  const postMessageOnServer = async (value, type) => {
+    try {
+      const newPayloadMessage = {
+        messageFrom: userInfo?._id,
+        content: value,
+        channelId: id,
+        type: type,
+      };
+      const resp = await postMessageChannel(newPayloadMessage);
+      if (resp) {
+        const messageResp = await getMessageChannelByChannelId({ channelId: id });
+        setMessages(messageResp?.data?.content);
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.content;
+    }
+  };
 
   return (
     <BoxMessageContainer>
@@ -78,8 +134,9 @@ export const BoxMessage = () => {
         </Box>
       </Box>
       <Box>
-        <Box>
+        <Box sx={{ position: "relative" }}>
           <TextareaAutosize
+            ref={textAreaRef}
             placeholder="Message"
             style={{
               width: "100%",
@@ -89,10 +146,27 @@ export const BoxMessage = () => {
               border: "none",
               outline: "none",
               fontSize: "18px",
-              resize: 'none'
+              resize: "none",
             }}
-            onChange={handleChat}
+            onChange={(e) => handleChatChange(e)}
+            onKeyPress={(e) => handleChat(e)}
           />
+          {isDisplayIconChat ? (
+            <SendIcon
+              sx={{
+                position: "absolute",
+                right: "55px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                ":hover": {
+                  color: primaryColor,
+                  cursor: "pointer",
+                },
+              }}
+            />
+          ) : (
+            <></>
+          )}
         </Box>
       </Box>
     </BoxMessageContainer>
