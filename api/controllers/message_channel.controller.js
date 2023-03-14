@@ -75,10 +75,11 @@ const getMessageChannelByChannelId = async (req, res) => {
     }
   });
   const senders = await User.find({ _id: { $in: senderIds } });
-  const convertMessageInChannel = messageInChannel?.map((message) => {
+  const convertMessageInChannel = messageInChannel?.map(async (message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
     let avatar = "";
+    let replyMessage = {};
     senders?.forEach((sender) => {
       if (senderIdToString === sender?._id?.toString()) {
         senderName = sender?.username || "";
@@ -86,7 +87,14 @@ const getMessageChannelByChannelId = async (req, res) => {
       }
     });
 
-    return { ...message?._doc, senderName, avatar };
+    if (message?.replyId) {
+      const messageReplyById = await MessageChannel.find({ _id: replyId });
+      if (messageReplyById?.length > 0) {
+        replyMessage = messageReplyById[0];
+      }
+    }
+
+    return { ...message?._doc, senderName, avatar, replyMessage };
   });
 
   return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
