@@ -21,7 +21,7 @@ const getMessagesChannel = async (_req, res) => {
 
 const postMessageChannel = async (req, res) => {
   const { channelId } = req?.params;
-  const { content, messageFrom, type } = req.body;
+  const { content, messageFrom, type, replyId } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
@@ -31,6 +31,7 @@ const postMessageChannel = async (req, res) => {
       content,
       channelId: convertChannelIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.plainText,
+      replyId: replyId || "",
     };
 
     if (type === MESSAGE_TYPES.image) {
