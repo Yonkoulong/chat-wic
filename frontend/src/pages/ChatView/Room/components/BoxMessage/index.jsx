@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { Box, TextareaAutosize } from "@/shared/components";
+import { Box, TextareaAutosize, Typography } from "@/shared/components";
 import {
   SymbolsAttachFileIcon,
   SymbolsImageOutlineIcon,
@@ -10,12 +10,20 @@ import {
 } from "@/assets/icons";
 
 import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
 import { useAppStore } from "@/stores/AppStore";
 import { useChatStore } from "@/stores/ChatStore";
 import { BoxMessageContainer } from "./BoxMessage.styles";
-import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
+import {
+  borderColor,
+  primaryColor,
+  whiteColor,
+  hoverTextColor,
+  inActiveColor,
+  hoverBackgroundColor,
+} from "@/shared/utils/colors.utils";
 import { typesMessage } from "@/shared/utils/constant";
-import { hasWhiteSpace } from "@/shared/utils/utils";
+import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
 import {
   postMessageChannel,
   getMessageChannelByChannelId,
@@ -30,10 +38,18 @@ export const BoxMessage = () => {
   const { id } = useParams();
   const userInfo = useAppStore((state) => state.userInfo);
   const setMessages = useChatStore((state) => state.setMessages);
+  const quoteMessage = useChatStore((state) => state.quoteMessage);
+  const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const setHeightQuoteMessageBox = useChatStore(
+    (state) => state.setHeightQuoteMessageBox
+  );
+
 
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [isPostMessage, setIsPostMessage] = useState(false);
+
   const textAreaRef = useRef(null);
+  const quoteMessageRef = useRef(null);
 
   const handleChat = (e) => {
     if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
@@ -69,7 +85,9 @@ export const BoxMessage = () => {
       };
       const resp = await postMessageChannel(newPayloadMessage);
       if (resp) {
-        const messageResp = await getMessageChannelByChannelId({ channelId: id });
+        const messageResp = await getMessageChannelByChannelId({
+          channelId: id,
+        });
         setMessages(messageResp?.data?.content);
       }
     } catch (error) {
@@ -77,15 +95,64 @@ export const BoxMessage = () => {
     }
   };
 
+  const handleCancelQuoteMessage = () => {
+    setQuoteMessage({});
+    setHeightQuoteMessageBox(0);
+  }
+
+  useEffect(() => {
+    if (!isObjectEmpty(quoteMessage)) {
+      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
+      setHeightQuoteMessageBox(heightQuoteMessage);
+    }
+  }, [quoteMessage]);
+
   return (
     <BoxMessageContainer>
+      {!isObjectEmpty(quoteMessage) ? (
+        <Box
+          ref={quoteMessageRef}
+          sx={{
+            backgroundColor: hoverTextColor,
+            padding: "8px 24px",
+          }}
+        >
+          <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
+            <Typography variant="subtitle2">
+              You are answering {quoteMessage?.senderName}
+            </Typography>
+            <CloseIcon
+              sx={{
+                fontSize: "18px",
+                cursor: "pointer",
+                borderRadius: "50px",
+                
+                ":hover": {
+                  backgroundColor: hoverBackgroundColor,
+                  color: primaryColor,
+                },
+              }}
+              onClick={handleCancelQuoteMessage}
+            />
+          </Box>
+          <Box mt={1}>
+            <Typography component="p" sx={{ color: inActiveColor }}>
+              {quoteMessage?.content}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <></>
+      )}
+
       <Box
         sx={{
           ...flexCenter,
           padding: "16px 24px",
           borderWidth: "2px",
           borderStyle: "solid none",
-          borderColor: `${borderColor}`,
+          borderColor: borderColor,
+          backgroundColor: whiteColor,
         }}
       >
         <Box

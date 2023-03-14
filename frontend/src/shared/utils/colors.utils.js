@@ -8,5 +8,6 @@ export const borderColor = "#D8DDE2";
 export const inActiveColor = "#B4BAC0";
 export const hoverItemSidebarColor = "#1f2329";
 export const hoverTextColor = "#F8EFEF";
+export const hoverBackgroundColor = "#e0d5d5";
 export const textColorItemSidebar = "#9ea2a8";
 export const selectedColor = "#F1F3F4";

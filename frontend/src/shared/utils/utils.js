@@ -11,3 +11,9 @@ export const hasWhiteSpace = (s) => {
     return /^\s+$/g.test(s);
 };
 
+export function isObjectEmpty(value) {
+    return (
+      Object.prototype.toString.call(value) === '[object Object]' &&
+      JSON.stringify(value) === '{}'
+    );
+  }

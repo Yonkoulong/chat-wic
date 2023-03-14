@@ -7,8 +7,8 @@ export const UilCommentMessageIcon = (props) => {
       {...props}
       viewBox="0 0 61 60"
       sx={{
-        width: ".7em",
-        height: ".7em",
+        width: props?.width ? props.width : "1em",
+        height: props?.height ? props.height : "1em",
         ":hover": {
           path: {
             fill: primaryColor,

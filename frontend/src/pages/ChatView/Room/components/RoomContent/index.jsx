@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker from "emoji-picker-react";
+import Popover from "@mui/material/Popover";
+import { toast } from "react-toastify";
+
 import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography } from "@/shared/components";
+
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import TagFacesIcon from "@mui/icons-material/TagFaces";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+
 import {
   LucideQuoteIcon,
   SymbolsAddReactionOutlineIcon,
@@ -22,10 +31,9 @@ import {
 } from "./RoomContent.styles";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
-import { primaryColor } from "@/shared/utils/colors.utils";
+import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
 import { enumTypeRooms } from "@/shared/utils/constant";
 import { getMessageChannelByChannelId } from "@/services/channel.services";
-import { toast } from "react-toastify";
 
 const flexCenter = {
   display: "flex",
@@ -37,8 +45,13 @@ export const RoomContent = () => {
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const messages = useChatStore((state) => state.messages);
   const setMessages = useChatStore((state) => state.setMessages);
+  const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const heightQuoteMessage = useChatStore((state) => state.heightQuoteMessageBox);
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
+  const [anchorReaction, setAnchorReaction] = useState(null);
+  const [anchorMoreFeatureMessage, setAnchorMoreFeatureMessage] =
+    useState(null);
 
   const handleMouseOver = (message) => {
     setIdMessageHovering(message?._id);
@@ -70,6 +83,47 @@ export const RoomContent = () => {
     })();
   }, [roomInfo, typeRoom]);
 
+  const handleClickEmoji = (e) => {
+    console.log(e);
+  };
+
+  //reply
+  const handleClickReplyMessage = (message) => {
+    if(message) {
+      setQuoteMessage(message);
+    }
+  }
+
+  //handle open anchor
+  const handleClickOpenAnchorReaction = (event) => {
+    setAnchorReaction(event.currentTarget);
+  };
+
+  const handClickOpenAnchorMoreFeatureMessage = (event) => {
+    setAnchorMoreFeatureMessage(event.currentTarget);
+  };
+
+  //close anchor
+  const handleCloseAnchorReaction = () => {
+    setAnchorReaction(null);
+  };
+
+  const handleCloseAnchorMoreFeatureMessage = () => {
+    setAnchorMoreFeatureMessage(null);
+  };
+
+  //open anchor
+  const openAnchorReaction = Boolean(anchorReaction);
+  const openAnchorMoreFeatureMessage = Boolean(anchorMoreFeatureMessage);
+
+  //id anchor
+  const idAnchorReaction = openAnchorReaction
+    ? "anchor-reaction-popover"
+    : undefined;
+  const idAnchorMoreFeatureMessage = openAnchorMoreFeatureMessage
+    ? "anchor-more-feature-message"
+    : undefined;
+
   return (
     <RoomContentContainer>
       <Box>
@@ -77,7 +131,7 @@ export const RoomContent = () => {
           sx={{
             padding: "24px 0px",
             overflowY: "auto",
-            maxHeight: "calc(100vh - 197.38px)",
+            maxHeight: `calc(100vh - 197.38px - ${heightQuoteMessage}px)`,
           }}
         >
           <MessageList>
@@ -90,7 +144,7 @@ export const RoomContent = () => {
                     key={message?._id || index}
                   >
                     <UserImageWrapper>
-                      <UserImage src={message?.avatar || ""} alt="image"/>
+                      <UserImage src={message?.avatar || ""} alt="image" />
                     </UserImageWrapper>
 
                     {idMessageHovering === message?._id ? (
@@ -107,7 +161,7 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <LucideQuoteIcon />
+                            <LucideQuoteIcon onClick={() => handleClickReplyMessage(message)}/>
                           </Box>
                           <Box
                             sx={{
@@ -115,7 +169,36 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <SymbolsAddReactionOutlineIcon />
+                            <SymbolsAddReactionOutlineIcon
+                              onClick={handleClickOpenAnchorReaction}
+                            />
+                            <Popover
+                              id={idAnchorReaction}
+                              anchorEl={anchorReaction}
+                              open={openAnchorReaction}
+                              onClose={handleCloseAnchorReaction}
+                              anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                              }}
+                              transformOrigin={{
+                                vertical: "bottom",
+                                horizontal: "left",
+                              }}
+                              sx={{
+                                "& .MuiPaper-root": {
+                                  borderRadius: "10px",
+                                },
+                              }}
+                            >
+                              <Box>
+                                <EmojiPicker
+                                  width={250}
+                                  height={400}
+                                  onEmojiClick={(e) => handleClickEmoji(e)}
+                                />
+                              </Box>
+                            </Popover>
                           </Box>
                           <Box
                             sx={{
@@ -123,7 +206,7 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <UilCommentMessageIcon />
+                            <UilCommentMessageIcon width="0.7em" height="0.7em"/>
                           </Box>
                           <Box
                             sx={{
@@ -135,7 +218,73 @@ export const RoomContent = () => {
                               },
                             }}
                           >
-                            <MoreVertIcon sx={{ fontSize: '20px'}} />
+                            <MoreVertIcon
+                              sx={{ fontSize: "20px" }}
+                              onClick={handClickOpenAnchorMoreFeatureMessage}
+                            />
+                            <Popover
+                              id={idAnchorMoreFeatureMessage}
+                              anchorEl={anchorMoreFeatureMessage}
+                              open={openAnchorMoreFeatureMessage}
+                              onClose={handleCloseAnchorMoreFeatureMessage}
+                              anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                              }}
+                              transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                              }}
+                              sx={{
+                                "& .MuiPaper-root": {
+                                  borderRadius: "10px",
+                                  margin: "11px 0px 0 0",
+                                  width: "120px",
+                                },
+                              }}
+                            >
+                              <Box>
+                                <Typography
+                                  sx={{
+                                    padding: "8px",
+                                    fontSize: "14px",
+                                    ":hover": {
+                                      color: primaryColor,
+                                      opacity: 0.8,
+                                      cursor: "pointer",
+                                    },
+                                  }}
+                                >
+                                  Delete
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    padding: "8px",
+                                    fontSize: "14px",
+                                    ":hover": {
+                                      color: primaryColor,
+                                      opacity: 0.8,
+                                      cursor: "pointer",
+                                    },
+                                  }}
+                                >
+                                  Edit
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    padding: "8px",
+                                    fontSize: "14px",
+                                    ":hover": {
+                                      color: primaryColor,
+                                      opacity: 0.8,
+                                      cursor: "pointer",
+                                    },
+                                  }}
+                                >
+                                  Forward
+                                </Typography>
+                              </Box>
+                            </Popover>
                           </Box>
                         </Box>
                       </InteractMessageWrapper>
@@ -146,9 +295,7 @@ export const RoomContent = () => {
                         <UserName>{message?.senderName}</UserName>
                         <TimeMessage>{message?.createdAt}</TimeMessage>
                       </MessageTitle>
-                      <MessageContentBox>
-                        {message?.content}
-                      </MessageContentBox>
+                      <MessageContentBox>{message?.content}</MessageContentBox>
                     </MessageContentWrapper>
                   </MessageItem>
                 );
