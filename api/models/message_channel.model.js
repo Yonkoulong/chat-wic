@@ -20,6 +20,10 @@ const messageChannelSchema = new Schema(
       type: Buffer,
       required: false,
     },
+    replyId: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

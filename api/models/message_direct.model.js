@@ -17,6 +17,10 @@ const messageDirectSchema = new Schema(
       required: false,
       trim: true,
     },
+    replyId: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

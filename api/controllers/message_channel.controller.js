@@ -7,6 +7,7 @@ const {
   ObjectIdMongodb,
   formatResponse,
   MESSAGE_TYPES,
+  getItemById,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -21,7 +22,7 @@ const getMessagesChannel = async (_req, res) => {
 
 const postMessageChannel = async (req, res) => {
   const { channelId } = req?.params;
-  const { content, messageFrom, type } = req.body;
+  const { content, messageFrom, type, replyId } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
@@ -31,6 +32,7 @@ const postMessageChannel = async (req, res) => {
       content,
       channelId: convertChannelIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.plainText,
+      replyId: replyId || "",
     };
 
     if (type === MESSAGE_TYPES.image) {
@@ -79,6 +81,7 @@ const getMessageChannelByChannelId = async (req, res) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
     let avatar = "";
+    let replyMessage = {};
     senders?.forEach((sender) => {
       if (senderIdToString === sender?._id?.toString()) {
         senderName = sender?.username || "";
@@ -86,7 +89,17 @@ const getMessageChannelByChannelId = async (req, res) => {
       }
     });
 
-    return { ...message?._doc, senderName, avatar };
+    if (message?.replyId) {
+      try {
+        getItemById(MessageChannel, message?.replyId).then(
+          (data) => (replyMessage = data)
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    return { ...message?._doc, senderName, avatar, replyMessage };
   });
 
   return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
