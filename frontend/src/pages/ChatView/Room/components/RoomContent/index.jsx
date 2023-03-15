@@ -7,10 +7,7 @@ import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography } from "@/shared/components";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import TagFacesIcon from "@mui/icons-material/TagFaces";
-import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ReplyIcon from "@mui/icons-material/Reply";
 
 import {
   LucideQuoteIcon,
@@ -28,11 +25,21 @@ import {
   TimeMessage,
   MessageContentBox,
   InteractMessageWrapper,
-  MessageReplyContent
+  MessageReplyContent,
+  MessageQuoteBox,
+  MessageReactionBox,
+  MessageThreadBox,
 } from "./RoomContent.styles";
+
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
-import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
+import {
+  primaryColor,
+  borderColor,
+  inActiveColor,
+  hoverTextColor,
+  whiteColor,
+} from "@/shared/utils/colors.utils";
 import { enumTypeRooms } from "@/shared/utils/constant";
 import { getMessageChannelByChannelId } from "@/services/channel.services";
 
@@ -134,6 +141,7 @@ export const RoomContent = () => {
           sx={{
             padding: "24px 0px",
             overflowY: "auto",
+            overflowX: "hidden",
             maxHeight: `calc(100vh - 197.38px - ${heightQuoteMessage}px)`,
           }}
         >
@@ -303,10 +311,71 @@ export const RoomContent = () => {
                         <UserName>{message?.senderName}</UserName>
                         <TimeMessage>{message?.createdAt}</TimeMessage>
                       </MessageTitle>
+
+                      <MessageContentBox>
+                        <Typography fontSize="small">
+                          {message?.content}
+                        </Typography>
+                      </MessageContentBox>
+
                       {message?.replyId && (
-                        <MessageReplyContent>{message?.replyMessage?.content || ""}</MessageReplyContent>
+                        <MessageQuoteBox>
+                          <Box sx={{ ...flexCenter }}>
+                            <ReplyIcon
+                              fontSize="small"
+                              sx={{ color: inActiveColor }}
+                            />
+                            <Typography fontSize="small" color={inActiveColor}>
+                              You have answered
+                            </Typography>
+                          </Box>
+                          <MessageReplyContent mt={1}>
+                            {message?.replyMessage?.content || ""}
+                          </MessageReplyContent>
+                        </MessageQuoteBox>
                       )}
-                      <MessageContentBox>{message?.content}</MessageContentBox>
+
+                      <MessageReactionBox>
+                        <Box
+                          sx={{
+                            ...flexCenter,
+                            padding: 0.5,
+                            borderRadius: "5px",
+                            border: `1px solid ${borderColor}`,
+                            backgroundColor: hoverTextColor,
+                            ":hover": {
+                              opacity: 0.8,
+                            },
+                          }}
+                        >
+                          <Typography fontSize="small">{String.fromCodePoint(0x1f600)}</Typography>
+                          <Typography fontSize="small" ml={0.5}>
+                            1
+                          </Typography>
+                        </Box>
+                      </MessageReactionBox>
+                      <MessageThreadBox>
+                        <Box
+                          sx={{
+                            padding: 0.5,
+                            borderRadius: "5px",
+                            backgroundColor: primaryColor,
+                            color: whiteColor,
+
+                            ":hover": {
+                              opacity: 0.8,
+                            },
+                          }}
+                        >
+                          <Typography fontSize="small">Thread</Typography>
+                        </Box>
+                        <Box sx={{ ...flexCenter, ml: 1 }}>
+                          <UilCommentMessageIcon width="0.7em" height="0.7em" />
+                          <Typography fontSize="11px" ml={0.5}>
+                            1
+                          </Typography>
+                        </Box>
+                      </MessageThreadBox>
                     </MessageContentWrapper>
                   </MessageItem>
                 );
