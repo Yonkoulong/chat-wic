@@ -76,6 +76,12 @@ const getMessageChannelByChannelId = async (req, res) => {
       return ObjectIdMongodb(message.messageFrom);
     }
   });
+
+  const replyIds = messageInChannel?.filter((item) => item?.replyId);
+  let messageByReplyIds = [];
+  try {
+    messageByReplyIds = MessageChannel.find({ _id: { $in: replyIds } });
+  } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
   const convertMessageInChannel = messageInChannel?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
@@ -89,14 +95,12 @@ const getMessageChannelByChannelId = async (req, res) => {
       }
     });
 
-    if (message?.replyId) {
-      try {
-        getItemById(MessageChannel, message?.replyId).then(
-          (data) => (replyMessage = data)
-        );
-      } catch (err) {
-        console.log(err);
-      }
+    if (message?.replyId && messageByReplyIds?.length > 0) {
+      messageByReplyIds?.forEach((item) => {
+        if (item?._id?.toString() === message?.replyId) {
+          replyMessage = item;
+        }
+      });
     }
 
     return { ...message?._doc, senderName, avatar, replyMessage };
