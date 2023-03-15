@@ -28,6 +28,7 @@ import {
   TimeMessage,
   MessageContentBox,
   InteractMessageWrapper,
+  MessageReplyContent
 } from "./RoomContent.styles";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
@@ -46,7 +47,9 @@ export const RoomContent = () => {
   const messages = useChatStore((state) => state.messages);
   const setMessages = useChatStore((state) => state.setMessages);
   const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
-  const heightQuoteMessage = useChatStore((state) => state.heightQuoteMessageBox);
+  const heightQuoteMessage = useChatStore(
+    (state) => state.heightQuoteMessageBox
+  );
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [anchorReaction, setAnchorReaction] = useState(null);
@@ -89,10 +92,10 @@ export const RoomContent = () => {
 
   //reply
   const handleClickReplyMessage = (message) => {
-    if(message) {
+    if (message) {
       setQuoteMessage(message);
     }
-  }
+  };
 
   //handle open anchor
   const handleClickOpenAnchorReaction = (event) => {
@@ -161,7 +164,9 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <LucideQuoteIcon onClick={() => handleClickReplyMessage(message)}/>
+                            <LucideQuoteIcon
+                              onClick={() => handleClickReplyMessage(message)}
+                            />
                           </Box>
                           <Box
                             sx={{
@@ -206,7 +211,10 @@ export const RoomContent = () => {
                               ...flexCenter,
                             }}
                           >
-                            <UilCommentMessageIcon width="0.7em" height="0.7em"/>
+                            <UilCommentMessageIcon
+                              width="0.7em"
+                              height="0.7em"
+                            />
                           </Box>
                           <Box
                             sx={{
@@ -295,6 +303,9 @@ export const RoomContent = () => {
                         <UserName>{message?.senderName}</UserName>
                         <TimeMessage>{message?.createdAt}</TimeMessage>
                       </MessageTitle>
+                      {message?.replyId && (
+                        <MessageReplyContent>{message?.replyMessage?.content || ""}</MessageReplyContent>
+                      )}
                       <MessageContentBox>{message?.content}</MessageContentBox>
                     </MessageContentWrapper>
                   </MessageItem>

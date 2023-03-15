@@ -82,6 +82,7 @@ export const BoxMessage = () => {
         content: value,
         channelId: id,
         type: type,
+        replyId : quoteMessage?._id || null
       };
       const resp = await postMessageChannel(newPayloadMessage);
       if (resp) {

@@ -65,6 +65,12 @@ export const TimeMessage = styled(Typography)`
 
 export const MessageContentBox = styled(Box)``;
 
+export const MessageReplyContent = styled(Typography)`
+  ${() => css`
+    color: red;
+  `}
+`;
+
 export const InteractMessageWrapper = styled(Box)`
   position: absolute;
   border-radius: 10px;

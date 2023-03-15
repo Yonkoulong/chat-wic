@@ -2,7 +2,7 @@ import { requestAxios } from "./http";
 
 //Channel
 export async function postChannel(payload) {
-  return requestAxios.post("/channel/create", payload)
+  return requestAxios.post("/channel/create", payload);
 }
 
 export async function getChannelsByUser(payload) {
@@ -15,10 +15,13 @@ export async function getChannelDetail(payload) {
 
 //Message
 export async function getMessageChannelByChannelId(payload) {
-  return requestAxios.post(`/message-channel/${payload?.channelId}`, {})
+  return requestAxios.post(`/message-channel/${payload?.channelId}`, {});
 }
 
 export async function postMessageChannel(payload) {
-  return requestAxios.post(`/message-channel/${payload?.channelId}/create`, payload);
+  // define payload : { content, messageFrom - id sender, type, replyId || null}
+  return requestAxios.post(
+    `/message-channel/${payload?.channelId}/create`,
+    payload
+  );
 }
-
