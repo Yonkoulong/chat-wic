@@ -42,6 +42,7 @@ const responseError = {
 
 const responseConstant = {
   deleteUserSuccessfully: { content: "Delete user successfully." },
+  deleteMessageSuccessfully: { content: "Delete message successfully." },
 };
 
 const ORDER_DIRECTION = {

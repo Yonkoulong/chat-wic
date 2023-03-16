@@ -8,6 +8,7 @@ const {
   formatResponse,
   isArray,
   MESSAGE_TYPES,
+  responseConstant,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -170,6 +171,19 @@ const putUpdateMessageChannel = async (req, res) => {
   }
 };
 
+const deleteMessageInChannel = async (req, res) => {
+  const { messageId } = req?.params;
+
+  try {
+    await MessageChannel.deleteOne({ _id: messageId });
+    return res
+      .status(httpCode.ok)
+      .json(responseConstant.deleteMessageSuccessfully);
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "get",
@@ -195,5 +209,10 @@ module.exports = [
     method: "put",
     controller: putUpdateMessageChannel,
     routeName: "/message-channel/:messageId",
+  },
+  {
+    method: "delete",
+    controller: deleteMessageInChannel,
+    routeName: "/message-channel/:messageId/delete",
   },
 ];
