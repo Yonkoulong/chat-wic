@@ -28,6 +28,10 @@ const messageChannelSchema = new Schema(
       type: String,
       required: false,
     },
+    reactions: {
+      type: Array,
+      required: false,
+    },
   },
   {
     timestamps: true,

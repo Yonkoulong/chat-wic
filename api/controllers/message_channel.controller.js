@@ -6,8 +6,8 @@ const {
   ORDER_DIRECTION,
   ObjectIdMongodb,
   formatResponse,
+  isArray,
   MESSAGE_TYPES,
-  getItemById,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -22,25 +22,20 @@ const getMessagesChannel = async (_req, res) => {
 
 const postMessageChannel = async (req, res) => {
   const { channelId } = req?.params;
-  const { content, messageFrom, type, replyId, threadId } = req.body;
+  const { content, messageFrom, type, replyId } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const convertChannelIdToObjectIdMongo = ObjectIdMongodb(channelId);
     const messageId = new ObjectIdMongodb();
-    let messageThreadId = messageId?.toString();
-    // check is thread
-    if (threadId) {
-      messageThreadId = threadId;
-    }
     const newMessage = {
       _id: messageId,
-      threadId: messageThreadId,
       messageFrom: convertMessageFromToObjectIdMongo,
       content,
       channelId: convertChannelIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.plainText,
       replyId: replyId || "",
+      reactions: [],
     };
 
     if (type === MESSAGE_TYPES.image) {
@@ -133,6 +128,48 @@ const getMessagesByThreadId = async (req, res) => {
   }
 };
 
+const putUpdateMessageChannel = async (req, res) => {
+  const { content, reaction } = req?.body;
+  const { messageId } = req?.params;
+
+  try {
+    const messageById = await MessageChannel.find({ _id: messageId });
+    let messageData = {};
+    if (messageById?.length < 1) {
+      return res?.status(httpCode.notFound).json(responseError.notFound);
+    }
+    messageData = {
+      ...messageById[0]?._doc,
+      content: content || messageById[0]?._doc?.content,
+    };
+
+    let messageReactions = messageData?.messageData?.reactions;
+
+    if (isArray(messageReactions) && messageReactions?.length < 1) {
+      messageReactions?.push(reaction);
+    } else {
+      messageReactions = messageReactions?.map((item) => {
+        const reactorId = reaction?.reactorId;
+        let newItem = item;
+        // check already exist reactorId
+        if (reactorId === item?.reactorId) {
+          newItem = reaction;
+        }
+        return newItem;
+      });
+    }
+
+    messageData = { ...messageData, reactions: messageReactions };
+
+    MessageChannel.updateOne(
+      { _id: messageId },
+      { $set: messageData, $currentDate: { lastUpdated: true } }
+    );
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "get",
@@ -153,5 +190,10 @@ module.exports = [
     method: "get",
     controller: getMessagesByThreadId,
     routeName: "/message-channel/:threadId",
+  },
+  {
+    method: "put",
+    controller: putUpdateMessageChannel,
+    routeName: "/message-channel/:messageId",
   },
 ];
