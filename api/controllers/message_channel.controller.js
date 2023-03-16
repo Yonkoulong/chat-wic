@@ -22,12 +22,20 @@ const getMessagesChannel = async (_req, res) => {
 
 const postMessageChannel = async (req, res) => {
   const { channelId } = req?.params;
-  const { content, messageFrom, type, replyId } = req.body;
+  const { content, messageFrom, type, replyId, threadId } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const convertChannelIdToObjectIdMongo = ObjectIdMongodb(channelId);
+    const messageId = new ObjectIdMongodb();
+    let messageThreadId = messageId?.toString();
+    // check is thread
+    if (threadId) {
+      messageThreadId = threadId;
+    }
     const newMessage = {
+      _id: messageId,
+      threadId: messageThreadId,
       messageFrom: convertMessageFromToObjectIdMongo,
       content,
       channelId: convertChannelIdToObjectIdMongo,
@@ -113,6 +121,18 @@ const getMessageChannelByChannelId = async (req, res) => {
   return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
 };
 
+// get message by thread id
+
+const getMessagesByThreadId = async (req, res) => {
+  const { threadId } = req?.params;
+  try {
+    const message = await MessageChannel?.find({ threadId });
+    return res.json(message);
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "get",
@@ -128,5 +148,10 @@ module.exports = [
     method: "post",
     controller: getMessageChannelByChannelId,
     routeName: "/message-channel/:channelId",
+  },
+  {
+    method: "get",
+    controller: getMessagesByThreadId,
+    routeName: "/message-channel/:threadId",
   },
 ];

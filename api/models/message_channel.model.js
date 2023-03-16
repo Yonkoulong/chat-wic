@@ -24,6 +24,10 @@ const messageChannelSchema = new Schema(
       type: String,
       required: false,
     },
+    threadId: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
