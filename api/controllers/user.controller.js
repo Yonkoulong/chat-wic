@@ -220,9 +220,10 @@ const posCreateUser = async (req, res) => {
 
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const newUserId = new ObjectIdMongodb();
+  const username = email?.split("@")[0];
   const newUser = {
     _id: newUserId,
-    username: "",
+    username: username || "",
     id: newUserId?.toString(),
     email,
     password: convertPassword,
