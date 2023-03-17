@@ -121,13 +121,10 @@ export const RoomContent = () => {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
     } finally {
-
     }
   };
 
-  const countNumberReactionPerMemoji = () => {
-    
-  }
+  const countNumberReactionPerMemoji = () => {};
 
   //reply
   const handleClickReplyMessage = (message) => {
@@ -364,7 +361,7 @@ export const RoomContent = () => {
                               You have answered{" "}
                               {userInfo?.username == message?.senderName
                                 ? "yourself"
-                                : "message?.senderName"}
+                                : message?.senderName}
                             </Typography>
                           </Box>
                           <MessageReplyContent mt={1}>
@@ -373,29 +370,35 @@ export const RoomContent = () => {
                         </MessageQuoteBox>
                       )}
 
-                      {message?.reactions?.length > 0 ? (
-                        <MessageReactionBox>
-                          <Box
-                            sx={{
-                              ...flexCenter,
-                              padding: 0.5,
-                              borderRadius: "5px",
-                              border: `1px solid ${borderColor}`,
-                              backgroundColor: hoverTextColor,
-                              ":hover": {
-                                opacity: 0.8,
-                              },
-                            }}
-                          >
-                            <Typography fontSize="small">
-                              {String.fromCodePoint(0x1f600)}
-                            </Typography>
-                            <Typography fontSize="small" ml={0.5}>
-                              1
-                            </Typography>
-                          </Box>
-                        </MessageReactionBox>
-                      ) : null}
+                      {message?.reactions?.map((reaction, index) => {
+                        return (
+                          <MessageReactionBox key={index}>
+                            <Box
+                              sx={{
+                                ...flexCenter,
+                                padding: 0.5,
+                                borderRadius: "5px",
+                                border: `1px solid ${borderColor}`,
+                                backgroundColor: hoverTextColor,
+                                ":hover": {
+                                  opacity: 0.8,
+                                },
+                              }}
+                            >
+                              {reaction?.unified && (
+                                <>
+                                  <Typography fontSize="small">
+                                    {/* {String.fromCodePoint(Number(`U+${reaction?.unified}`))} */}
+                                  </Typography>
+                                  <Typography fontSize="small" ml={0.5}>
+                                    1
+                                  </Typography>
+                                </>
+                              )}
+                            </Box>
+                          </MessageReactionBox>
+                        );
+                      }) || <></>}
 
                       <MessageThreadBox>
                         <Box
