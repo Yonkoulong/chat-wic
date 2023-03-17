@@ -19,9 +19,16 @@ export async function getMessageChannelByChannelId(payload) {
 }
 
 export async function postMessageChannel(payload) {
-  // define payload : { content, messageFrom - id sender, type, replyId || null}
   return requestAxios.post(
     `/message-channel/${payload?.channelId}/create`,
     payload
   );
+}
+
+export async function putUpdateMessageChannel(messageId, payload) {
+  return requestAxios.put(`/message-channel/${messageId}`, payload);
+}
+
+export async function deleteMessageChannel(messageId, payload) {
+  return requestAxios.delete(`/message-channel/${messageId}/delete`, { data: payload });
 }

@@ -31,6 +31,7 @@ import {
   MessageThreadBox,
 } from "./RoomContent.styles";
 
+import { useAppStore } from "@/stores/AppStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
 import {
@@ -41,7 +42,10 @@ import {
   whiteColor,
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms } from "@/shared/utils/constant";
-import { getMessageChannelByChannelId } from "@/services/channel.services";
+import {
+  getMessageChannelByChannelId,
+  putUpdateMessageChannel,
+} from "@/services/channel.services";
 
 const flexCenter = {
   display: "flex",
@@ -49,6 +53,7 @@ const flexCenter = {
 };
 
 export const RoomContent = () => {
+  const userInfo = useAppStore((state) => state.userInfo);
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const messages = useChatStore((state) => state.messages);
@@ -59,6 +64,7 @@ export const RoomContent = () => {
   );
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
+  const [idEditMessage, setIdEidtMessage] = useState(null);
   const [anchorReaction, setAnchorReaction] = useState(null);
   const [anchorMoreFeatureMessage, setAnchorMoreFeatureMessage] =
     useState(null);
@@ -93,9 +99,35 @@ export const RoomContent = () => {
     })();
   }, [roomInfo, typeRoom]);
 
-  const handleClickEmoji = (e) => {
-    console.log(e);
+  const handleClickEmoji = async (emoji) => {
+    const { names, unified } = emoji;
+
+    try {
+      const newPayload = {
+        content: "",
+        reaction: {
+          emojiName: names[0],
+          unified,
+          reactorName: userInfo?.username,
+          reactorId: userInfo?._id,
+          idReaction: userInfo?._id,
+        },
+      };
+
+      if (!idEditMessage) return;
+
+      const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    } finally {
+
+    }
   };
+
+  const countNumberReactionPerMemoji = () => {
+    
+  }
 
   //reply
   const handleClickReplyMessage = (message) => {
@@ -105,8 +137,9 @@ export const RoomContent = () => {
   };
 
   //handle open anchor
-  const handleClickOpenAnchorReaction = (event) => {
+  const handleClickOpenAnchorReaction = (event, messageId) => {
     setAnchorReaction(event.currentTarget);
+    setIdEidtMessage(messageId);
   };
 
   const handClickOpenAnchorMoreFeatureMessage = (event) => {
@@ -183,7 +216,9 @@ export const RoomContent = () => {
                             }}
                           >
                             <SymbolsAddReactionOutlineIcon
-                              onClick={handleClickOpenAnchorReaction}
+                              onClick={(e) =>
+                                handleClickOpenAnchorReaction(e, message?._id)
+                              }
                             />
                             <Popover
                               id={idAnchorReaction}
@@ -326,7 +361,10 @@ export const RoomContent = () => {
                               sx={{ color: inActiveColor }}
                             />
                             <Typography fontSize="small" color={inActiveColor}>
-                              You have answered
+                              You have answered{" "}
+                              {userInfo?.username == message?.senderName
+                                ? "yourself"
+                                : "message?.senderName"}
                             </Typography>
                           </Box>
                           <MessageReplyContent mt={1}>
@@ -335,25 +373,30 @@ export const RoomContent = () => {
                         </MessageQuoteBox>
                       )}
 
-                      <MessageReactionBox>
-                        <Box
-                          sx={{
-                            ...flexCenter,
-                            padding: 0.5,
-                            borderRadius: "5px",
-                            border: `1px solid ${borderColor}`,
-                            backgroundColor: hoverTextColor,
-                            ":hover": {
-                              opacity: 0.8,
-                            },
-                          }}
-                        >
-                          <Typography fontSize="small">{String.fromCodePoint(0x1f600)}</Typography>
-                          <Typography fontSize="small" ml={0.5}>
-                            1
-                          </Typography>
-                        </Box>
-                      </MessageReactionBox>
+                      {message?.reactions?.length > 0 ? (
+                        <MessageReactionBox>
+                          <Box
+                            sx={{
+                              ...flexCenter,
+                              padding: 0.5,
+                              borderRadius: "5px",
+                              border: `1px solid ${borderColor}`,
+                              backgroundColor: hoverTextColor,
+                              ":hover": {
+                                opacity: 0.8,
+                              },
+                            }}
+                          >
+                            <Typography fontSize="small">
+                              {String.fromCodePoint(0x1f600)}
+                            </Typography>
+                            <Typography fontSize="small" ml={0.5}>
+                              1
+                            </Typography>
+                          </Box>
+                        </MessageReactionBox>
+                      ) : null}
+
                       <MessageThreadBox>
                         <Box
                           sx={{
