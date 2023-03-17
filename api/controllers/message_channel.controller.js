@@ -132,10 +132,10 @@ const getMessagesByThreadId = async (req, res) => {
 const putUpdateMessageChannel = async (req, res) => {
   const { content, reaction } = req?.body;
   const { messageId } = req?.params;
-  
+
   try {
     const messageById = await MessageChannel.find({ _id: messageId });
-    
+
     let messageData = {};
     if (messageById?.length < 1) {
       return res?.status(httpCode.notFound).json(responseError.notFound);
@@ -144,12 +144,11 @@ const putUpdateMessageChannel = async (req, res) => {
       ...messageById[0]?._doc,
       content: content || messageById[0]?._doc?.content,
     };
-    
+
     let messageReactions = messageData?.reactions || [];
-    
+
     if (Array.isArray(messageReactions) && messageReactions?.length < 1) {
       messageReactions?.push(reaction);
-      
     } else {
       messageReactions = messageReactions?.map((item) => {
         const reactorId = reaction?.reactorId;
@@ -161,15 +160,15 @@ const putUpdateMessageChannel = async (req, res) => {
         return newItem;
       });
     }
-    
+
     messageData = { ...messageData, reactions: messageReactions };
-    
-    MessageChannel.updateOne(
+
+    await MessageChannel.updateOne(
       { _id: messageId },
       { $set: messageData, $currentDate: { lastUpdated: true } }
     );
 
-    return res?.status(httpCode.ok).json(messageData);
+    return res?.status(httpCode.ok).json(formatResponse(messageData));
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
