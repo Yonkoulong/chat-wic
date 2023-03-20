@@ -8,9 +8,11 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { UilCommentMessageIcon } from "@/assets/icons";
 import { Box } from "@/shared/components";
-import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
 import { RoomHeaderItemImage, RoomHeaderItemName } from "./RoomHeader.styles";
 import { useRoomStore } from "@/stores/RoomStore";
+import { redirectTo } from '@/shared/utils/history';
+import { enumPopupFeatures } from "@/shared/utils/constant";
+import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
 
 const flexCenter = {
   display: "flex",
@@ -20,6 +22,8 @@ const flexCenter = {
 export const RoomHeader = () => {
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
+  const setEnumPopupFeatures = useRoomStore((state) => state.setEnumPopupFeatures);
+
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
   
   const handleClickOpenAnchorMoreFeatures = (event) => {
@@ -29,6 +33,11 @@ export const RoomHeader = () => {
   const handleCloseAnchorMoreFeatures = () => {
     setAnchorMoreFeatures(null);
   };
+
+  const handleOpenFeatureRoom = (feature) => {
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`)
+    setEnumPopupFeatures(feature)
+  }
 
   const openAnchorMoreFeatures = Boolean(anchorMoreFeatures);
 
@@ -72,6 +81,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.CALLING)}
             >
               <PhoneIcon />
             </Box>
@@ -84,6 +94,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.THREAD)}
             >
               <UilCommentMessageIcon viewBox="0 0 60 60" />
             </Box>
@@ -96,6 +107,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.MEMBERS)}
             >
               <GroupIcon />
             </Box>
@@ -108,6 +120,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.SEARCH)}
             >
               <SearchIcon />
             </Box>

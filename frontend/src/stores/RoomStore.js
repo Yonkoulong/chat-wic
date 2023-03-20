@@ -11,5 +11,9 @@ export const useRoomStore = create((set) => ({
 
     setTypeRoom: (type) => {
         set({ typeRoom: type });
+    },
+
+    setEnumPopupFeatures: (payload) => {
+        set({ enumPopupFeatures: payload });
     }
 }))

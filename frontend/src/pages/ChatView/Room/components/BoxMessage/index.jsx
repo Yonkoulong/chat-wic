@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import {
   Box,
@@ -19,6 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 import { useAppStore } from "@/stores/AppStore";
+import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
 import { BoxMessageContainer } from "./BoxMessage.styles";
 import {
@@ -29,11 +31,11 @@ import {
   inActiveColor,
   hoverBackgroundColor,
 } from "@/shared/utils/colors.utils";
-import { typesMessage } from "@/shared/utils/constant";
+import { typesMessage, enumTypeRooms } from "@/shared/utils/constant";
 import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
 import {
   postMessageChannel,
-  getMessageChannelByChannelId,
+  putUpdateMessageChannel,
 } from "@/services/channel.services";
 
 const flexCenter = {
@@ -43,8 +45,9 @@ const flexCenter = {
 
 export const BoxMessage = () => {
   const { id } = useParams();
+
+  const typeRoom = useRoomStore((state) => state.typeRoom);
   const userInfo = useAppStore((state) => state.userInfo);
-  const setMessages = useChatStore((state) => state.setMessages);
   const quoteMessage = useChatStore((state) => state.quoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -52,7 +55,13 @@ export const BoxMessage = () => {
   const setHeightQuoteMessageBox = useChatStore(
     (state) => state.setHeightQuoteMessageBox
   );
-
+  const fetchMessagesChannel = useChatStore(
+    (state) => state.fetchMessagesChannel
+  );
+  const fetchMessagesDirect = useChatStore(
+    (state) => state.fetchMessagesDirect
+  );
+    
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [isPostMessage, setIsPostMessage] = useState(false);
 
@@ -71,6 +80,10 @@ export const BoxMessage = () => {
         //has quoute message
         if (!isObjectEmpty(quoteMessage)) {
           handleCancelQuoteMessage();
+        }
+
+        if(!isObjectEmpty(editMessage)) {
+          setEditMessage({});
         }
       }
     }
@@ -95,22 +108,47 @@ export const BoxMessage = () => {
 
   const postMessageOnServer = async (value, type) => {
     try {
-      const newPayloadMessage = {
-        messageFrom: userInfo?._id,
-        content: value,
-        channelId: id,
-        type: type,
-        replyId: quoteMessage?._id || null,
-      };
-      const resp = await postMessageChannel(newPayloadMessage);
-      if (resp) {
-        const messageResp = await getMessageChannelByChannelId({
-          channelId: id,
-        });
-        setMessages(messageResp?.data?.content);
+      
+      //Channel
+      if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+        
+        if (!isObjectEmpty(editMessage)) {
+          const newPayLoadEditMessageChannel = {
+            ...editMessage, 
+            content: value,
+            replyMessage: quoteMessage
+          }
+
+          const resp = await putUpdateMessageChannel(id, newPayLoadEditMessageChannel);
+          
+          if(resp) {
+            fetchMessagesChannel({ channelId: id });
+          }
+
+        } else {
+          const newPayloadMessageChannel = {
+            messageFrom: userInfo?._id,
+            content: value,
+            channelId: id,
+            type: type,
+            replyId: quoteMessage?._id || null,
+          };
+
+          const resp = await postMessageChannel(newPayloadMessageChannel);
+
+          if(resp) {
+            fetchMessagesChannel({ channelId: id });
+          }
+        }
+      }
+
+      //Direct
+      if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+        fetchMessagesDirect({ directId: id });
       }
     } catch (error) {
       const errorMessage = error?.response?.content;
+      toast.error(errorMessage);
     }
   };
 
@@ -123,22 +161,34 @@ export const BoxMessage = () => {
     if (!isObjectEmpty(quoteMessage)) {
       const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
       setHeightQuoteMessageBox(heightQuoteMessage);
+      
+      setTimeout(() => {
+        textAreaRef.current.focus();
+      }, 100)
     }
 
-    if(!isObjectEmpty(editMessage)) {
-      switch(editMessage?.type) {
-        case typesMessage.PLAIN_TEXT: {
-          textAreaRef.current.value = editMessage?.content; 
-        }
-        break;
-        case typesMessage.IMAGE: {
+    if (!isObjectEmpty(editMessage)) {
+      switch (editMessage?.type) {
+        case typesMessage.PLAIN_TEXT:
+          {
+            textAreaRef.current.value = editMessage?.content;
+            setTimeout(() => {
+              textAreaRef.current.focus();
+            }, 100)
 
-        }
-        break;
-        case typesMessage.FILE: {
-
-        }
-        break;
+            if (textAreaRef.current.value != "" && !hasWhiteSpace(textAreaRef.current.value)) {
+              setIsDisplayIconChat(true);
+            } 
+          }
+          break;
+        case typesMessage.IMAGE:
+          {
+          }
+          break;
+        case typesMessage.FILE:
+          {
+          }
+          break;
       }
     }
   }, [quoteMessage, editMessage]);
@@ -155,7 +205,7 @@ export const BoxMessage = () => {
         >
           <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
             <Typography variant="subtitle2">
-              You are answering {" "}
+              You are answering{" "}
               {userInfo?.username == quoteMessage?.senderName
                 ? "yourself"
                 : quoteMessage?.senderName}
@@ -265,6 +315,7 @@ export const BoxMessage = () => {
             }}
             onChange={(e) => handleChatChange(e)}
             onKeyPress={(e) => handleChat(e)}
+            
           />
           <Box
             sx={{

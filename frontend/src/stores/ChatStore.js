@@ -24,7 +24,7 @@ export const useChatStore = create((set) => ({
     },
     setLoading: (payload) => set({ loading: payload }),
 
-    fetchMessages: async (payload) => {
+    fetchMessagesChannel: async (payload) => {
         const response = await getMessageChannelByChannelId(payload);
         if (response) {
             // const { page, size, totalPage, totalRecord } = response?.data?.paging;
@@ -33,6 +33,16 @@ export const useChatStore = create((set) => ({
             // set({ totalRecord });
             set({ loading: false })
         }
+    },
+    fetchMessagesDirect: async (payload) => {
+        // const response = await getMessagDirectByDirectId(payload);
+        // if (response) {
+        //     // const { page, size, totalPage, totalRecord } = response?.data?.paging;
+        //     set({ messages: response?.data?.content });
+        //     // set({ paging: { page, size } });
+        //     // set({ totalRecord });
+        //     set({ loading: false })
+        // }
     },
 
 }));

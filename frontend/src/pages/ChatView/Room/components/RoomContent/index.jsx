@@ -58,13 +58,15 @@ export const RoomContent = () => {
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const messages = useChatStore((state) => state.messages);
   const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
   const loading = useChatStore((state) => state.loading);
   const setLoading = useChatStore((state) => state.setLoading);
   const heightQuoteMessage = useChatStore(
     (state) => state.heightQuoteMessageBox
   );
-  const fetchMessages = useChatStore((state) => state.fetchMessages);
+  const fetchMessagesChannel = useChatStore((state) => state.fetchMessagesChannel);
+  const fetchMessagesDirect = useChatStore((state) => state.fetchMessagesDirect);
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [idEditMessage, setIdEidtMessage] = useState(null);
@@ -101,11 +103,11 @@ export const RoomContent = () => {
 
       if (resp) {
         if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-          fetchMessages({ channelId: roomInfo?._id });
+          fetchMessagesChannel({ channelId: roomInfo?._id });
         }
 
         if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
-          fetchMessages({ directId: roomInfo?._id });
+          fetchMessagesDirect({ directId: roomInfo?._id });
         }
       }
     } catch (error) {
@@ -156,11 +158,9 @@ export const RoomContent = () => {
   };
 
   const handleClickUpdateMessage = (message) => {
-    if(message) {
-
-      if(message?.replyId) {
-        console.log(message);
-        setQuoteMessage(message);
+    if (message) {
+      if (message?.replyId) {
+        setQuoteMessage(message?.replyMessage);
       }
       setEditMessage(message);
       setAnchorMoreFeatureMessage(null);
@@ -172,11 +172,11 @@ export const RoomContent = () => {
 
     try {
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        fetchMessages({ channelId: roomInfo?._id });
+        fetchMessagesChannel({ channelId: roomInfo?._id });
       }
 
       if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
-        fetchMessages({ directId: roomInfo?._id });
+        fetchMessagesDirect({ directId: roomInfo?._id });
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -205,7 +205,7 @@ export const RoomContent = () => {
     ? "anchor-more-feature-message"
     : undefined;
 
-  return (
+    return (
     <RoomContentContainer>
       <Box>
         <Box
@@ -224,6 +224,12 @@ export const RoomContent = () => {
                     onMouseOver={() => handleMouseOver(message)}
                     onMouseOut={handleMouseOut}
                     key={message?._id || index}
+                    sx={{
+                      backgroundColor:
+                        editMessage?._id === message?._id
+                          ? hoverTextColor
+                          : null,
+                    }}
                   >
                     <UserImageWrapper>
                       <UserImage src={message?.avatar || ""} alt="image" />
@@ -359,7 +365,9 @@ export const RoomContent = () => {
                                       cursor: "pointer",
                                     },
                                   }}
-                                  onClick={() => handleClickUpdateMessage(message)}
+                                  onClick={() =>
+                                    handleClickUpdateMessage(message)
+                                  }
                                 >
                                   Edit
                                 </Typography>
@@ -403,14 +411,15 @@ export const RoomContent = () => {
                               sx={{ color: inActiveColor }}
                             />
                             <Typography fontSize="small" color={inActiveColor}>
-                              You have answered {" "}
+                              You have answered{" "}
                               {userInfo?.username == message?.senderName
                                 ? "yourself"
                                 : message?.senderName}
                             </Typography>
                           </Box>
                           <MessageReplyContent mt={1}>
-                            {message?.replyMessage?.content || "The message have deleted"}
+                            {message?.replyMessage?.content ||
+                              "The message have deleted"}
                           </MessageReplyContent>
                         </MessageQuoteBox>
                       )}
