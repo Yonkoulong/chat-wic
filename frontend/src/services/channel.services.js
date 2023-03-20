@@ -29,6 +29,6 @@ export async function putUpdateMessageChannel(messageId, payload) {
   return requestAxios.put(`/message-channel/${messageId}`, payload);
 }
 
-export async function deleteMessageChannel(messageId, payload) {
-  return requestAxios.delete(`/message-channel/${messageId}/delete`, { data: payload });
+export async function deleteMessageChannel(messageId) {
+  return requestAxios.delete(`/message-channel/${messageId}/delete`, { data: {} });
 }

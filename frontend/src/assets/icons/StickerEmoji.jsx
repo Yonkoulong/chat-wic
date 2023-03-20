@@ -7,8 +7,8 @@ export const StickerEmojiIcon = (props) => {
       {...props}
       viewBox="0 0 81 80"
       sx={{
-        width: '1.5em',
-        height: '1.5em',
+        width: '1.2em',
+        height: '1.2em',
         ":hover": {
           path: {
             fill: primaryColor,

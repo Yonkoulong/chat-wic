@@ -4,7 +4,7 @@ import Popover from "@mui/material/Popover";
 import { toast } from "react-toastify";
 
 import { RoomContentContainer } from "./RoomContent.styles";
-import { Box, Typography } from "@/shared/components";
+import { Box, Typography, CircularProgress } from "@/shared/components";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReplyIcon from "@mui/icons-material/Reply";
@@ -43,8 +43,8 @@ import {
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms } from "@/shared/utils/constant";
 import {
-  getMessageChannelByChannelId,
   putUpdateMessageChannel,
+  deleteMessageChannel,
 } from "@/services/channel.services";
 
 const flexCenter = {
@@ -57,11 +57,14 @@ export const RoomContent = () => {
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const messages = useChatStore((state) => state.messages);
-  const setMessages = useChatStore((state) => state.setMessages);
   const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const setEditMessage = useChatStore((state) => state.setEditMessage);
+  const loading = useChatStore((state) => state.loading);
+  const setLoading = useChatStore((state) => state.setLoading);
   const heightQuoteMessage = useChatStore(
     (state) => state.heightQuoteMessageBox
   );
+  const fetchMessages = useChatStore((state) => state.fetchMessages);
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [idEditMessage, setIdEidtMessage] = useState(null);
@@ -77,28 +80,6 @@ export const RoomContent = () => {
     setIdMessageHovering(null);
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        let resp;
-
-        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-          resp = await getMessageChannelByChannelId({
-            channelId: roomInfo?._id,
-          });
-
-          setMessages(resp?.data?.content);
-        }
-
-        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
-        }
-      } catch (error) {
-        const errorMessage = error?.response?.data?.content;
-        toast.error(errorMessage);
-      }
-    })();
-  }, [roomInfo, typeRoom]);
-
   const handleClickEmoji = async (emoji) => {
     const { names, unified } = emoji;
 
@@ -107,7 +88,7 @@ export const RoomContent = () => {
         content: "",
         reaction: {
           emojiName: names[0],
-          unified,
+          unified: `0x${unified}`,
           reactorName: userInfo?.username,
           reactorId: userInfo?._id,
           idReaction: userInfo?._id,
@@ -117,10 +98,21 @@ export const RoomContent = () => {
       if (!idEditMessage) return;
 
       const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
+
+      if (resp) {
+        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+          fetchMessages({ channelId: roomInfo?._id });
+        }
+
+        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+          fetchMessages({ directId: roomInfo?._id });
+        }
+      }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
     } finally {
+      setAnchorReaction(null);
     }
   };
 
@@ -142,6 +134,55 @@ export const RoomContent = () => {
   const handClickOpenAnchorMoreFeatureMessage = (event) => {
     setAnchorMoreFeatureMessage(event.currentTarget);
   };
+
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      const resp = await deleteMessageChannel(messageId);
+      if (resp) {
+        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+          fetchMessages({ channelId: roomInfo?._id });
+        }
+
+        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+          fetchMessages({ directId: roomInfo?._id });
+        }
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    } finally {
+      setAnchorMoreFeatureMessage(null);
+    }
+  };
+
+  const handleClickUpdateMessage = (message) => {
+    if(message) {
+
+      if(message?.replyId) {
+        console.log(message);
+        setQuoteMessage(message);
+      }
+      setEditMessage(message);
+      setAnchorMoreFeatureMessage(null);
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+
+    try {
+      if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+        fetchMessages({ channelId: roomInfo?._id });
+      }
+
+      if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+        fetchMessages({ directId: roomInfo?._id });
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    }
+  }, [roomInfo, typeRoom]);
 
   //close anchor
   const handleCloseAnchorReaction = () => {
@@ -172,7 +213,7 @@ export const RoomContent = () => {
             padding: "24px 0px",
             overflowY: "auto",
             overflowX: "hidden",
-            maxHeight: `calc(100vh - 197.38px - ${heightQuoteMessage}px)`,
+            maxHeight: `calc(100vh - 187.62px - ${heightQuoteMessage}px)`,
           }}
         >
           <MessageList>
@@ -302,6 +343,9 @@ export const RoomContent = () => {
                                       cursor: "pointer",
                                     },
                                   }}
+                                  onClick={() =>
+                                    handleDeleteMessage(message?._id)
+                                  }
                                 >
                                   Delete
                                 </Typography>
@@ -315,6 +359,7 @@ export const RoomContent = () => {
                                       cursor: "pointer",
                                     },
                                   }}
+                                  onClick={() => handleClickUpdateMessage(message)}
                                 >
                                   Edit
                                 </Typography>
@@ -358,14 +403,14 @@ export const RoomContent = () => {
                               sx={{ color: inActiveColor }}
                             />
                             <Typography fontSize="small" color={inActiveColor}>
-                              You have answered{" "}
+                              You have answered {" "}
                               {userInfo?.username == message?.senderName
                                 ? "yourself"
                                 : message?.senderName}
                             </Typography>
                           </Box>
                           <MessageReplyContent mt={1}>
-                            {message?.replyMessage?.content || ""}
+                            {message?.replyMessage?.content || "The message have deleted"}
                           </MessageReplyContent>
                         </MessageQuoteBox>
                       )}
@@ -388,7 +433,7 @@ export const RoomContent = () => {
                               {reaction?.unified && (
                                 <>
                                   <Typography fontSize="small">
-                                    {/* {String.fromCodePoint(Number(`U+${reaction?.unified}`))} */}
+                                    {String.fromCodePoint(reaction?.unified)}
                                   </Typography>
                                   <Typography fontSize="small" ml={0.5}>
                                     1
@@ -428,6 +473,11 @@ export const RoomContent = () => {
               })}
           </MessageList>
         </Box>
+        {loading && (
+          <Box my={10} textAlign="center">
+            <CircularProgress color="inherit" size={30} />
+          </Box>
+        )}
       </Box>
     </RoomContentContainer>
   );
