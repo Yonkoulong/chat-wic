@@ -37,6 +37,8 @@ const postMessageChannel = async (req, res) => {
       type: type || MESSAGE_TYPES.plainText,
       replyId: replyId || "",
       reactions: [],
+      threadIdContainMessage: "",
+      threadId: "",
     };
 
     if (type === MESSAGE_TYPES.image) {
@@ -122,7 +124,10 @@ const getMessageChannelByChannelId = async (req, res) => {
 const getMessagesByThreadId = async (req, res) => {
   const { threadId } = req?.params;
   try {
-    const message = await MessageChannel?.find({ threadId });
+    const message = await MessageChannel?.find({
+      threadId,
+      threadIdContainMessage: threadId,
+    });
     return res.json(message);
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -158,6 +163,7 @@ const putUpdateMessageChannel = async (req, res) => {
       Array.isArray(messageReactions) && messageReactions?.length < 1;
 
     if (isNewReaction) {
+      // add new reaction
       messageReactions?.push(reaction);
     } else if (isRemoveReaction) {
       // remove reaction has existed
@@ -202,6 +208,75 @@ const deleteMessageInChannel = async (req, res) => {
       .json(responseConstant.deleteMessageSuccessfully);
   } catch {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
+const postCreateThreadAndAddMessageToThread = async (req, res) => {
+  const { threadId } = req?.params;
+  const { content, messageFrom, type } = req.body;
+  let isThreadMessageExisted = false;
+  let messageRoot = {};
+  let totalMessageInThread = 0;
+  let threadMessageExisted = [];
+
+  try {
+    threadMessageExisted = await MessageChannel.find({
+      threadId,
+      threadIdContainMessage: threadId,
+    });
+    isThreadMessageExisted = threadMessageExisted?._doc?.length > 0;
+  } catch {}
+
+  if (isThreadMessageExisted) {
+    // add message in thread and update total message in thread;
+
+    // count message in thread when thread already exit
+    totalMessageInThread = (threadMessageExisted?.length || 0) + 1;
+    if (
+      threadMessageExisted?._doc?.filter((item) => item?.threadId === threadId)
+        ?.length > 0
+    ) {
+      messageRoot = threadMessageExisted?._doc?.filter(
+        (item) => item?.threadId === threadId
+      )[0];
+    }
+  } else {
+    // create thread and // count message in thread when thread already exit
+    totalMessageInThread = 2; // messageRoot and child message request
+    const messageRootData = await MessageChannel.find({ _id: threadId });
+    if (messageRootData?.length > 0) {
+      messageRoot = { ...messageRootData[0]?._doc };
+    } else {
+      return res?.status(httpCode.badRequest).json(responseError.badRequest);
+    }
+  }
+
+  // update total message in thread
+  // try catch to check error
+  try {
+    await MessageChannel.updateOne(
+      { _id: threadId },
+      {
+        $set: { ...messageRoot, totalMessageInThread, threadId },
+        $currentDate: { lastUpdated: true },
+      }
+    );
+  } catch {}
+
+  // add new message in thread
+  const newMessage = {
+    content,
+    type,
+    messageFrom,
+    threadIdContainMessage: threadId,
+    threadId: "",
+  };
+
+  try {
+    await MessageChannel.create(newMessage);
+    return res?.status(httpCode.ok).json(newMessage);
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
 };
 
