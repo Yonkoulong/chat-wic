@@ -297,7 +297,7 @@ module.exports = [
     routeName: "/message-channel/:channelId",
   },
   {
-    method: "get",
+    method: "post",
     controller: getMessagesByThreadId,
     routeName: "/message-channel/:threadId",
   },
@@ -310,5 +310,11 @@ module.exports = [
     method: "delete",
     controller: deleteMessageInChannel,
     routeName: "/message-channel/:messageId/delete",
+  },
+  {
+    method: "post",
+    controller: postCreateThreadAndAddMessageToThread,
+    routeName:
+      "/message-channel/:threadId/create-thread-and-add-message-to-thread",
   },
 ];
