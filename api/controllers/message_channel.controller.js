@@ -147,9 +147,27 @@ const putUpdateMessageChannel = async (req, res) => {
 
     let messageReactions = messageData?.reactions || [];
 
-    if (Array.isArray(messageReactions) && messageReactions?.length < 1) {
+    const isRemoveReaction =
+      messageReactions?.filter(
+        (item) =>
+          item?.unified === reaction?.unified &&
+          reaction?.reactorId === reaction?.reactorId
+      )?.length > 0;
+
+    const isNewReaction =
+      Array.isArray(messageReactions) && messageReactions?.length < 1;
+
+    if (isNewReaction) {
       messageReactions?.push(reaction);
+    } else if (isRemoveReaction) {
+      // remove reaction has existed
+      messageReactions = messageReactions?.filter(
+        (item) =>
+          item?.unified === reaction?.unified &&
+          reaction?.reactorId === reaction?.reactorId
+      );
     } else {
+      // update new reaction
       messageReactions = messageReactions?.map((item) => {
         const reactorId = reaction?.reactorId;
         let newItem = item;
