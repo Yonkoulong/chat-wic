@@ -22,7 +22,7 @@ const flexCenter = {
 export const RoomHeader = () => {
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
-  const setEnumPopupFeatures = useRoomStore((state) => state.setEnumPopupFeatures);
+  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
   
@@ -36,7 +36,7 @@ export const RoomHeader = () => {
 
   const handleOpenFeatureRoom = (feature) => {
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`)
-    setEnumPopupFeatures(feature)
+    setTypeFeatureRoom(feature)
   }
 
   const openAnchorMoreFeatures = Boolean(anchorMoreFeatures);

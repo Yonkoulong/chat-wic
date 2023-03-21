@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export const useRoomStore = create((set) => ({
     roomInfo: {},
-    enumPopupFeatures: null,
+    typeFeatureRoom: null,
     typeRoom: null,
 
     setRoomInfo: (payload) => {
@@ -13,7 +13,7 @@ export const useRoomStore = create((set) => ({
         set({ typeRoom: type });
     },
 
-    setEnumPopupFeatures: (payload) => {
-        set({ enumPopupFeatures: payload });
+    setTypeFeatureRoom: (payload) => {
+        set({ typeFeatureRoom: payload });
     }
 }))

@@ -6,4 +6,5 @@ export const RoomChatContainer = styled(Box)`
     display: flex;
     flex-direction: column;
     position: relative;
+    justify-content: space-between;
 `

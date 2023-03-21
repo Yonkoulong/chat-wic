@@ -36,3 +36,4 @@ export { CommonTable } from "./Table";
 export { ButtonCustomize } from "./Button";
 export { PopUpConfirm } from "./PopUp";
 export { SelectMultipleInput } from "./SelectMultipleInput";
+export { TruncateString } from "./Truncate";

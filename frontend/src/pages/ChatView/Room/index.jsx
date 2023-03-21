@@ -2,13 +2,16 @@ import React, { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { Threads, Members } from "@/pages/ChatView/FeaturesRoom";
+
 import { Box } from "@/shared/components";
 import { RoomChatContainer } from "./Room.styles";
 
 import { RoomHeader, RoomContent, BoxMessage } from "./components";
 import { getChannelDetail } from "@/services/channel.services";
 import { useRoomStore } from "@/stores/RoomStore";
-import { enumTypeRooms } from "@/shared/utils/constant";
+import { enumTypeRooms, enumPopupFeatures } from "@/shared/utils/constant";
+import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
 
 export const RoomChat = () => {
   const { id } = useParams();
@@ -16,9 +19,39 @@ export const RoomChat = () => {
 
   const setRoomInfo = useRoomStore((state) => state.setRoomInfo);
   const setTypeRoom = useRoomStore((state) => state.setTypeRoom);
-  const enumPopupFeatures = useRoomStore((state) => state.enumPopupFeatures);
+  const typeFeatureRoom = useRoomStore((state) => state.typeFeatureRoom);
+  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
-  const handlePopupFeatures = () => {};
+  const handleShowPopupFeatures = () => {
+    switch (typeFeatureRoom) {
+      case enumPopupFeatures.CALLING:
+        return <></>;
+      case enumPopupFeatures.THREAD:
+        return <Threads />;
+      case enumPopupFeatures.MEMBERS:
+        return <Members />;
+      case enumPopupFeatures.ROOM_INFO:
+        return <></>;
+      case enumPopupFeatures.USER_INFO:
+        return <></>;
+      case enumPopupFeatures.SEARCH:
+        return <></>;
+      case enumPopupFeatures.FILE:
+        return <></>;
+      case enumPopupFeatures.TODO_LIST:
+        return <></>;
+    }
+  };
+
+  const handleFindLocationMatchPopupFeature = () => {
+    for (const key in enumPopupFeatures) {
+      if (location?.pathname?.match(enumPopupFeatures[key])) {
+        const feature = location?.pathname?.match(enumPopupFeatures[key]);
+        setTypeFeatureRoom(feature[0]);
+        return;
+      }
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -37,6 +70,7 @@ export const RoomChat = () => {
 
         if (resp) {
           setRoomInfo(resp?.data?.content);
+          handleFindLocationMatchPopupFeature();
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.content;
@@ -48,12 +82,17 @@ export const RoomChat = () => {
   return (
     <RoomChatContainer>
       <RoomHeader />
-      <Box sx={{ display: 'flex' }}>
-        <Box width={enumPopupFeatures ? "60%" : "100%"} sx={{ position: 'relative' }}>
+      <Box sx={{ display: "flex", flex: 1 }}>
+        <Box
+          width={typeFeatureRoom ? "65%" : "100%"}
+          sx={{ position: "relative" }}
+        >
           <RoomContent />
           <BoxMessage />
         </Box>
-        <Box width={enumPopupFeatures ? "40%" : "0"}>{handlePopupFeatures}</Box>
+        {typeFeatureRoom ? (
+          <Box width="35%" sx={{ borderLeft: `1px solid ${borderColor}`}}>{handleShowPopupFeatures()}</Box>
+        ) : null}
       </Box>
     </RoomChatContainer>
   );
