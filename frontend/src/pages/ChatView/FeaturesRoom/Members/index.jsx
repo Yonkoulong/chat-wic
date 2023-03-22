@@ -1,5 +1,5 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import styled, { css } from "styled-components";
 import {
   Box,
@@ -7,14 +7,12 @@ import {
   InputAdornment,
   Typography,
   IconButton,
-  TruncateString,
+  CircularProgress,
 } from "@/shared/components";
 
 import GroupIcon from "@mui/icons-material/Group";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 import {
   primaryColor,
@@ -25,6 +23,8 @@ import {
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
 import { useRoomStore } from "@/stores/RoomStore";
+import { useDebounce } from "@/shared/hooks/useDebounce";
+import { postSearchMemberByChannel } from "@/services/channel.services";
 
 const TableCellSearchInput = styled(TextField)`
   ${({ theme: {} }) => css`
@@ -45,10 +45,44 @@ export const Members = () => {
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [keySearch, setKeySearch] = useState();
+  const debouncedValue = useDebounce(keySearch, 500);
+
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/channel/${roomInfo?._id}`);
   };
+
+  const handleSearch = (e) => {
+    setKeySearch(e.target.value);
+    setLoading(true);
+  };
+
+  useEffect(() => {
+    setMembers(roomInfo?.membersInChannel)
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const payload = {
+          username: debouncedValue,
+          paging: {},
+          userIds: roomInfo?.userIds,
+          ownerId: roomInfo?.ownerId
+        };
+        const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
+        if (resp) {
+          setMembers(resp?.data?.content);
+        }
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [debouncedValue]);
 
   return (
     <Box>
@@ -61,9 +95,9 @@ export const Members = () => {
         }}
       >
         <Box sx={flexCenter}>
-          <GroupIcon /> 
+          <GroupIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Members
+            Channel Information
           </Typography>
         </Box>
         <IconButton
@@ -86,8 +120,8 @@ export const Members = () => {
           fullWidth
           //   name={fieldName}
           size="small"
-          //   value={searchKey}
-          //   onChange={handleChangeSeachKey}
+          value={keySearch}
+          onChange={handleSearch}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start" sx={{ cursor: "pointer" }}>
@@ -99,59 +133,44 @@ export const Members = () => {
       </Box>
 
       <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
-        <Box
-          sx={{
-            ...flexCenter,
-            justifyContent: "space-between",
-            padding: 2,
-            borderBottom: `1px solid ${borderColor}`,
-            ":hover": {
-              backgroundColor: hoverTextColor,
-              cursor: "pointer",
-            },
-          }}
-          onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
-        >
-          <Box sx={{ display: "flex" }}>
-            <Box>
-              <img
-                src=""
-                alt=""
-                width={40}
-                height={40}
-                sx={{ objectFit: "contain" }}
-              />
-            </Box>
-            <Box ml={1}>
-              <Box sx={{ ...flexCenter }}>
-                <Typography fontSize="15px">User 1</Typography>
-                <Typography
-                  fontSize="12px"
-                  sx={{ color: inActiveColor, ml: 1 }}
-                >
-                  Feb 14, 2023
-                </Typography>
+        {loading && (
+          <Box my={10} textAlign="center">
+            <CircularProgress color="inherit" size={30} />
+          </Box>
+        )}
+        {!loading &&
+          members?.map((member) => {
+            return (
+              <Box
+                sx={{
+                  ...flexCenter,
+                  justifyContent: "space-between",
+                  padding: 2,
+                  borderBottom: `1px solid ${borderColor}`,
+                  ":hover": {
+                    backgroundColor: hoverTextColor,
+                    cursor: "pointer",
+                  },
+                }}
+                onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
+              >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box>
+                    <img
+                      src={member?.avatar}
+                      alt=""
+                      width={40}
+                      height={40}
+                      style={{ objectFit: "contain", borderRadius: "10px" }}
+                    />
+                  </Box>
+                  <Box ml={1}>
+                    <Typography fontSize="15px">{member?.username}</Typography>
+                  </Box>
+                </Box>
               </Box>
-              <TruncateString color={borderColor} line={"1"}>
-                Message
-              </TruncateString>
-            </Box>
-          </Box>
-          <Box sx={{ ...flexCenter }}>
-            <Box sx={{ ...flexCenter }} mr={1}>
-              <ChatBubbleOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
-              <Typography fontSize="12px" sx={{ color: inActiveColor }}>
-                2
-              </Typography>
-            </Box>
-            <Box sx={{ ...flexCenter }}>
-              <PersonOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
-              <Typography fontSize="12px" sx={{ color: inActiveColor }}>
-                2
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+            );
+          })}
       </Box>
     </Box>
   );

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { Threads, Members } from "@/pages/ChatView/FeaturesRoom";
+import { Threads, Members, RoomInfo } from "@/pages/ChatView/FeaturesRoom";
 
 import { Box } from "@/shared/components";
 import { RoomChatContainer } from "./Room.styles";
@@ -31,7 +31,7 @@ export const RoomChat = () => {
       case enumPopupFeatures.MEMBERS:
         return <Members />;
       case enumPopupFeatures.ROOM_INFO:
-        return <></>;
+        return <RoomInfo />;
       case enumPopupFeatures.USER_INFO:
         return <></>;
       case enumPopupFeatures.SEARCH:

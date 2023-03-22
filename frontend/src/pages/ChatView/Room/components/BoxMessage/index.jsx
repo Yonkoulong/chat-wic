@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { ModalUploadFilePreview } from "@/pages/ChatView/Components/Modal";
 import {
   Box,
   TextareaAutosize,
@@ -61,11 +62,14 @@ export const BoxMessage = () => {
   const fetchMessagesDirect = useChatStore(
     (state) => state.fetchMessagesDirect
   );
-    
+
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
-  const [isPostMessage, setIsPostMessage] = useState(false);
+  const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
+  const [ fileListObject, setFileListObject] = useState([]);
+  const [ uploadFile, setUploadFile] = useState({});
 
   const textAreaRef = useRef(null);
+  const imgInputRef = useRef(null);
   const quoteMessageRef = useRef(null);
 
   const handleChat = (e) => {
@@ -82,7 +86,7 @@ export const BoxMessage = () => {
           handleCancelQuoteMessage();
         }
 
-        if(!isObjectEmpty(editMessage)) {
+        if (!isObjectEmpty(editMessage)) {
           setEditMessage({});
         }
       }
@@ -104,27 +108,41 @@ export const BoxMessage = () => {
     }
   };
 
+  const handleChangeValueImg = (e) => {
+    const [file] = imgInputRef?.current?.files;
+    
+    if (file) {
+      setFileListObject(file);
+      setUploadFile({ path: e.target.value, typeMessage: typesMessage.IMAGE })
+      setOpenUpladFileModal(true);
+    }
+  };
+
+  const handleClickValueImg = (e) => {
+    e.target.value = "";
+  };
+
   const handleClickSendIcon = () => {};
 
   const postMessageOnServer = async (value, type) => {
     try {
-      
       //Channel
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        
         if (!isObjectEmpty(editMessage)) {
           const newPayLoadEditMessageChannel = {
-            ...editMessage, 
+            ...editMessage,
             content: value,
-            replyMessage: quoteMessage
-          }
+            replyMessage: quoteMessage,
+          };
 
-          const resp = await putUpdateMessageChannel(id, newPayLoadEditMessageChannel);
-          
-          if(resp) {
+          const resp = await putUpdateMessageChannel(
+            id,
+            newPayLoadEditMessageChannel
+          );
+
+          if (resp) {
             fetchMessagesChannel({ channelId: id });
           }
-
         } else {
           const newPayloadMessageChannel = {
             messageFrom: userInfo?._id,
@@ -136,7 +154,7 @@ export const BoxMessage = () => {
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
 
-          if(resp) {
+          if (resp) {
             fetchMessagesChannel({ channelId: id });
           }
         }
@@ -161,10 +179,10 @@ export const BoxMessage = () => {
     if (!isObjectEmpty(quoteMessage)) {
       const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
       setHeightQuoteMessageBox(heightQuoteMessage);
-      
+
       setTimeout(() => {
         textAreaRef.current.focus();
-      }, 100)
+      }, 100);
     }
 
     if (!isObjectEmpty(editMessage)) {
@@ -174,11 +192,14 @@ export const BoxMessage = () => {
             textAreaRef.current.value = editMessage?.content;
             setTimeout(() => {
               textAreaRef.current.focus();
-            }, 100)
+            }, 100);
 
-            if (textAreaRef.current.value != "" && !hasWhiteSpace(textAreaRef.current.value)) {
+            if (
+              textAreaRef.current.value != "" &&
+              !hasWhiteSpace(textAreaRef.current.value)
+            ) {
               setIsDisplayIconChat(true);
-            } 
+            }
           }
           break;
         case typesMessage.IMAGE:
@@ -265,7 +286,14 @@ export const BoxMessage = () => {
             mx: 1,
           }}
         >
-          <input hidden accept="image/*" type="file" />
+          <input
+            hidden
+            accept="image/*"
+            type="file"
+            onChange={handleChangeValueImg}
+            onClick={handleClickValueImg}
+            ref={imgInputRef}
+          />
           <SymbolsImageOutlineIcon />
         </IconButton>
 
@@ -315,7 +343,6 @@ export const BoxMessage = () => {
             }}
             onChange={(e) => handleChatChange(e)}
             onKeyPress={(e) => handleChat(e)}
-            
           />
           <Box
             sx={{
@@ -339,6 +366,13 @@ export const BoxMessage = () => {
           </Box>
         </Box>
       </Box>
+      {/* Modal */}
+      <ModalUploadFilePreview 
+        open={openUploadFileModal}
+        onClose={setOpenUpladFileModal}
+        data={fileListObject}
+        uploadFile={uploadFile}
+      />
     </BoxMessageContainer>
   );
 };

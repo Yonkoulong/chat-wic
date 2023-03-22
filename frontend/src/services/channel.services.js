@@ -32,3 +32,7 @@ export async function putUpdateMessageChannel(messageId, payload) {
 export async function deleteMessageChannel(messageId) {
   return requestAxios.delete(`/message-channel/${messageId}/delete`, { data: {} });
 }
+
+export async function postSearchMemberByChannel(channelId, payload) {
+  return requestAxios.post(`/channel/${channelId}/users`, payload);
+}

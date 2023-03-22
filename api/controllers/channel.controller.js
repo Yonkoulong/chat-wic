@@ -14,6 +14,7 @@ const templateRespUser = {
   email: 1,
   firstName: 1,
   lastName: 1,
+  avatar: 1
 };
 
 const postCreateChannel = async (req, res) => {

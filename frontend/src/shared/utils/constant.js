@@ -55,7 +55,7 @@ export const enumPopupFeatures = {
   ROOM_INFO: 'room-info',
   USER_INFO: 'user-info',
   SEARCH: 'search',
-  FILE: 'files',
+  FILES: 'files',
   TODO_LIST: 'todo-list'
 }
 

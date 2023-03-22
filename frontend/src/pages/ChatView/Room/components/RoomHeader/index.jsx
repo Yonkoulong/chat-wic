@@ -5,14 +5,21 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import GroupIcon from "@mui/icons-material/Group";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import InfoIcon from "@mui/icons-material/Info";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 
-import { UilCommentMessageIcon } from "@/assets/icons";
+import { UilCommentMessageIcon, SymbolsAttachFileIcon } from "@/assets/icons";
 import { Box } from "@/shared/components";
 import { RoomHeaderItemImage, RoomHeaderItemName } from "./RoomHeader.styles";
 import { useRoomStore } from "@/stores/RoomStore";
-import { redirectTo } from '@/shared/utils/history';
+import { redirectTo } from "@/shared/utils/history";
 import { enumPopupFeatures } from "@/shared/utils/constant";
-import { borderColor, primaryColor } from "@/shared/utils/colors.utils";
+import {
+  borderColor,
+  primaryColor,
+  hoverBackgroundColor,
+} from "@/shared/utils/colors.utils";
+import { Typography } from "@mui/material";
 
 const flexCenter = {
   display: "flex",
@@ -25,7 +32,7 @@ export const RoomHeader = () => {
   const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
-  
+
   const handleClickOpenAnchorMoreFeatures = (event) => {
     setAnchorMoreFeatures(event.currentTarget);
   };
@@ -35,9 +42,13 @@ export const RoomHeader = () => {
   };
 
   const handleOpenFeatureRoom = (feature) => {
-    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`)
-    setTypeFeatureRoom(feature)
-  }
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`);
+    setTypeFeatureRoom(feature);
+
+    if(anchorMoreFeatures) {
+      setAnchorMoreFeatures(null);
+    }
+  };
 
   const openAnchorMoreFeatures = Boolean(anchorMoreFeatures);
 
@@ -154,7 +165,52 @@ export const RoomHeader = () => {
                   },
                 }}
               >
-                <Box>Hello</Box>
+                <Box sx={{ padding: "8px 0" }}>
+                  <Box
+                    sx={{
+                      ...flexCenter,
+                      padding: "4px 8px",
+                      ":hover": {
+                        cursor: "pointer",
+                        backgroundColor: hoverBackgroundColor,
+                      },
+                    }}
+                    onClick={() => handleOpenFeatureRoom(enumPopupFeatures.FILES)}
+                  >
+                    <SymbolsAttachFileIcon fontSize="small" />
+                    <Typography fontSize="small">Files</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      ...flexCenter,
+                      padding: "4px 8px",
+                      ":hover": {
+                        cursor: "pointer",
+                        backgroundColor: hoverBackgroundColor,
+                      },
+                    }}
+                    onClick={() => handleOpenFeatureRoom(enumPopupFeatures.TODO_LIST)}
+                  >
+                    <AssignmentIcon fontSize="small" />
+                    <Typography fontSize="small" ml={0.5}>To-do</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      ...flexCenter,
+                      padding: "4px 8px",
+                      ":hover": {
+                        cursor: "pointer",
+                        backgroundColor: hoverBackgroundColor,
+                      },
+                    }}
+                    onClick={() => handleOpenFeatureRoom(enumPopupFeatures.ROOM_INFO)}
+                  >
+                    <InfoIcon fontSize="small" />
+                    <Typography fontSize="small" ml={0.5}>
+                      Channel Information
+                    </Typography>
+                  </Box>
+                </Box>
               </Popover>
             </Box>
           </Box>
