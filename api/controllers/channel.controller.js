@@ -8,6 +8,14 @@ const {
 } = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 
+const templateRespUser = {
+  username: 1,
+  id: 1,
+  email: 1,
+  firstName: 1,
+  lastName: 1,
+};
+
 const postCreateChannel = async (req, res) => {
   const { channelName, userIds, ownerId, description } = req?.body;
 
@@ -104,11 +112,11 @@ const postSearchMemberByChannel = async (req, res) => {
   try {
     if (!!paging) {
       const numberToSkip = (page - 1) * size;
-      userInChannel = await UserModel.find(querySearch)
+      userInChannel = await UserModel.find(querySearch, templateRespUser)
         .skip(numberToSkip)
         .limit(size);
     } else {
-      userInChannel = await UserModel.find(querySearch);
+      userInChannel = await UserModel.find(querySearch, templateRespUser);
     }
 
     return res.status(httpCode.ok).json(formatResponse(userInChannel));
