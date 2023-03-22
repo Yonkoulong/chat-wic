@@ -87,6 +87,36 @@ const postGetChannelDetail = async (req, res) => {
   }
 };
 
+const postSearchMemberByChannel = async (req, res) => {
+  const { username, paging, userIds, ownerId } = req.body;
+  const userIdsChecked = isArray(userIds) ? userIds : [];
+
+  const usersQuery = [...userIdsChecked, ownerId || ""];
+  let userInChannel = [];
+  const querySearch = { _id: { $in: usersQuery } };
+  if (username) {
+    querySearch.username = { $regex: username };
+  }
+
+  const page = !!paging ? paging?.page : 1;
+  const size = !!paging ? paging?.size : 10;
+
+  try {
+    if (!!paging) {
+      const numberToSkip = (page - 1) * size;
+      userInChannel = await UserModel.find(querySearch)
+        .skip(numberToSkip)
+        .limit(size);
+    } else {
+      userInChannel = await UserModel.find(querySearch);
+    }
+
+    return res.status(httpCode.ok).json(formatResponse(userInChannel));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "post",
@@ -103,5 +133,10 @@ module.exports = [
     method: "post",
     controller: postGetChannelDetail,
     routeName: "/channel/:channelId",
+  },
+  {
+    method: "post",
+    controller: postSearchMemberByChannel,
+    routeName: "/channel/:channelId/users",
   },
 ];
