@@ -4,8 +4,16 @@ const Schema = mongoose.Schema;
 
 const directSchema = new Schema(
   {
-    messageFrom: { type: Schema.Types.ObjectId, ref: "User" },
-    messageTo: { type: Schema.Types.ObjectId, ref: "User" },
+    messageFrom: { type: Schema.Types.ObjectId, ref: "User", required : false },
+    messageTo: { type: Schema.Types.ObjectId, ref: "User", required : false },
+    organizeId : {
+      type : String,
+      required : true
+    },
+    userIds : {
+      type : Array,
+      required : false
+    }
   },
   {
     timestamps: true,

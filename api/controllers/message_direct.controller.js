@@ -8,17 +8,7 @@ const {
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
-const getMessagesDirect = async (_req, res) => {
-  //create an array of documents
-  try {
-    const message = await MessageDirect?.find({});
-    return res.json(message);
-  } catch {
-    return res.json([]);
-  }
-};
-
-const postMessageDirect = async (req, res) => {
+const postCreateMessageDirect = async (req, res) => {
   const { content, roomId, senderId } = req.body;
 
   if (isObjectIdInMongodb(roomId) && isObjectIdInMongodb(senderId)) {
@@ -39,9 +29,9 @@ const postMessageDirect = async (req, res) => {
   }
 };
 
-const getMessageDirectByRoomId = async (req, res) => {
-  const { roomId } = req?.params;
-  if (!roomId)
+const postGetMessageDirectByDirectId = async (req, res) => {
+  const { directId } = req?.params;
+  if (!directId)
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
 
   const { paging, isPaging } = req?.body;
@@ -53,12 +43,12 @@ const getMessageDirectByRoomId = async (req, res) => {
 
   if (isObjectIdInMongodb(roomId)) {
     if (isPaging || !!paging) {
-      messageInRoom = await MessageDirect.find({ roomId })
+      messageInRoom = await MessageDirect.find({ directId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
         .skip(paging?.page || 1)
         .limit(paging?.size || 10);
     } else {
-      messageInRoom = await MessageDirect.find({ roomId });
+      messageInRoom = await MessageDirect.find({ directId });
     }
   }
 
@@ -85,18 +75,13 @@ const getMessageDirectByRoomId = async (req, res) => {
 
 module.exports = [
   {
-    method: "get",
-    controller: getMessagesDirect,
-    routeName: "/messages-direct",
-  },
-  {
     method: "post",
-    controller: postMessageDirect,
+    controller: postCreateMessageDirect,
     routeName: "/message-direct/create",
   },
   {
-    method: "get",
-    controller: getMessageDirectByRoomId,
-    routeName: "/message-direct/:roomId",
+    method: "post",
+    controller: postGetMessageDirectByDirectId,
+    routeName: "/message-direct/:directId",
   },
 ];
