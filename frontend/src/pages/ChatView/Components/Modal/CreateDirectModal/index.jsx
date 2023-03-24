@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -6,10 +6,10 @@ import {
   StyledTextField,
   StyledLabelTextField,
   ControllerInput,
-  Select,
-  MenuItem,
+  SelectMultipleInput,
   ButtonCustomize,
 } from "@/shared/components";
+
 import PropTypes from "prop-types";
 import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
@@ -19,17 +19,14 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { createMember } from "@/services/member.service";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
-import { enumRoles } from "@/shared/utils/constant";
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
 } from "./CreateDirectModal.styles";
-
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -69,26 +66,19 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const roles = [
-  {
-    label: "Staff",
-    value: enumRoles.STAFF,
-  },
-  {
-    label: "Project Manager",
-    value: enumRoles.PROJECT_MANAGER,
-  },
-];
 
 const defaultValues = {
-  email: "",
-  password: "",
-  role: "",
+  userIds: [],
 };
 
 export const ModalCreateDirect = ({ open, onClose }) => {
-  const { fetchMembers, setLoading } = useMemberStore((state) => state);
+  const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
+
+  const [membersSelected, setMembersSelected] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const inputFocusRef = useRef();
 
   const {
     control,
@@ -96,33 +86,34 @@ export const ModalCreateDirect = ({ open, onClose }) => {
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
-  
+
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
 
-    const field = useWatch({control});
-    if(field?.email && field?.password && field?.role) {
+    const field = useWatch({ control });
+    if (field?.userIds) {
       isEnable = false;
     } else {
       isEnable = true;
     }
     return isEnable;
-  }    
+  };
 
   const onSubmit = async (data) => {
     try {
-      const respData = await createMember(data);
+      const newPayloadChannel = {
+        ...data,
+        userIds: membersSelected?.map((mem) => mem?.id),
+      };
+
+      const respData = await postDirect(newPayloadChannel);
 
       if (respData) {
+        const idDirect = respData?.data?.content?._id;
         setLoading(true);
-        fetchMembers({
-          organizeId: userInfo?.organizeId,
-          id: "",
-          email: "",
-          paging: { page: 1, size: 10 },
-        });
-        toast.success("Create member successfully.");
+        toast.success("Create direct successfully.");
         handleClose();
+        redirectTo(`/chat/direct/${idDirect}`);
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -132,11 +123,80 @@ export const ModalCreateDirect = ({ open, onClose }) => {
 
   const handleClose = () => {
     reset({
-      email: "",
-      password: "",
-      role: "",
+      userIds: [],
     });
     onClose(false);
+  };
+
+  const handleGetUsers = async () => {
+    setLoading(true);
+    try {
+      await fetchMembers({
+        organizeId: userInfo?.organizeId,
+        id: "",
+        email: "",
+      });
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+      handleFocusInputAfterClick();
+    }
+  };
+
+  const handleSelectedMember = (member) => {
+    if (!member) return;
+    const memberId = member?.id;
+    const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
+    const inputRef = inputFocusRef.current.querySelector("input");
+
+    let newMembersSelected = [];
+    if (membersSelectedIds?.includes(memberId)) {
+      newMembersSelected = membersSelected?.filter(
+        (member) => member?.id !== memberId
+      );
+    } else {
+      newMembersSelected = [...membersSelected, member];
+    }
+
+    if (inputRef.value != "") {
+      inputRef.value = "";
+      handleGetUsers();
+    }
+
+    setMembersSelected(newMembersSelected);
+    handleFocusInputAfterClick();
+  };
+
+  const handleUnSelectedMember = (member) => {
+    if (!member) return;
+    const newMembersUnSelected = membersSelected?.filter(
+      (memberSelected) => memberSelected?.id !== member?.id
+    );
+    setMembersSelected(newMembersUnSelected);
+    handleFocusInputAfterClick();
+  };
+
+  const handleSearchMember = async (e) => {
+    setLoading(true);
+    try {
+      await fetchMembers({
+        organizeId: userInfo?.organizeId,
+        id: "",
+        email: e.target.value,
+        paging: { page: 1, size: 10 },
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFocusInputAfterClick = () => {
+    const inputRef = inputFocusRef.current;
+    inputRef.querySelector("input").focus();
   };
 
   return (
@@ -154,78 +214,47 @@ export const ModalCreateDirect = ({ open, onClose }) => {
           <DialogContent dividers>
             <CreateMemberInputContainer>
               <StyledLabelTextField>
-                Email <span className="require-field">*</span>
+                Members<span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Email"
-                fieldName="email"
-                required={true}
+                fieldNameErrorMessage="Members"
+                fieldName="userIds"
+                required={false}
               >
                 {(field) => (
-                  <StyledTextField
+                  <SelectMultipleInput
                     {...field}
-                    fullWidth
-                    size="small"
-                    type="email"
-                    placeholder="Enter email"
+                    inputFocusRef={inputFocusRef}
+                    handleSearch={handleSearchMember}
+                    onOpenDropdown={handleGetUsers}
+                    handleSelectedMember={handleSelectedMember}
+                    handleUnSelectedMember={handleUnSelectedMember}
+                    dataList={members}
+                    dataSelected={membersSelected}
+                    loading={loading}
+                    placeholder="Add member"
                   />
-                )}
-              </ControllerInput>
-            </CreateMemberInputContainer>
-
-            <CreateMemberInputContainer>
-              <StyledLabelTextField>
-                Password <span className="require-field">*</span>
-              </StyledLabelTextField>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Password"
-                fieldName="password"
-                required={true}
-              >
-                {(field) => (
-                  <StyledTextField
-                    {...field}
-                    fullWidth
-                    size="small"
-                    type="password"
-                    placeholder="Enter password"
-                  />
-                )}
-              </ControllerInput>
-            </CreateMemberInputContainer>
-
-            <CreateMemberInputContainer>
-              <StyledLabelTextField>
-                Role<span className="require-field">*</span>
-              </StyledLabelTextField>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Role"
-                fieldName="role"
-                required={true}
-              >
-                {(field) => (
-                  <Select {...field} fullWidth size="small">
-                    {roles.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <b>{option.label}</b>
-                      </MenuItem>
-                    ))}
-                  </Select>
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>
           </DialogContent>
           <DialogActions>
-            <ButtonCustomize variant="outlined" autoFocus handleClick={handleClose}>
+            <ButtonCustomize
+              variant="outlined"
+              autoFocus
+              handleClick={handleClose}
+            >
               Cancel
             </ButtonCustomize>
-            <ButtonCustomize variant="contained" type="submit" disabled={watchFieldsInModalCreateMember()} >Create</ButtonCustomize>
+            <ButtonCustomize
+              variant="contained"
+              type="submit"
+              disabled={watchFieldsInModalCreateMember()}
+            >
+              Create
+            </ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>
       </CreateMemberFormWrapper>

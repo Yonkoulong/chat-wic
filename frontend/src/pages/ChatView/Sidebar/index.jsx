@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import Popover from "@mui/material/Popover";
+import { toast } from "react-toastify";
 
+import Popover from "@mui/material/Popover";
 import { Box, Typography } from "@/shared/components";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MessageIcon from "@mui/icons-material/Message";
@@ -12,8 +13,12 @@ import PersonIcon from "@mui/icons-material/Person";
 import GridViewIcon from "@mui/icons-material/GridView";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { getChannelsByUser } from "@/services/channel.services";
+import { getDirectsByUserId } from "@/services/direct.services";
 import { useAppStore } from "@/stores/AppStore";
-import { ModalCreateDirect, ModalCreateChannel } from '@/pages/ChatView/Components/Modal';
+import {
+  ModalCreateDirect,
+  ModalCreateChannel,
+} from "@/pages/ChatView/Components/Modal";
 import {
   SidebarContainer,
   SidebarWrapper,
@@ -69,7 +74,8 @@ const Sidebar = () => {
   const [anchorRoom, setAnchorRoom] = useState(null);
   const [totalHeightSubtract, setTotalHeightSubtract] = useState(0);
   const [openCreateChannelModal, setOpenCreateChannelModal] = useState(false);
-  const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] = useState(false);
+  const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] =
+    useState(false);
 
   const SidebarHeaderRef = useRef(0);
   const SidebarBottomRef = useRef(0);
@@ -100,7 +106,7 @@ const Sidebar = () => {
   const handleClickOpenAnchorRoom = (event) => {
     setAnchorRoom(event.currentTarget);
   };
-  
+
   const handleCloseAnchorRoom = () => {
     setAnchorRoom(null);
   };
@@ -133,7 +139,15 @@ const Sidebar = () => {
         if (Array.isArray(respChannels?.data?.content)) {
           setChannels(respChannels?.data?.content);
         }
-      } catch {}
+
+        const respDirects = await getDirectsByUserId(payload);
+        if (Array.isArray(respDirects?.data?.content)) {
+          setDirects(respDirects?.data?.content);
+        }
+      } catch (error) {
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
+      }
     })();
   }, []);
 
@@ -159,7 +173,7 @@ const Sidebar = () => {
                 sx={{
                   "& .MuiPaper-root": {
                     borderRadius: "10px",
-                    top: '60px !important'
+                    top: "60px !important",
                   },
                 }}
               >
@@ -331,7 +345,7 @@ const Sidebar = () => {
                 sx={{
                   "& .MuiPaper-root": {
                     borderRadius: "10px",
-                    top: '56px !important'
+                    top: "56px !important",
                   },
                 }}
               >
@@ -350,15 +364,19 @@ const Sidebar = () => {
                           cursor: "pointer",
                         },
                       }}
-
                       onClick={handleClickOpenModalCreateChannel}
                     >
-                      <Box component='h4' sx={{
-                        fontSize: "20px",
-                        fontWeight: 'bold',
-                        width: '24px',
-                        textAlign: 'center'
-                      }}>#</Box>
+                      <Box
+                        component="h4"
+                        sx={{
+                          fontSize: "20px",
+                          fontWeight: "bold",
+                          width: "24px",
+                          textAlign: "center",
+                        }}
+                      >
+                        #
+                      </Box>
                       <AnchorRoomText>Channel</AnchorRoomText>
                     </Box>
                     <Box
@@ -369,7 +387,6 @@ const Sidebar = () => {
                           cursor: "pointer",
                         },
                       }}
-
                       onClick={handleClickOpenModalCreateDirect}
                     >
                       <ChatBubbleOutlineIcon />
@@ -392,11 +409,15 @@ const Sidebar = () => {
                   <ArrowDropDownIcon />
                   <SidebarBodyItemNameText>Channels</SidebarBodyItemNameText>
                 </SidebarBodyItemName>
-                <SidebarBodyItemRooms>
-                  {channels.length > 0 &&
-                    channels.map((channel) => {
-                      return (
-                        <SidebarBodyItemRoomWrapper key={channel?._id} onClick={() => redirectTo(`/chat/channel/${channel?._id}`)}>
+                {channels.length > 0 &&
+                  channels.map((channel) => {
+                    return (
+                      <SidebarBodyItemRooms key={channel?._id}>
+                        <SidebarBodyItemRoomWrapper
+                          onClick={() =>
+                            redirectTo(`/chat/channel/${channel?._id}`)
+                          }
+                        >
                           <SidebarBodyItemRoomImage
                             src="https://cdnimgen.vietnamplus.vn/uploaded/wbxx/2021_09_09/fourteen_foreign_tv_channels_to_end_broadcast_in_vietnam.jpg"
                             alt="logo"
@@ -408,9 +429,9 @@ const Sidebar = () => {
                             {channel?.channelName || "-"}
                           </SidebarBodyItemRoomName>
                         </SidebarBodyItemRoomWrapper>
-                      );
-                    })}
-                </SidebarBodyItemRooms>
+                      </SidebarBodyItemRooms>
+                    );
+                  })}
               </SidebarBodyItem>
 
               <SidebarBodyItem>
@@ -418,22 +439,20 @@ const Sidebar = () => {
                   <ArrowDropDownIcon />
                   <SidebarBodyItemNameText>Direct</SidebarBodyItemNameText>
                 </SidebarBodyItemName>
-
-                <SidebarBodyItemRooms>
-                  <SidebarBodyItemRoomWrapper>
-                    <SidebarBodyItemRoomImage />
-                    <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
-                    <SidebarBodyItemRoomName>User-1</SidebarBodyItemRoomName>
-                  </SidebarBodyItemRoomWrapper>
-                </SidebarBodyItemRooms>
-
-                <SidebarBodyItemRooms>
-                  <SidebarBodyItemRoomWrapper>
-                    <SidebarBodyItemRoomImage />
-                    <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
-                    <SidebarBodyItemRoomName>User-1</SidebarBodyItemRoomName>
-                  </SidebarBodyItemRoomWrapper>
-                </SidebarBodyItemRooms>
+                {directs?.length > 0 &&
+                  directs.map((direct) => {
+                    return (
+                      <SidebarBodyItemRooms key={direct?._id}>
+                        <SidebarBodyItemRoomWrapper>
+                          <SidebarBodyItemRoomImage />
+                          <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
+                          <SidebarBodyItemRoomName>
+                            User-1
+                          </SidebarBodyItemRoomName>
+                        </SidebarBodyItemRoomWrapper>
+                      </SidebarBodyItemRooms>
+                    );
+                  })}
               </SidebarBodyItem>
             </SidebarBodyList>
           </SidebarBodyWrapper>
