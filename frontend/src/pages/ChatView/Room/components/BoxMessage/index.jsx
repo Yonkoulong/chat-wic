@@ -70,6 +70,7 @@ export const BoxMessage = () => {
 
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const quoteMessageRef = useRef(null);
 
   const handleChat = (e) => {
@@ -118,7 +119,16 @@ export const BoxMessage = () => {
     }
   };
 
-  const handleClickValueImg = (e) => {
+  const handleChangeValueFile = (e) => {
+    const [file] = fileInputRef?.current?.files;
+    if (file) {
+      setFileListObject(file);
+      setUploadFile({ path: e.target.value, typeMessage: typesMessage.FILE })
+      setOpenUpladFileModal(true);
+    }
+  }
+
+  const handleClickResetValue= (e) => {
     e.target.value = "";
   };
 
@@ -291,7 +301,7 @@ export const BoxMessage = () => {
             accept="image/*"
             type="file"
             onChange={handleChangeValueImg}
-            onClick={handleClickValueImg}
+            onClick={handleClickResetValue}
             ref={imgInputRef}
           />
           <SymbolsImageOutlineIcon />
@@ -310,6 +320,9 @@ export const BoxMessage = () => {
             hidden
             accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             type="file"
+            onChange={handleChangeValueFile}
+            onClick={handleClickResetValue}
+            ref={fileInputRef}
           />
           <SymbolsAttachFileIcon />
         </IconButton>

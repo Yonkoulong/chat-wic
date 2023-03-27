@@ -14,7 +14,7 @@ import { styled } from "@mui/material/styles";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import { Box, Dialog, IconButton } from "@/shared/components";
+import { Box, Dialog, IconButton, Typography } from "@/shared/components";
 
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -22,6 +22,8 @@ import { postChannel } from "@/services/channel.services";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
 import { redirectTo } from "@/shared/utils/history";
+import { typesMessage } from "@/shared/utils/constant";
+
 
 import {
   CreateMemberFormWrapper,
@@ -69,10 +71,9 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  channelName: "",
+  fileName: "",
   description: "",
-  ownerId: 0,
-  userIds: [],
+  filePath: "",
 };
 
 export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
@@ -81,13 +82,14 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
 
   const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
-
-  const imgRef = useRef(null);
+  const [sizeFile, setSizeFile] = useState(0);
 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
@@ -96,7 +98,7 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
     let isEnable = false;
     const field = useWatch({ control });
 
-    if (field?.channelName && field?.userIds) {
+    if (field?.fileName) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -129,25 +131,34 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
 
   const handleClose = () => {
     reset({
-      channelName: "",
+      fileName: "",
       description: "",
-      ownerId: 0,
-      userIds: [],
     });
     onClose(false);
   };
 
   useEffect(() => {
     if (data) {
-    //   var binaryData = [];
-    //   binaryData.push(data);
-    //   setPreview(new Blob(binaryData, {type: "application/zip"}));
-    setPreview(data[0])
-    console.log(data);
-}
-}, [data]);
+      setSelectedFile(data);
+      setValue("fileName", data["name"]);
 
-console.log(imgRef?.current);
+      //set size file
+      let newSize = (Math.round((data.size / 1024) * 100) / 100);
+      setSizeFile(newSize);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!selectedFile || selectedFile.length <= 0) {
+      setPreview(undefined);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [selectedFile]);
+
   return (
     <BootstrapDialog
       onClose={handleClose}
@@ -161,8 +172,26 @@ console.log(imgRef?.current);
       <CreateMemberFormWrapper>
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
-            <Box sx={{ width: "500px", height: "300px" }}>
-              <img src={preview || "#"} alt="" ref={imgRef} />
+            <Box mb={1}>
+              {uploadFile && uploadFile.typeMessage == typesMessage.IMAGE ? (
+                <Box sx={{ display: "flex" }}>
+                  {preview && (
+                    <img
+                      src={preview}
+                      alt="img"
+                      style={{
+                        width: "300px",
+                        objectFit: "cover",
+                        margin: "0 auto",
+                      }}
+                    />
+                  )}
+                </Box>
+              ) : (
+                <Box>
+                  {data && <Typography fontSize="large" fontWeight="bold">{data['name']} - {sizeFile} KB</Typography>}
+                </Box>
+              )}
             </Box>
             <CreateMemberInputContainer>
               <StyledLabelTextField>
