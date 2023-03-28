@@ -18,12 +18,17 @@ import { Box, Dialog, IconButton, Typography } from "@/shared/components";
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import { postChannel } from "@/services/channel.services";
+import {
+  postMessageChannel,
+  putUpdateMessageChannel,
+} from "@/services/channel.services";
+
+import { uploadFile } from "@/services/attachment.services";
+
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
 import { redirectTo } from "@/shared/utils/history";
 import { typesMessage } from "@/shared/utils/constant";
-
 
 import {
   CreateMemberFormWrapper,
@@ -76,7 +81,7 @@ const defaultValues = {
   filePath: "",
 };
 
-export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
+export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
 
@@ -108,23 +113,34 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
 
   const onSubmit = async (data) => {
     try {
-      const newPayloadChannel = {
-        ...data,
-        userIds: membersSelected?.map((mem) => mem?.id),
-        ownerId: userInfo?._id,
-      };
+      
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
 
-      const respData = await postChannel(newPayloadChannel);
+      console.log(formData.getAll('file'));
+      console.log(formData.getAll('upload_preset'));
 
-      if (respData) {
-        const idChannel = respData?.data?.content?._id;
-        setLoading(true);
-        toast.success("Create channel successfully.");
-        handleClose();
-        redirectTo(`/chat/channel/${idChannel}`);
-      }
+      const respLinkImage = await uploadFile(selectedFile['type'], formData);
+      if(!respLinkImage) { return; }
+
+      // const newPayloadChannel = {
+      //   ...data,
+      //   userIds: membersSelected?.map((mem) => mem?.id),
+      //   ownerId: userInfo?._id,
+      // };
+
+      // const respData = await postMessageChannel(newPayloadChannel);
+
+      
+        // const idChannel = respData?.data?.content?._id;
+        // setLoading(true);
+        // toast.success("Create channel successfully.");
+        // handleClose();
+        // redirectTo(`/chat/channel/${idChannel}`);
+      
     } catch (error) {
-      const errorMessage = error?.response?.data?.content;
+      const errorMessage = error?.response?.data?.content || error?.message;
       toast.error(errorMessage);
     }
   };
@@ -143,7 +159,7 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
       setValue("fileName", data["name"]);
 
       //set size file
-      let newSize = (Math.round((data.size / 1024) * 100) / 100);
+      let newSize = Math.round((data.size / 1024) * 100) / 100;
       setSizeFile(newSize);
     }
   }, [data]);
@@ -173,7 +189,7 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <Box mb={1}>
-              {uploadFile && uploadFile.typeMessage == typesMessage.IMAGE ? (
+              {formFile && formFile.typeMessage == typesMessage.IMAGE ? (
                 <Box sx={{ display: "flex" }}>
                   {preview && (
                     <img
@@ -189,7 +205,11 @@ export const ModalUploadFilePreview = ({ open, onClose, data, uploadFile }) => {
                 </Box>
               ) : (
                 <Box>
-                  {data && <Typography fontSize="large" fontWeight="bold">{data['name']} - {sizeFile} KB</Typography>}
+                  {data && (
+                    <Typography fontSize="large" fontWeight="bold">
+                      {data["name"]} - {sizeFile} KB
+                    </Typography>
+                  )}
                 </Box>
               )}
             </Box>

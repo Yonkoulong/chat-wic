@@ -384,7 +384,7 @@ export const BoxMessage = () => {
         open={openUploadFileModal}
         onClose={setOpenUpladFileModal}
         data={fileListObject}
-        uploadFile={uploadFile}
+        formFile={uploadFile}
       />
     </BoxMessageContainer>
   );
