@@ -9,16 +9,28 @@ const {
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const postCreateMessageDirect = async (req, res) => {
-  const { content, roomId, senderId } = req.body;
+  const { directId } = req?.params;
+  const { content, messageFrom, type, replyId } = req.body;
 
-  if (isObjectIdInMongodb(roomId) && isObjectIdInMongodb(senderId)) {
-    const convertSenderId = ObjectIdMongodb(senderId);
-    const convertRoomId = ObjectIdMongodb(roomId);
+  if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
+    const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
+    const convertChannelIdToObjectIdMongo = ObjectIdMongodb(directId);
+    const messageId = new ObjectIdMongodb();
     const newMessage = {
-      senderId: convertSenderId,
+      _id: messageId,
+      messageFrom: convertMessageFromToObjectIdMongo,
       content,
-      roomId: convertRoomId,
+      channelId: convertChannelIdToObjectIdMongo,
+      type: type || MESSAGE_TYPES.plainText,
+      replyId: replyId || "",
+      reactions: [],
+      threadIdContainMessage: "",
+      threadId: "",
     };
+
+    if (type === MESSAGE_TYPES.image) {
+      newMessage.srcImage = content;
+    }
 
     try {
       await MessageDirect.create(newMessage);
@@ -34,43 +46,131 @@ const postGetMessageDirectByDirectId = async (req, res) => {
   if (!directId)
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
 
-  const { paging, isPaging } = req?.body;
+  const { paging } = req?.body;
   const orderCreatedAt = paging?.orders?.createdAt;
 
-  // declare message in room
+  let messageInDirect = [];
 
-  let messageInRoom = [];
-
-  if (isObjectIdInMongodb(roomId)) {
-    if (isPaging || !!paging) {
-      messageInRoom = await MessageDirect.find({ directId })
+  if (isObjectIdInMongodb(channelId)) {
+    if (!!paging) {
+      const { page, size } = paging;
+      const numberToSkip = (page - 1) * size;
+      messageInDirect = await MessageDirect.find({ channelId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
-        .skip(paging?.page || 1)
+        .skip(numberToSkip)
         .limit(paging?.size || 10);
     } else {
-      messageInRoom = await MessageDirect.find({ directId });
+      messageInDirect = await MessageDirect.find({ channelId });
     }
   }
 
-  const senderIds = messageInRoom?.map((message) => {
-    if (isObjectIdInMongodb(message?.senderId)) {
-      return ObjectIdMongodb(message.senderId);
+  const senderIds = messageInDirect?.map((message) => {
+    if (isObjectIdInMongodb(message?.messageFrom)) {
+      return ObjectIdMongodb(message.messageFrom);
     }
   });
+  // filter reply ids
+  const replyIds = messageInDirect
+    ?.filter((item) => item?.replyId)
+    ?.map((item) => item.replyId);
+
+  let messageByReplyIds = [];
+  try {
+    // get messages by ids
+    messageByReplyIds = await MessageDirect.find({ _id: { $in: replyIds } });
+  } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
-  const convertMessageInRoom = messageInRoom?.map((message) => {
-    const senderIdToString = message?.senderId?.toString();
+  const convertMessageInDirect = messageInDirect?.map((message) => {
+    const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
+    let avatar = "";
+    let replyMessage = {};
     senders?.forEach((sender) => {
       if (senderIdToString === sender?._id?.toString()) {
         senderName = sender?.username || "";
+        avatar = sender?.avatar;
       }
     });
+    // get message reply
+    if (message?.replyId && messageByReplyIds?.length > 0) {
+      messageByReplyIds?.forEach((item) => {
+        if (item?._id?.toString() == message?.replyId) {
+          replyMessage = item;
+        }
+      });
+    }
 
-    return { ...message?._doc, senderName };
+    return { ...message?._doc, senderName, avatar, replyMessage };
   });
 
-  return res.status(httpCode.ok).json(convertMessageInRoom);
+  return res.status(httpCode.ok).json(formatResponse(convertMessageInDirect));
+};
+
+const putUpdateMessageDirect = async (req, res) => {
+  const { content, reaction } = req?.body;
+  const { messageId } = req?.params;
+
+  try {
+    const messageById = await MessageDirect.find({ _id: messageId });
+
+    let messageData = {};
+    if (messageById?.length < 1) {
+      return res?.status(httpCode.notFound).json(responseError.notFound);
+    }
+    messageData = {
+      ...messageById[0]?._doc,
+      content: content || messageById[0]?._doc?.content,
+    };
+
+    let messageReactions = messageData?.reactions || [];
+
+    const isWillRemoveReaction =
+      messageReactions?.filter((item) => {
+        return (
+          item?.unified?.toString() === reaction?.unified?.toString() &&
+          reaction?.reactorId === reaction?.reactorId
+        );
+      })?.length > 0;
+
+    const isNewReaction =
+      Array.isArray(messageReactions) && messageReactions?.length < 1;
+
+    console.log(isWillRemoveReaction, "isWillRemoveReaction");
+
+    if (isNewReaction) {
+      // add new reaction
+      messageReactions?.push(reaction);
+    } else if (isWillRemoveReaction) {
+      // remove reaction has existed
+      messageReactions = messageReactions?.filter(
+        (item) =>
+          item?.unified !== reaction?.unified &&
+          reaction?.reactorId !== reaction?.reactorId
+      );
+    } else {
+      // update new reaction
+      messageReactions = messageReactions?.map((item) => {
+        const reactorId = reaction?.reactorId;
+        let newItem = item;
+        // check already exist reactorId
+        if (reactorId === item?.reactorId) {
+          newItem = reaction;
+        }
+        return newItem;
+      });
+    }
+
+    messageData = { ...messageData, reactions: messageReactions };
+
+    await MessageDirect.updateOne(
+      { _id: messageId },
+      { $set: messageData, $currentDate: { lastUpdated: true } }
+    );
+
+    return res?.status(httpCode.ok).json(formatResponse(messageData));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
 };
 
 module.exports = [
@@ -82,6 +182,11 @@ module.exports = [
   {
     method: "post",
     controller: postGetMessageDirectByDirectId,
-    routeName: "/message-direct/:directId",
+    routeName: "/message-direct/:directId/messages",
+  },
+  {
+    method: "put",
+    controller: putUpdateMessageDirect,
+    routeName: "/message-direct/:messageId/update-message",
   },
 ];
