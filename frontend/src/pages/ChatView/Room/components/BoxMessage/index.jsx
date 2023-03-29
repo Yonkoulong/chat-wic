@@ -62,11 +62,11 @@ export const BoxMessage = () => {
   const fetchMessagesDirect = useChatStore(
     (state) => state.fetchMessagesDirect
   );
-
+  
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
-  const [ fileListObject, setFileListObject] = useState([]);
-  const [ uploadFile, setUploadFile] = useState({});
+  const [fileListObject, setFileListObject] = useState([]);
+  const [uploadFile, setUploadFile] = useState({});
 
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
@@ -114,7 +114,7 @@ export const BoxMessage = () => {
     
     if (file) {
       setFileListObject(file);
-      setUploadFile({ path: e.target.value, typeMessage: typesMessage.IMAGE })
+      setUploadFile({ path: e.target.value, typeMessage: typesMessage.IMAGE, typeRoom })
       setOpenUpladFileModal(true);
     }
   };
@@ -123,7 +123,7 @@ export const BoxMessage = () => {
     const [file] = fileInputRef?.current?.files;
     if (file) {
       setFileListObject(file);
-      setUploadFile({ path: e.target.value, typeMessage: typesMessage.FILE })
+      setUploadFile({ path: e.target.value, typeMessage: typesMessage.FILE, typeRoom })
       setOpenUpladFileModal(true);
     }
   }
@@ -318,7 +318,7 @@ export const BoxMessage = () => {
         >
           <input
             hidden
-            accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept="*/"
             type="file"
             onChange={handleChangeValueFile}
             onClick={handleClickResetValue}

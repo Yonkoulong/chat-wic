@@ -66,6 +66,8 @@ export const enumTypeRooms = {
 
 export const typesMessage = {
   PLAIN_TEXT: "PLAIN_TEXT",
-  IMAGE: "IMAGE",
-  FILE: "FILE"
+  FILE: "FILE",
+  IMAGE: "image",
+  RAW: "raw",
+  VIDEO: "video"
 }

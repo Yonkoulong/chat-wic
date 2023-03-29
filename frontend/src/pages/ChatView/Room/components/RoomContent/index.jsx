@@ -41,7 +41,7 @@ import {
   hoverTextColor,
   whiteColor,
 } from "@/shared/utils/colors.utils";
-import { enumTypeRooms } from "@/shared/utils/constant";
+import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
 import {
   putUpdateMessageChannel,
   deleteMessageChannel,
@@ -65,8 +65,12 @@ export const RoomContent = () => {
   const heightQuoteMessage = useChatStore(
     (state) => state.heightQuoteMessageBox
   );
-  const fetchMessagesChannel = useChatStore((state) => state.fetchMessagesChannel);
-  const fetchMessagesDirect = useChatStore((state) => state.fetchMessagesDirect);
+  const fetchMessagesChannel = useChatStore(
+    (state) => state.fetchMessagesChannel
+  );
+  const fetchMessagesDirect = useChatStore(
+    (state) => state.fetchMessagesDirect
+  );
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [idEditMessage, setIdEidtMessage] = useState(null);
@@ -167,6 +171,43 @@ export const RoomContent = () => {
     }
   };
 
+  //handle render message with type
+  const handleRenderMessageWithType = (message) => {
+    switch (message?.type) {
+      case typesMessage.PLAIN_TEXT: {
+        return renderMessageWithTypePlainText();
+      }
+
+      case typesMessage.IMAGE: {
+        return renderMessageWithTypeImage();
+      }
+
+      case typesMessage.RAW: {
+        return renderMessageWithTypeRaw();
+      }
+
+      case typesMessage.VIDEO: {
+        return renderMessageWithTypeVideo();
+      }
+    }
+  };
+
+  const renderMessageWithTypePlainText = () => {
+    
+  }
+
+  const renderMessageWithTypeImage = () => {
+
+  }
+
+  const renderMessageWithTypeRaw = () => {
+
+  }
+
+  const renderMessageWithTypeVideo = () => {
+
+  }
+
   useEffect(() => {
     setLoading(true);
 
@@ -205,7 +246,7 @@ export const RoomContent = () => {
     ? "anchor-more-feature-message"
     : undefined;
 
-    return (
+  return (
     <RoomContentContainer>
       <Box>
         <Box

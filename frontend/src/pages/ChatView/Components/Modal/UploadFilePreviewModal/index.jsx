@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -27,8 +28,8 @@ import { uploadFile } from "@/services/attachment.services";
 
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
-import { redirectTo } from "@/shared/utils/history";
-import { typesMessage } from "@/shared/utils/constant";
+import { useChatStore } from "@/stores/ChatStore";
+import { typesMessage, enumTypeRooms } from "@/shared/utils/constant";
 
 import {
   CreateMemberFormWrapper,
@@ -82,10 +83,14 @@ const defaultValues = {
 };
 
 export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
+  const { id } = useParams();
+
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
+  const fetchMessagesChannel = useChatStore(
+    (state) => state.fetchMessagesChannel
+  );
 
-  const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -113,32 +118,47 @@ export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
 
   const onSubmit = async (data) => {
     try {
-      
       const formData = new FormData();
       formData.append("file", selectedFile);
-      formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+      formData.append(
+        "upload_preset",
+        import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+      );
 
-      console.log(formData.getAll('file'));
-      console.log(formData.getAll('upload_preset'));
+      const respLinkImage = await uploadFile(selectedFile["type"], formData);
+        
+      if (!respLinkImage || !formFile?.typeRoom) {
+        return;
+      }
 
-      const respLinkImage = await uploadFile(selectedFile['type'], formData);
-      if(!respLinkImage) { return; }
+      if (formFile?.typeRoom === enumTypeRooms.CHANNEL) {
+        const newPayloadMessageChannel = {
+          messageFrom: userInfo?._id,
+          content: respLinkImage?.data?.url,
+          channelId: id,
+          type: respLinkImage?.data?.resource_type,
+          replyId: null,
+        };
 
-      // const newPayloadChannel = {
-      //   ...data,
-      //   userIds: membersSelected?.map((mem) => mem?.id),
-      //   ownerId: userInfo?._id,
-      // };
+        const respPostMessage = await postMessageChannel(
+          newPayloadMessageChannel
+        );
 
-      // const respData = await postMessageChannel(newPayloadChannel);
+        if (respPostMessage) {
+          fetchMessagesChannel({ channelId: id });
+          handleClose();
+        }
+      }
 
-      
-        // const idChannel = respData?.data?.content?._id;
-        // setLoading(true);
-        // toast.success("Create channel successfully.");
-        // handleClose();
-        // redirectTo(`/chat/channel/${idChannel}`);
-      
+      if (formFile?.typeRoom === enumTypeRooms.DIRECT) {
+        const newPayloadMessageDirect = {
+          messageFrom: userInfo?._id,
+          content: respLinkImage?.url,
+          directId: id,
+          type: formFile?.type,
+          replyId: null,
+        };
+      }
     } catch (error) {
       const errorMessage = error?.response?.data?.content || error?.message;
       toast.error(errorMessage);
