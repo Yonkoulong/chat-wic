@@ -21,6 +21,15 @@ const {
 } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
+const templateRespUser = {
+  username: 1,
+  id: 1,
+  email: 1,
+  firstName: 1,
+  lastName: 1,
+  avatar: 1
+};
+
 const postCreateDirect = async (req, res) => {
   const { userIds, organizeId } = req?.body;
 
@@ -47,7 +56,8 @@ const postCreateDirect = async (req, res) => {
 };
 
 const postGetDirectsByUserId = async (req, res) => {
-  const { userId , organizeId} = req?.params;
+  const { userId } = req?.params;
+  const {organizeId} = req.body;
   try {
     let directByUserId = await DirectModel.find({
       userIds: { $in: [userId] },organizeId
@@ -55,12 +65,14 @@ const postGetDirectsByUserId = async (req, res) => {
 
     let usersIdsInDirects = [];
 
-    directByUserId?._doc?.forEach(item => {
+    directByUserId?.forEach(item => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
       usersIdsInDirects = [...usersIdsInDirects, ...ids] ;
     });
 
-    const usersInfoInDirects = await UserModel.find({id : {$in : usersIdsInDirects}});
+
+    const usersInfoInDirects = await UserModel.find({id : {$in : usersIdsInDirects}}, templateRespUser);
+    const respDataDirects = [];
     directByUserId.forEach((item, index) => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
       let usersInfo = [];
@@ -69,10 +81,13 @@ const postGetDirectsByUserId = async (req, res) => {
           usersInfo.push(user)
         }
       })
-      directByUserId[index].usersInfo = usersInfo;
+      console.log(usersInfo)
+      respDataDirects.push({...item?._doc, usersInfo})
     })
 
-    return res.status(httpCode.ok).json(formatResponse(directByUserId));
+    console.log(respDataDirects)
+
+    return res.status(httpCode.ok).json(formatResponse(respDataDirects));
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }

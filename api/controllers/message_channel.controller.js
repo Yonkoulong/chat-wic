@@ -54,7 +54,6 @@ const postMessageChannel = async (req, res) => {
   }
 };
 
-
 const getMessageChannelByChannelId = async (req, res) => {
   const { channelId } = req?.params;
   if (!channelId)
@@ -284,6 +283,9 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
   }
 };
 
+// search member and channel by organizeId
+const postSearchMemberAndChannelByOrganizeId = async (req, res) => {};
+
 module.exports = [
   {
     method: "get",
@@ -320,5 +322,10 @@ module.exports = [
     controller: postCreateThreadAndAddMessageToThread,
     routeName:
       "/message-channel/:threadId/create-thread-and-add-message-to-thread",
+  },
+  {
+    method: "post",
+    controller: postSearchMemberAndChannelByOrganizeId,
+    routeName: "/member-and-channel/:organizeId/search",
   },
 ];
