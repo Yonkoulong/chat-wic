@@ -171,7 +171,6 @@ const Sidebar = () => {
         if (!userInfo) {
           return;
         }
-        console.log(userInfo);
         const respChannels = await getChannelsByUser(userInfo);
         if (Array.isArray(respChannels?.data?.content)) {
           setChannels(respChannels?.data?.content);

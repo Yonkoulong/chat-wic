@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react';
-
-import { Box, TextField, InputAdornment } from '@/shared/components';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import {
+  Box,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+} from "@/shared/components";
+import CloseIcon from "@mui/icons-material/Close";
 
 import {
   SearchRoomContainer,
@@ -11,7 +16,7 @@ import {
   ImageSearchStyled,
   SearchRoomStatus,
   SearchRoomName,
-} from './SearchRoom.styles';
+} from "./SearchRoom.styles";
 
 import {
   blackColor,
@@ -19,32 +24,67 @@ import {
   whiteColor,
   hoverItemSidebarColor,
   textColorItemSidebar,
-} from '@/shared/utils/colors.utils';
+} from "@/shared/utils/colors.utils";
+import { redirectTo } from '@/shared/utils/history';
 
-import { useDebounce } from '@/shared/hooks';
+import { useAppStore } from "@/stores/AppStore";
+import { useMemberStore } from "@/stores/MemberStore";
+import { useDebounce } from "@/shared/hooks";
+import { postCheckAlreadyExistDirect } from "@/services/direct.services";
 
 export const SearchRoom = ({ closeSearchRoom }) => {
-  const [searchKey, setSearchKey] = useState('');
-  const [isChangeSearchKey, setIsChangeSearchKey] = useState(false);
-  const debounceSearchKey = useDebounce(searchKey);
+  const { userInfo } = useAppStore((state) => state);
+  const { fetchMembers, members, setLoading, loading } = useMemberStore(
+    (state) => state
+  );
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
-  const handleChangeSeachKey = (event) => {
-    setIsChangeSearchKey(true);
-    setSearchKey(event.target?.value);
+  const handleSearch = (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
   };
 
-  const handleSearch = () => {
-    
+  const handleClickRoomSearched = async (member) => {
+    console.log(member);
+    try {
+      const payload = {
+        userIds: [userInfo?._id, member?._id],
+        organizeId: userInfo?.organizeId,
+      };
+
+      const resp = await postCheckAlreadyExistDirect(payload);
+
+      // if(resp) {
+      //   redirectTo(`/chat/direct/${resp?.data?._id}`);
+      // }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content;
+      toast.error(errorMessage);
+    }
   };
-
-  const handleClickRoomSearched = () => {
-
-  }
 
   useEffect(() => {
-    if (isChangeSearchKey) {
-      handleSearch(searchKey, fieldName);
-    }
+    (async () => {
+      try {
+        const payload = {
+          id: "",
+          email: "",
+          organizeId: userInfo?.organizeId,
+          username: debounceSearchKey,
+          paging: {},
+        };
+
+        const resp = await fetchMembers(payload);
+
+        if (resp) {
+          // setMembers(resp?.data?.content);
+        }
+      } catch (error) {
+        const errorMessage = error?.response?.data?.content;
+        toast.error(errorMessage);
+      }
+    })();
   }, [debounceSearchKey]);
 
   return (
@@ -53,24 +93,28 @@ export const SearchRoom = ({ closeSearchRoom }) => {
         <Box>
           <TextField
             sx={{
-              '.MuiInputBase-root': {
+              ".MuiInputBase-root": {
                 border: `0.1px solid ${borderColor}`,
               },
-              '.MuiInputBase-input': {
+              ".MuiInputBase-input": {
                 color: whiteColor,
-                fontSize: '12px'
+                fontSize: "12px",
               },
             }}
-            placeholder="Search room, member name"
+            placeholder="Search member name"
             fullWidth
-            name="room"
+            name="username"
             size="small"
             value={searchKey}
-            onChange={handleChangeSeachKey}
+            onChange={handleSearch}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="start" sx={{ cursor: 'pointer' }}>
-                  <CloseIcon fontSize="small" sx={{ color: whiteColor }} onClick={() => closeSearchRoom()}/>
+                <InputAdornment position="start" sx={{ cursor: "pointer" }}>
+                  <CloseIcon
+                    fontSize="small"
+                    sx={{ color: whiteColor }}
+                    onClick={() => closeSearchRoom()}
+                  />
                 </InputAdornment>
               ),
             }}
@@ -79,26 +123,38 @@ export const SearchRoom = ({ closeSearchRoom }) => {
       </SearchRoomHeader>
       <SearchRoomBody>
         <SearchRoomBodyWrapper>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '8px 16px',
-              columnGap: '4px',
-              '&:hover': {
-                backgroundColor: hoverItemSidebarColor,
-                cursor: 'pointer'
-              }
-            }}
-            onClick={() => handleClickRoomSearched(room)}
-          >
-            <Box sx={{ width: '32px', height: '32px', border: '1px solid' }}>
-              <ImageSearchStyled src="" />
+          {loading && (
+            <Box my={10} textAlign="center">
+              <CircularProgress color="inherit" size={30} />
             </Box>
-            <SearchRoomStatus></SearchRoomStatus>
-            <SearchRoomName>long ne</SearchRoomName>
-          </Box>     
-          
+          )}
+
+          {!loading &&
+            members?.map((member) => {
+              return (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 16px",
+                    columnGap: "4px",
+                    "&:hover": {
+                      backgroundColor: hoverItemSidebarColor,
+                      cursor: "pointer",
+                    },
+                  }}
+                  onClick={() => handleClickRoomSearched(member)}
+                >
+                  <Box
+                    sx={{ width: "32px", height: "32px", border: "1px solid" }}
+                  >
+                    <ImageSearchStyled src={member?.avatar} alt="img-user" />
+                  </Box>
+                  <SearchRoomStatus></SearchRoomStatus>
+                  <SearchRoomName>{member?.username}</SearchRoomName>
+                </Box>
+              );
+            })}
         </SearchRoomBodyWrapper>
       </SearchRoomBody>
     </SearchRoomContainer>

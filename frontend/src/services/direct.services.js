@@ -13,6 +13,10 @@ export async function getDirectDetail(payload) {
     return requestAxios.post(`/direct/${payload.directId}`, {});
 }
 
+export async function postCheckAlreadyExistDirect(payload) {
+    return requestAxios.post("direct/check-already-exist-direct", payload);
+}
+
 
 //Message
 export async function postMessageDirect(directId, payload) {

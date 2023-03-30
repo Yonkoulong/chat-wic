@@ -12,6 +12,7 @@ export const useMemberStore = create((set) => ({
         const response = await getMembersByOrganizeId(payload);
         if(response) {
             const {page, size, totalPage, totalRecord } = response?.data?.paging;
+            console.log(payload);
             set({ members: response?.data?.content });
             set({ paging: {page, size} });
             set({ totalRecord });
