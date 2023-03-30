@@ -28,6 +28,8 @@ import {
   // CreateMemberFeatureWrapper,
 } from "./CreateDirectModal.styles";
 
+import { postCreateDirect } from '@/services/direct.services';
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
@@ -100,13 +102,15 @@ export const ModalCreateDirect = ({ open, onClose }) => {
   };
 
   const onSubmit = async (data) => {
+    let idsInDirect = membersSelected?.map((mem) => mem?.id);
     try {
       const newPayloadChannel = {
         ...data,
-        userIds: membersSelected?.map((mem) => mem?.id),
+        organizeId: userInfo?.organizeId,
+        userIds: [...idsInDirect, userInfo?._id],
       };
 
-      const respData = await postDirect(newPayloadChannel);
+      const respData = await postCreateDirect(newPayloadChannel);
 
       if (respData) {
         const idDirect = respData?.data?.content?._id;
@@ -141,24 +145,16 @@ export const ModalCreateDirect = ({ open, onClose }) => {
       toast.error(errorMessage);
     } finally {
       setLoading(false);
-      handleFocusInputAfterClick();
     }
   };
 
   const handleSelectedMember = (member) => {
     if (!member) return;
-    const memberId = member?.id;
-    const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
+   
     const inputRef = inputFocusRef.current.querySelector("input");
 
     let newMembersSelected = [];
-    if (membersSelectedIds?.includes(memberId)) {
-      newMembersSelected = membersSelected?.filter(
-        (member) => member?.id !== memberId
-      );
-    } else {
-      newMembersSelected = [...membersSelected, member];
-    }
+    newMembersSelected = [member];
 
     if (inputRef.value != "") {
       inputRef.value = "";
@@ -166,7 +162,6 @@ export const ModalCreateDirect = ({ open, onClose }) => {
     }
 
     setMembersSelected(newMembersSelected);
-    handleFocusInputAfterClick();
   };
 
   const handleUnSelectedMember = (member) => {
@@ -192,11 +187,6 @@ export const ModalCreateDirect = ({ open, onClose }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFocusInputAfterClick = () => {
-    const inputRef = inputFocusRef.current;
-    inputRef.querySelector("input").focus();
   };
 
   return (

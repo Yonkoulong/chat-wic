@@ -219,8 +219,7 @@ export const SidebarBodyItemRoomWrapper = styled(Box)`
 `
 
 export const SidebarBodyItemRoomImage = styled('img')`
-    width: 32px;
-    height: 32px;
+    width: 100%;
     object-fit: contain;
 `
 
