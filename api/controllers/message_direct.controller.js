@@ -5,15 +5,20 @@ const {
   responseError,
   ORDER_DIRECTION,
   ObjectIdMongodb,
-  formatResponse
+  formatResponse,
+  isArray,
+  MESSAGE_TYPES,
+  responseConstant,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const postCreateMessageDirect = async (req, res) => {
+  console.log(req?.params);
+  console.log(req?.body);
   const { directId } = req?.params;
-  const { content, messageFrom, type, replyId } = req.body;
+  const { content, messageFrom, type, replyId } = req?.body;
 
-  if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
+  if (isObjectIdInMongodb(directId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const convertDirectIdToObjectIdMongo = ObjectIdMongodb(directId);
     const messageId = new ObjectIdMongodb();
@@ -22,14 +27,12 @@ const postCreateMessageDirect = async (req, res) => {
       messageFrom: convertMessageFromToObjectIdMongo,
       content,
       directId: convertDirectIdToObjectIdMongo,
-      type: type || MESSAGE_TYPES.plainText,
+      type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
       reactions: [],
-      threadIdContainMessage: "",
-      threadId: "",
     };
 
-    if (type === MESSAGE_TYPES.image) {
+    if (type === MESSAGE_TYPES.IMAGE) {
       newMessage.srcImage = content;
     }
 
@@ -124,7 +127,7 @@ const putUpdateMessageDirect = async (req, res) => {
     };
 
     let messageReactions = messageData?.reactions || [];
-
+    
     const isWillRemoveReaction =
       messageReactions?.filter((item) => {
         return (
@@ -163,6 +166,8 @@ const putUpdateMessageDirect = async (req, res) => {
 
     messageData = { ...messageData, reactions: messageReactions };
 
+    console.log("MessageData", messageData);
+
     await MessageDirect.updateOne(
       { _id: messageId },
       { $set: messageData, $currentDate: { lastUpdated: true } }
@@ -174,11 +179,24 @@ const putUpdateMessageDirect = async (req, res) => {
   }
 };
 
+const deleteMessageInDirect = async (req, res) => {
+  const { messageId } = req?.params;
+
+  try {
+    await MessageDirect.deleteOne({ _id: messageId });
+    return res
+      .status(httpCode.ok)
+      .json(responseConstant.deleteMessageSuccessfully);
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "post",
     controller: postCreateMessageDirect,
-    routeName: "/message-direct/create",
+    routeName: "/message-direct/:directId/create",
   },
   {
     method: "post",
@@ -189,5 +207,10 @@ module.exports = [
     method: "put",
     controller: putUpdateMessageDirect,
     routeName: "/message-direct/:messageId/update-message",
+  },
+  {
+    method: "delete",
+    controller: deleteMessageInDirect,
+    routeName: "/message-direct/:messageId/delete",
   },
 ];

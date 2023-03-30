@@ -39,6 +39,11 @@ import {
   putUpdateMessageChannel,
 } from "@/services/channel.services";
 
+import {
+  putMessageDirect,
+  postMessageDirect,
+} from "@/services/direct.services";
+
 const flexCenter = {
   display: "flex",
   alignItems: "center",
@@ -62,7 +67,7 @@ export const BoxMessage = () => {
   const fetchMessagesDirect = useChatStore(
     (state) => state.fetchMessagesDirect
   );
-  
+
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
@@ -111,10 +116,14 @@ export const BoxMessage = () => {
 
   const handleChangeValueImg = (e) => {
     const [file] = imgInputRef?.current?.files;
-    
+
     if (file) {
       setFileListObject(file);
-      setUploadFile({ path: e.target.value, typeMessage: typesMessage.IMAGE, typeRoom })
+      setUploadFile({
+        path: e.target.value,
+        typeMessage: typesMessage.IMAGE,
+        typeRoom,
+      });
       setOpenUpladFileModal(true);
     }
   };
@@ -123,12 +132,16 @@ export const BoxMessage = () => {
     const [file] = fileInputRef?.current?.files;
     if (file) {
       setFileListObject(file);
-      setUploadFile({ path: e.target.value, typeMessage: typesMessage.FILE, typeRoom })
+      setUploadFile({
+        path: e.target.value,
+        typeMessage: typesMessage.FILE,
+        typeRoom,
+      });
       setOpenUpladFileModal(true);
     }
-  }
+  };
 
-  const handleClickResetValue= (e) => {
+  const handleClickResetValue = (e) => {
     e.target.value = "";
   };
 
@@ -140,9 +153,8 @@ export const BoxMessage = () => {
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
         if (!isObjectEmpty(editMessage)) {
           const newPayLoadEditMessageChannel = {
-            ...editMessage,
             content: value,
-            replyMessage: quoteMessage,
+            reaction: {},
           };
 
           const resp = await putUpdateMessageChannel(
@@ -171,8 +183,33 @@ export const BoxMessage = () => {
       }
 
       //Direct
-      if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
-        fetchMessagesDirect({ directId: id });
+      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
+       
+        if (!isObjectEmpty(editMessage)) {
+          const newPayLoadEditMessageDirect = {
+            content: value,
+            reaction: {}
+          };
+
+          const resp = await putMessageDirect(id, newPayLoadEditMessageDirect);
+
+          if (resp) {
+            fetchMessagesDirect({ directId: id });
+          }
+        } else {
+          const newPayloadMessageDirect = {
+            messageFrom: userInfo?._id,
+            content: value,
+            type: type,
+            replyId: quoteMessage?._id || null,
+          };
+
+          const resp = await postMessageDirect(id, newPayloadMessageDirect);
+
+          if (resp) {
+            fetchMessagesDirect({ directId: id });
+          }
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.content;
@@ -380,7 +417,7 @@ export const BoxMessage = () => {
         </Box>
       </Box>
       {/* Modal */}
-      <ModalUploadFilePreview 
+      <ModalUploadFilePreview
         open={openUploadFileModal}
         onClose={setOpenUpladFileModal}
         data={fileListObject}

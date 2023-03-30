@@ -47,6 +47,11 @@ import {
   deleteMessageChannel,
 } from "@/services/channel.services";
 
+import {
+  putMessageDirect,
+  deleteMessageDirect,
+} from "@/services/direct.services";
+
 const flexCenter = {
   display: "flex",
   alignItems: "center",
@@ -103,14 +108,18 @@ export const RoomContent = () => {
 
       if (!idEditMessage) return;
 
-      const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
-
-      if (resp) {
-        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+      if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+        const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
+       
+        if(resp) {
           fetchMessagesChannel({ channelId: roomInfo?._id });
         }
+      }
 
-        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
+        const resp = await putMessageDirect(idEditMessage, newPayload);
+       
+        if(resp) {
           fetchMessagesDirect({ directId: roomInfo?._id });
         }
       }
@@ -143,16 +152,23 @@ export const RoomContent = () => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      const resp = await deleteMessageChannel(messageId);
-      if (resp) {
-        if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-          fetchMessages({ channelId: roomInfo?._id });
+      
+      if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+          const resp = await deleteMessageChannel(messageId);
+
+          if(resp) {
+            fetchMessagesChannel({ channelId: roomInfo?._id });
+          }
         }
 
-        if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
-          fetchMessages({ directId: roomInfo?._id });
+        if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
+          const resp = await deleteMessageDirect(messageId);
+        
+          if(resp) {
+            fetchMessagesDirect({ directId: roomInfo?._id });
+          }
         }
-      }
+      
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
@@ -192,21 +208,13 @@ export const RoomContent = () => {
     }
   };
 
-  const renderMessageWithTypePlainText = () => {
-    
-  }
+  const renderMessageWithTypePlainText = () => {};
 
-  const renderMessageWithTypeImage = () => {
+  const renderMessageWithTypeImage = () => {};
 
-  }
+  const renderMessageWithTypeRaw = () => {};
 
-  const renderMessageWithTypeRaw = () => {
-
-  }
-
-  const renderMessageWithTypeVideo = () => {
-
-  }
+  const renderMessageWithTypeVideo = () => {};
 
   useEffect(() => {
     setLoading(true);
@@ -216,7 +224,7 @@ export const RoomContent = () => {
         fetchMessagesChannel({ channelId: roomInfo?._id });
       }
 
-      if (typeInfo && typeInfo === enumTypeRooms.DIRECT) {
+      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
         fetchMessagesDirect({ directId: roomInfo?._id });
       }
     } catch (error) {

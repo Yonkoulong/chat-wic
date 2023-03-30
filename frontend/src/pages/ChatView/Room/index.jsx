@@ -9,6 +9,7 @@ import { RoomChatContainer } from "./Room.styles";
 
 import { RoomHeader, RoomContent, BoxMessage } from "./components";
 import { getChannelDetail } from "@/services/channel.services";
+import { getDirectDetail } from "@/services/direct.services";
 import { useRoomStore } from "@/stores/RoomStore";
 import { enumTypeRooms, enumPopupFeatures } from "@/shared/utils/constant";
 import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
@@ -64,7 +65,7 @@ export const RoomChat = () => {
         }
 
         if (location?.pathname?.indexOf(enumTypeRooms.DIRECT) !== -1) {
-          resp = await getChannelDetail({ directId: id });
+          resp = await getDirectDetail({ directId: id });
           setTypeRoom(enumTypeRooms.DIRECT);
         }
 

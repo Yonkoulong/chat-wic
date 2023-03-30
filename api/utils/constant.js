@@ -66,10 +66,13 @@ const USER_ROLES = {
 };
 
 const MESSAGE_TYPES = {
-  link: "LINK",
-  paragraph: "PARAGRAPH",
-  plainText: "PLAIN_TEXT",
-  image: "IMAGE",
+  LINK: "link",
+  PARAGRAPH: "paragraph",
+  PLAIN_TEXT: "plain_text",
+  IMAGE: "image",
+  VIDEO: "video",
+  RAW: 'raw'
+
 };
 
 const convertToken = (token) => {

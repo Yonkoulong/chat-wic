@@ -57,7 +57,8 @@ const postCreateDirect = async (req, res) => {
 
 const postGetDirectsByUserId = async (req, res) => {
   const { userId } = req?.params;
-  const {organizeId} = req.body;
+  const { organizeId } = req.body;
+
   try {
     let directByUserId = await DirectModel.find({
       userIds: { $in: [userId] },organizeId
@@ -69,7 +70,6 @@ const postGetDirectsByUserId = async (req, res) => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
       usersIdsInDirects = [...usersIdsInDirects, ...ids] ;
     });
-
 
     const usersInfoInDirects = await UserModel.find({id : {$in : usersIdsInDirects}}, templateRespUser);
     const respDataDirects = [];
@@ -119,6 +119,48 @@ const postCheckAlreadyExistDirect = async (req, res) => {
   }
 };
 
+const postGetDirectDetail = async (req, res) => {
+  const { directId } = req?.params;
+
+  try {
+    const directs = await DirectModel.find({
+      _id: directId,
+    });
+
+    let directById = isArray(directs) ? directs[0]?._doc : {};
+
+    let responseDirectDetail = {};
+
+    if (directById?.userIds) {
+      try {
+        const userInfoInDirect = await UserModel.find({
+          _id: directById?.userIds,
+        });
+        
+        const userInfo = [];
+
+        if(userInfoInDirect && userInfoInDirect.length > 0) {
+          userInfoInDirect?.forEach((uInfo) => {
+            userInfo.push(uInfo);
+          })
+        }
+
+        responseDirectDetail = {
+          ...directById, 
+          userInfo: userInfo
+        }
+
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    return res.status(httpCode.ok).json(formatResponse(responseDirectDetail));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "post",
@@ -134,5 +176,10 @@ module.exports = [
     method: "post",
     controller: postCheckAlreadyExistDirect,
     routeName: "/direct/check-already-exist-direct",
+  },
+  {
+    method: "post",
+    controller: postGetDirectDetail,
+    routeName: "/direct/:directId",
   },
 ];

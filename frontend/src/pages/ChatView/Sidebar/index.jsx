@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 
-import Popover from '@mui/material/Popover';
-import { Box, Typography } from '@/shared/components';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import MessageIcon from '@mui/icons-material/Message';
-import HomeIcon from '@mui/icons-material/Home';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import SearchIcon from '@mui/icons-material/Search';
-import CreateRoundedIcon from '@mui/icons-material/CreateRounded';
-import PersonIcon from '@mui/icons-material/Person';
-import GridViewIcon from '@mui/icons-material/GridView';
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import { getChannelsByUser } from '@/services/channel.services';
-import { getDirectsByUserId } from '@/services/direct.services';
-import { useAppStore } from '@/stores/AppStore';
+import Popover from "@mui/material/Popover";
+import { Box, Typography } from "@/shared/components";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import MessageIcon from "@mui/icons-material/Message";
+import HomeIcon from "@mui/icons-material/Home";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import SearchIcon from "@mui/icons-material/Search";
+import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
+import PersonIcon from "@mui/icons-material/Person";
+import GridViewIcon from "@mui/icons-material/GridView";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import { getChannelsByUser } from "@/services/channel.services";
+import { getDirectsByUserId } from "@/services/direct.services";
+import { useAppStore } from "@/stores/AppStore";
 
 import {
   ModalCreateDirect,
   ModalCreateChannel,
-} from '@/pages/ChatView/Components/Modal';
-import { SearchRoom } from './components/SearchRoom';
+} from "@/pages/ChatView/Components/Modal";
+import { SearchRoom } from "./components/SearchRoom";
 
 import {
   SidebarContainer,
@@ -59,16 +59,16 @@ import {
   AnchorRoomTitle,
   AnchorRoomWrapper,
   AnchorRoomText,
-} from './Sidebar.styles';
+} from "./Sidebar.styles";
 import {
   successColor,
   errorColor,
   primaryColor,
-} from '@/shared/utils/colors.utils';
-import { enumRoles } from '@/shared/utils/constant';
-import { redirectTo } from '@/shared/utils/history';
+} from "@/shared/utils/colors.utils";
+import { enumRoles } from "@/shared/utils/constant";
+import { redirectTo } from "@/shared/utils/history";
 
-const flexCenter = { display: 'flex', alignItems: 'center' };
+const flexCenter = { display: "flex", alignItems: "center" };
 
 const Sidebar = () => {
   const { userInfo } = useAppStore((state) => state);
@@ -129,30 +129,55 @@ const Sidebar = () => {
 
   const handleOpenSearchRoom = () => {
     setOpenSearchRoom(true);
-  }
+  };
 
   const handleCloseSearchRoom = () => {
-    setOpenSearchRoom(false)
-  }
+    setOpenSearchRoom(false);
+  };
+
+  const handleRenderDirectMemberOnSideBar = (direct) => {
+    const filterDirectRoom = direct?.usersInfo.find(
+      (userId) => userId?._id !== userInfo?._id
+    );
+
+    return (
+      <SidebarBodyItemRooms key={direct?._id}>
+        <SidebarBodyItemRoomWrapper
+          onClick={() => redirectTo(`/chat/direct/${direct?._id}`)}
+        >
+          <Box sx={{ width: "40px", height: "40px", display: "flex" }}>
+            <SidebarBodyItemRoomImage src={filterDirectRoom?.avatar} />
+          </Box>
+          <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
+          <SidebarBodyItemRoomName>
+            {filterDirectRoom?.username}
+          </SidebarBodyItemRoomName>
+        </SidebarBodyItemRoomWrapper>
+      </SidebarBodyItemRooms>
+    );
+  };
 
   const openAnchorUserInfo = Boolean(anchorUserInfo);
   const openAnchorRoom = Boolean(anchorRoom);
 
   const idAnchorUserInfo = openAnchorUserInfo
-    ? 'anchor-user-info-popover'
+    ? "anchor-user-info-popover"
     : undefined;
-  const idAnchorRoom = openAnchorRoom ? 'anchor-room-popover' : undefined;
+  const idAnchorRoom = openAnchorRoom ? "anchor-room-popover" : undefined;
 
   useEffect(() => {
     (async () => {
       try {
-        const payload = { userId: userInfo?._id };
-        const respChannels = await getChannelsByUser(payload);
+        if (!userInfo) {
+          return;
+        }
+        console.log(userInfo);
+        const respChannels = await getChannelsByUser(userInfo);
         if (Array.isArray(respChannels?.data?.content)) {
           setChannels(respChannels?.data?.content);
         }
 
-        const respDirects = await getDirectsByUserId(payload);
+        const respDirects = await getDirectsByUserId(userInfo);
         if (Array.isArray(respDirects?.data?.content)) {
           setDirects(respDirects?.data?.content);
         }
@@ -179,13 +204,13 @@ const Sidebar = () => {
                 open={openAnchorUserInfo}
                 onClose={handleCloseAnchorUserInfo}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
+                  vertical: "bottom",
+                  horizontal: "left",
                 }}
                 sx={{
-                  '& .MuiPaper-root': {
-                    borderRadius: '10px',
-                    top: '60px !important',
+                  "& .MuiPaper-root": {
+                    borderRadius: "10px",
+                    top: "60px !important",
                   },
                 }}
               >
@@ -194,7 +219,7 @@ const Sidebar = () => {
                     <AnchorUserInfoHeader>
                       <AnchorUserInfoHeaderImage src="/" />
                       <Box
-                        sx={{ display: 'flex', flexDirection: 'column', ml: 1 }}
+                        sx={{ display: "flex", flexDirection: "column", ml: 1 }}
                       >
                         <Box sx={flexCenter}>
                           <AnchorUserInfoTitleStatus></AnchorUserInfoTitleStatus>
@@ -212,25 +237,25 @@ const Sidebar = () => {
                       <AnchorUserInfoBodyTitle>Status</AnchorUserInfoBodyTitle>
                       <Box
                         sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          margin: '8px 0 0',
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                          margin: "8px 0 0",
                         }}
                       >
                         <Box
                           sx={{
                             ...flexCenter,
-                            ':hover': {
+                            ":hover": {
                               opacity: 0.8,
-                              cursor: 'pointer',
+                              cursor: "pointer",
                             },
                           }}
                         >
                           <AnchorUserInfoBodyStatus
                             sx={{
                               backgroundColor: successColor,
-                              border: 'none',
+                              border: "none",
                             }}
                           ></AnchorUserInfoBodyStatus>
                           <AnchorUserInfoBodyText>
@@ -240,23 +265,23 @@ const Sidebar = () => {
                         <Box
                           sx={{
                             ...flexCenter,
-                            ':hover': {
+                            ":hover": {
                               opacity: 0.8,
-                              cursor: 'pointer',
+                              cursor: "pointer",
                             },
                           }}
                         >
                           <AnchorUserInfoBodyStatus
-                            sx={{ backgroundColor: errorColor, border: 'none' }}
+                            sx={{ backgroundColor: errorColor, border: "none" }}
                           ></AnchorUserInfoBodyStatus>
                           <AnchorUserInfoBodyText>busy</AnchorUserInfoBodyText>
                         </Box>
                         <Box
                           sx={{
                             ...flexCenter,
-                            ':hover': {
+                            ":hover": {
                               opacity: 0.8,
-                              cursor: 'pointer',
+                              cursor: "pointer",
                             },
                           }}
                         >
@@ -271,17 +296,17 @@ const Sidebar = () => {
                     <AnchorUserInfoBottom>
                       <Box
                         sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '12px',
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
                         }}
                       >
                         <Box
                           sx={{
                             ...flexCenter,
-                            ':hover': {
+                            ":hover": {
                               color: primaryColor,
-                              cursor: 'pointer',
+                              cursor: "pointer",
                             },
                           }}
                         >
@@ -294,12 +319,12 @@ const Sidebar = () => {
                           <Box
                             sx={{
                               ...flexCenter,
-                              ':hover': {
+                              ":hover": {
                                 color: primaryColor,
-                                cursor: 'pointer',
+                                cursor: "pointer",
                               },
                             }}
-                            onClick={() => redirectTo('/admin')}
+                            onClick={() => redirectTo("/admin")}
                           >
                             <GridViewIcon />
                             <AnchorUserInfoBottomItemText>
@@ -313,9 +338,9 @@ const Sidebar = () => {
                         <Box
                           sx={{
                             ...flexCenter,
-                            ':hover': {
+                            ":hover": {
                               color: primaryColor,
-                              cursor: 'pointer',
+                              cursor: "pointer",
                             },
                           }}
                           onClick={() => handleLogout()}
@@ -333,16 +358,19 @@ const Sidebar = () => {
             </SidebarHeaderItem>
 
             <SidebarHeaderItem>
-              <HomeIcon sx={{ display: 'flex' }} />
+              <HomeIcon sx={{ display: "flex" }} />
             </SidebarHeaderItem>
 
             <SidebarHeaderItem>
-              <SearchIcon sx={{ display: 'flex' }} onClick={() => handleOpenSearchRoom()}/>
+              <SearchIcon
+                sx={{ display: "flex" }}
+                onClick={() => handleOpenSearchRoom()}
+              />
             </SidebarHeaderItem>
 
             <SidebarHeaderItem>
               <CreateRoundedIcon
-                sx={{ display: 'flex' }}
+                sx={{ display: "flex" }}
                 onClick={handleClickOpenAnchorRoom}
               />
               <Popover
@@ -351,19 +379,19 @@ const Sidebar = () => {
                 open={openAnchorRoom}
                 onClose={handleCloseAnchorRoom}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
+                  vertical: "bottom",
+                  horizontal: "left",
                 }}
                 sx={{
-                  '& .MuiPaper-root': {
-                    borderRadius: '10px',
-                    top: '56px !important',
+                  "& .MuiPaper-root": {
+                    borderRadius: "10px",
+                    top: "56px !important",
                   },
                 }}
               >
                 <Box
                   sx={{
-                    padding: '16px',
+                    padding: "16px",
                   }}
                 >
                   <AnchorRoomTitle>Create new</AnchorRoomTitle>
@@ -371,9 +399,9 @@ const Sidebar = () => {
                     <Box
                       sx={{
                         ...flexCenter,
-                        ':hover': {
+                        ":hover": {
                           color: primaryColor,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                         },
                       }}
                       onClick={handleClickOpenModalCreateChannel}
@@ -381,10 +409,10 @@ const Sidebar = () => {
                       <Box
                         component="h4"
                         sx={{
-                          fontSize: '20px',
-                          fontWeight: 'bold',
-                          width: '24px',
-                          textAlign: 'center',
+                          fontSize: "20px",
+                          fontWeight: "bold",
+                          width: "24px",
+                          textAlign: "center",
                         }}
                       >
                         #
@@ -394,9 +422,9 @@ const Sidebar = () => {
                     <Box
                       sx={{
                         ...flexCenter,
-                        ':hover': {
+                        ":hover": {
                           color: primaryColor,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                         },
                       }}
                       onClick={handleClickOpenModalCreateDirect}
@@ -432,9 +460,9 @@ const Sidebar = () => {
                         >
                           <Box
                             sx={{
-                              width: '32px',
-                              height: '32px',
-                              display: 'flex',
+                              width: "40px",
+                              height: "40px",
+                              display: "flex",
                             }}
                           >
                             <SidebarBodyItemRoomImage
@@ -443,10 +471,10 @@ const Sidebar = () => {
                             />
                           </Box>
                           <SidebarBodyItemRoomStatus
-                            sx={{ backgroundColor: 'red' }}
+                            sx={{ backgroundColor: "red" }}
                           />
                           <SidebarBodyItemRoomName>
-                            {channel?.channelName || '-'}
+                            {channel?.channelName || "-"}
                           </SidebarBodyItemRoomName>
                         </SidebarBodyItemRoomWrapper>
                       </SidebarBodyItemRooms>
@@ -461,17 +489,7 @@ const Sidebar = () => {
                 </SidebarBodyItemName>
                 {directs?.length > 0 &&
                   directs.map((direct) => {
-                    return (
-                      <SidebarBodyItemRooms key={direct?._id}>
-                        <SidebarBodyItemRoomWrapper>
-                          <SidebarBodyItemRoomImage />
-                          <SidebarBodyItemRoomStatus></SidebarBodyItemRoomStatus>
-                          <SidebarBodyItemRoomName>
-                            User-1
-                          </SidebarBodyItemRoomName>
-                        </SidebarBodyItemRoomWrapper>
-                      </SidebarBodyItemRooms>
-                    );
+                    return handleRenderDirectMemberOnSideBar(direct);
                   })}
               </SidebarBodyItem>
             </SidebarBodyList>
@@ -490,7 +508,7 @@ const Sidebar = () => {
       </SidebarWrapper>
 
       {openSearchRoom ? (
-        <SearchRoom  closeSearchRoom={handleCloseSearchRoom} />
+        <SearchRoom closeSearchRoom={handleCloseSearchRoom} />
       ) : null}
 
       {/* modal create channel */}

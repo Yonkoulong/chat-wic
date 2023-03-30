@@ -6,7 +6,7 @@ export async function postChannel(payload) {
 }
 
 export async function getChannelsByUser(payload) {
-  return requestAxios.post(`/channel/${payload?.userId}/list`);
+  return requestAxios.post(`/channel/${payload?._id}/list`);
 }
 
 export async function getChannelDetail(payload) {

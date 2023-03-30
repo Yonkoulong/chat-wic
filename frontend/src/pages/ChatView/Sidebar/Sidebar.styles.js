@@ -220,12 +220,12 @@ export const SidebarBodyItemRoomWrapper = styled(Box)`
 
 export const SidebarBodyItemRoomImage = styled('img')`
     width: 100%;
-    object-fit: contain;
+    object-fit: cover;
 `
 
 export const SidebarBodyItemRoomStatus = styled(Box)`
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     border: 1px solid ${whiteColor};
     border-radius: 50%;
 `;

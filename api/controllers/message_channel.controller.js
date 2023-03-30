@@ -34,14 +34,14 @@ const postMessageChannel = async (req, res) => {
       messageFrom: convertMessageFromToObjectIdMongo,
       content,
       channelId: convertChannelIdToObjectIdMongo,
-      type: type || MESSAGE_TYPES.plainText,
+      type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
       reactions: [],
       threadIdContainMessage: "",
       threadId: "",
     };
 
-    if (type === MESSAGE_TYPES.image) {
+    if (type === MESSAGE_TYPES.IMAGE) {
       newMessage.srcImage = content;
     }
 

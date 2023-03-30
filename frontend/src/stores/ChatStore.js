@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import {
     getMessageChannelByChannelId,
 } from "@/services/channel.services";
+import { getMessageByDirectId } from "@/services/direct.services";
 
 export const useChatStore = create((set) => ({
     messages: [],
@@ -35,14 +36,14 @@ export const useChatStore = create((set) => ({
         }
     },
     fetchMessagesDirect: async (payload) => {
-        // const response = await getMessagDirectByDirectId(payload);
-        // if (response) {
-        //     // const { page, size, totalPage, totalRecord } = response?.data?.paging;
-        //     set({ messages: response?.data?.content });
-        //     // set({ paging: { page, size } });
-        //     // set({ totalRecord });
-        //     set({ loading: false })
-        // }
+        const response = await getMessageByDirectId(payload);
+        if (response) {
+            // const { page, size, totalPage, totalRecord } = response?.data?.paging;
+            set({ messages: response?.data?.content });
+            // set({ paging: { page, size } });
+            // set({ totalRecord });
+            set({ loading: false })
+        }
     },
 
 }));
