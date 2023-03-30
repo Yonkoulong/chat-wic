@@ -93,6 +93,32 @@ const postGetDirectsByUserId = async (req, res) => {
   }
 };
 
+const postCheckAlreadyExistDirect = async (req, res) => {
+  const { userIds , organizeId} = req?.body;
+  // [2 , 1]
+  let directByUserId = await DirectModel.find({
+    userIds: { $in: userIds }, organizeId
+  });
+  if(directByUserId?.length > 0 ){
+    // exist
+    return res.status(httpCode.ok).json(formatResponse(directByUserId));
+  }else{
+    // new direct
+    const _id = new ObjectIdMongodb();
+    const newDirect = {
+      _id,
+      userIds,
+      organizeId
+    }
+    try { 
+      await DirectModel.create(newDirect);
+      return res.status(httpCode.ok).json(formatResponse(newDirect)); 
+    }catch{
+      return res?.status(httpCode.badRequest).json(responseError.badRequest); 
+    }
+  }
+};
+
 module.exports = [
   {
     method: "post",
@@ -103,5 +129,10 @@ module.exports = [
     method: "post",
     controller: postGetDirectsByUserId,
     routeName: "/direct/:userId/list",
+  },
+  {
+    method: "post",
+    controller: postCheckAlreadyExistDirect,
+    routeName: "/direct/check-already-exist-direct",
   },
 ];
