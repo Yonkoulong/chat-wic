@@ -5,6 +5,7 @@ const {
   responseError,
   ORDER_DIRECTION,
   ObjectIdMongodb,
+  formatResponse
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -14,13 +15,13 @@ const postCreateMessageDirect = async (req, res) => {
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
-    const convertChannelIdToObjectIdMongo = ObjectIdMongodb(directId);
+    const convertDirectIdToObjectIdMongo = ObjectIdMongodb(directId);
     const messageId = new ObjectIdMongodb();
     const newMessage = {
       _id: messageId,
       messageFrom: convertMessageFromToObjectIdMongo,
       content,
-      channelId: convertChannelIdToObjectIdMongo,
+      directId: convertDirectIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.plainText,
       replyId: replyId || "",
       reactions: [],
@@ -51,16 +52,16 @@ const postGetMessageDirectByDirectId = async (req, res) => {
 
   let messageInDirect = [];
 
-  if (isObjectIdInMongodb(channelId)) {
+  if (isObjectIdInMongodb(directId)) {
     if (!!paging) {
       const { page, size } = paging;
       const numberToSkip = (page - 1) * size;
-      messageInDirect = await MessageDirect.find({ channelId })
+      messageInDirect = await MessageDirect.find({ directId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
         .skip(numberToSkip)
         .limit(paging?.size || 10);
     } else {
-      messageInDirect = await MessageDirect.find({ channelId });
+      messageInDirect = await MessageDirect.find({ directId });
     }
   }
 
