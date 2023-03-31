@@ -95,13 +95,26 @@ const postGetDirectsByUserId = async (req, res) => {
 
 const postCheckAlreadyExistDirect = async (req, res) => {
   const { userIds , organizeId} = req?.body;
+  let user1Id = null;
+  let user2Id = null;
+  if(userIds?.length > 1){
+    user1Id= userIds[0]?.toString();
+    user2Id = userIds[1]?.toString();
+  }
   // [2 , 1]
   let directByUserId = await DirectModel.find({
-    userIds: { $in: userIds }, organizeId
+    userIds: { $elemMatch :  {$in : userIds} }, organizeId
   });
-  if(directByUserId?.length > 0 ){
+  let matchDirectExist = null;
+  directByUserId.forEach(direct => {
+    
+    if(direct?.userIds?.includes(user1Id) && direct?.userIds?.includes(user2Id)){
+      matchDirectExist = direct;
+    }
+  })  
+  if(matchDirectExist){
     // exist
-    return res.status(httpCode.ok).json(formatResponse(directByUserId));
+    return res.status(httpCode.ok).json(formatResponse(matchDirectExist))
   }else{
     // new direct
     const _id = new ObjectIdMongodb();
