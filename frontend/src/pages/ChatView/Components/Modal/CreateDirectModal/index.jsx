@@ -27,8 +27,8 @@ import {
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
 } from "./CreateDirectModal.styles";
-
-import { postCreateDirect } from '@/services/direct.services';
+import { redirectTo } from "@/shared/utils/history";
+import { postCreateDirect, postCheckAlreadyExistDirect } from '@/services/direct.services';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -104,18 +104,17 @@ export const ModalCreateDirect = ({ open, onClose }) => {
   const onSubmit = async (data) => {
     let idsInDirect = membersSelected?.map((mem) => mem?.id);
     try {
-      const newPayloadChannel = {
+      const newPayloadDirect = {
         ...data,
         organizeId: userInfo?.organizeId,
         userIds: [...idsInDirect, userInfo?._id],
       };
 
-      const respData = await postCreateDirect(newPayloadChannel);
+      const respData = await postCheckAlreadyExistDirect(newPayloadDirect);
 
       if (respData) {
         const idDirect = respData?.data?.content?._id;
         setLoading(true);
-        toast.success("Create direct successfully.");
         handleClose();
         redirectTo(`/chat/direct/${idDirect}`);
       }

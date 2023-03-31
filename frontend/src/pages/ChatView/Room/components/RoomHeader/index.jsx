@@ -7,7 +7,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InfoIcon from "@mui/icons-material/Info";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from "@mui/icons-material/Person";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import { UilCommentMessageIcon, SymbolsAttachFileIcon } from "@/assets/icons";
 import { Box, Typography } from "@/shared/components";
@@ -69,10 +70,15 @@ export const RoomHeader = () => {
         let filterUserInDirect = roomInfo?.userInfo.find(
           (user) => user?._id !== userInfo?._id
         );
+
         return (
           <>
             <Box sx={{ width: "40px", height: "40px", display: "flex" }}>
-              <RoomHeaderItemImage src={filterUserInDirect?.avatar} />
+              {filterUserInDirect?.avatar ? (
+                <RoomHeaderItemImage src={filterUserInDirect?.avatar} />
+              ) : (
+                <AccountCircleIcon sx={{ width: '40px', height: '40px'}}/>
+              )}
             </Box>
             <RoomHeaderItemName>
               {filterUserInDirect?.username}
@@ -285,7 +291,7 @@ export const RoomHeader = () => {
               }}
               onClick={() => handleOpenFeatureRoom(enumPopupFeatures.FILES)}
             >
-              <SymbolsAttachFileIcon fontSize="small"/>
+              <SymbolsAttachFileIcon fontSize="small" />
             </Box>
           </>
         );
