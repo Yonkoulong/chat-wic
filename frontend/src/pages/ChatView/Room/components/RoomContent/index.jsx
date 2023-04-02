@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, createElement } from "react";
 import EmojiPicker from "emoji-picker-react";
 import Popover from "@mui/material/Popover";
 import { toast } from "react-toastify";
 
 import { RoomContentContainer } from "./RoomContent.styles";
-import { Box, Typography, CircularProgress } from "@/shared/components";
+import { Box, Typography, CircularProgress, Paper } from "@/shared/components";
+import { LinkPreview } from "@dhaiwat10/react-link-preview";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReplyIcon from "@mui/icons-material/Reply";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 import {
   LucideQuoteIcon,
@@ -40,6 +42,7 @@ import {
   inActiveColor,
   hoverTextColor,
   whiteColor,
+  blackColor,
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
 import {
@@ -83,6 +86,8 @@ export const RoomContent = () => {
   const [anchorMoreFeatureMessage, setAnchorMoreFeatureMessage] =
     useState(null);
 
+  const urlRef = useRef(null);
+
   const handleMouseOver = (message) => {
     setIdMessageHovering(message?._id);
   };
@@ -110,16 +115,16 @@ export const RoomContent = () => {
 
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
         const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
-       
-        if(resp) {
+
+        if (resp) {
           fetchMessagesChannel({ channelId: roomInfo?._id });
         }
       }
 
       if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
         const resp = await putMessageDirect(idEditMessage, newPayload);
-       
-        if(resp) {
+
+        if (resp) {
           fetchMessagesDirect({ directId: roomInfo?._id });
         }
       }
@@ -152,23 +157,21 @@ export const RoomContent = () => {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-          const resp = await deleteMessageChannel(messageId);
+        const resp = await deleteMessageChannel(messageId);
 
-          if(resp) {
-            fetchMessagesChannel({ channelId: roomInfo?._id });
-          }
+        if (resp) {
+          fetchMessagesChannel({ channelId: roomInfo?._id });
         }
+      }
 
-        if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-          const resp = await deleteMessageDirect(messageId);
-        
-          if(resp) {
-            fetchMessagesDirect({ directId: roomInfo?._id });
-          }
+      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
+        const resp = await deleteMessageDirect(messageId);
+
+        if (resp) {
+          fetchMessagesDirect({ directId: roomInfo?._id });
         }
-      
+      }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
@@ -191,30 +194,106 @@ export const RoomContent = () => {
   const handleRenderMessageWithType = (message) => {
     switch (message?.type) {
       case typesMessage.PLAIN_TEXT: {
-        return renderMessageWithTypePlainText();
+        return renderMessageWithTypePlainText(message);
       }
 
       case typesMessage.IMAGE: {
-        return renderMessageWithTypeImage();
+        return renderMessageWithTypeImage(message);
       }
 
       case typesMessage.RAW: {
-        return renderMessageWithTypeRaw();
+        return renderMessageWithTypeRaw(message);
       }
 
       case typesMessage.VIDEO: {
-        return renderMessageWithTypeVideo();
+        return renderMessageWithTypeVideo(message);
       }
     }
   };
 
-  const renderMessageWithTypePlainText = () => {};
+  const renderMessageWithTypePlainText = (message) => {
+    return handleDetectUrl(message?.content);
+  };
 
-  const renderMessageWithTypeImage = () => {};
+  const renderMessageWithTypeImage = (message) => {
+    return (
+      <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
+        <img
+          src={message?.content}
+          alt="image-message"
+          style={{ width: "100%", objectFit: "contain" }}
+        />
+      </Paper>
+    );
+  };
 
-  const renderMessageWithTypeRaw = () => {};
+  const renderMessageWithTypeRaw = (message) => {
+    return (
+      <Box
+        component="a"
+        href={message?.content}
+        download
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          borderRadius: "10px",
+          backgroundColor: hoverTextColor,
+          width: "max-content",
+          padding: "4px 8px",
+          marginTop: 1,
+        }}
+      >
+        <Box
+          sx={{
+            width: "34px",
+            height: "34px",
+            backgroundColor: primaryColor,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <DescriptionIcon sx={{ color: whiteColor }} />
+        </Box>
+        <Typography ml={1} sx={{ color: blackColor }}>
+          filename.path
+        </Typography>
+      </Box>
+    );
+  };
 
-  const renderMessageWithTypeVideo = () => {};
+  const renderMessageWithTypeVideo = (message) => {
+    return (
+      <Paper sx={{ width: "fit-content", marginTop: 1 }}>
+        <video
+          width="320"
+          height="100%"
+          style={{ borderRadius: "4px" }}
+          controls
+        >
+          <source src={message?.content} type="video/mp4" />
+        </video>
+      </Paper>
+    );
+  };
+
+  const handleDetectUrl = (content) => {
+    var urlRegex = /(https?:\/\/[^\s]+)/g;
+    if (urlRegex.test(content)) {
+      const newUrl = content.replace(urlRegex, function (url) {
+        return url;
+      });
+
+      return (
+        <Box component="a" href={newUrl} target="_blank">
+          {newUrl}
+        </Box>
+      );
+    } else {
+      return <Typography fontSize="small">{content}</Typography>;
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -447,9 +526,7 @@ export const RoomContent = () => {
                       </MessageTitle>
 
                       <MessageContentBox>
-                        <Typography fontSize="small">
-                          {message?.content}
-                        </Typography>
+                        {handleRenderMessageWithType(message)}
                       </MessageContentBox>
 
                       {message?.replyId && (
