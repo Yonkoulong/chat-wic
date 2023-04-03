@@ -46,18 +46,17 @@ export const SearchRoom = ({ closeSearchRoom }) => {
   };
 
   const handleClickRoomSearched = async (member) => {
-    console.log(member);
     try {
       const payload = {
         userIds: [userInfo?._id, member?._id],
         organizeId: userInfo?.organizeId,
       };
-
+      
       const resp = await postCheckAlreadyExistDirect(payload);
-
-      // if(resp) {
-      //   redirectTo(`/chat/direct/${resp?.data?._id}`);
-      // }
+      console.log(resp?.data?.content?._id);
+      if(resp) {
+        redirectTo(`/chat/direct/${resp?.data?.content?._id}`);
+      }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);

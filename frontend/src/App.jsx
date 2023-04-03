@@ -26,10 +26,10 @@ const CustomRouter = ({ basename, children, history }) => {
 let socket;
 
 function App() {
-  socket = io(import.meta.env.VITE_CHAT_WIC_API || "http://localhost:8080");
+  socket = io(import.meta.env.VITE_APP_ROOT_SOCKET_CONNECTION || "http://localhost:4000");
 
   console.log(socket);
-  useEffect(() => {}, []);
+  // useEffect(() => {}, []);
 
   return (
     <ThemeProvider>

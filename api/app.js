@@ -18,7 +18,9 @@ const setupRoutes = require("./app-routes");
 
 const setupApp = async () => {
   setupMiddleware(app);
-  console.log(io);
+  setupRoutes(app);
+
+
   io.on('connection', (socket) => {
     console.log('We have a new connection!!!!');
 
@@ -26,8 +28,6 @@ const setupApp = async () => {
       console.log('user is offline');
     })
   })
-
-  setupRoutes(app);
 
   await mongoose
     .connect(process.env.MONGO_URI)
@@ -38,8 +38,7 @@ const setupApp = async () => {
       console.log(err);
     });
 
-
-
+  server.listen(4000);
   return app.listen(process.env.PORT || 8080);
 };
 

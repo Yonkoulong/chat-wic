@@ -86,7 +86,7 @@ export const RoomContent = () => {
   const [anchorMoreFeatureMessage, setAnchorMoreFeatureMessage] =
     useState(null);
 
-  const urlRef = useRef(null);
+  const scrollRef = useRef(null);
 
   const handleMouseOver = (message) => {
     setIdMessageHovering(message?._id);
@@ -312,6 +312,14 @@ export const RoomContent = () => {
     }
   }, [roomInfo, typeRoom]);
 
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({
+      behaviour: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
+  }, [messages]);
+
   //close anchor
   const handleCloseAnchorReaction = () => {
     setAnchorReaction(null);
@@ -352,6 +360,7 @@ export const RoomContent = () => {
                     onMouseOver={() => handleMouseOver(message)}
                     onMouseOut={handleMouseOut}
                     key={message?._id || index}
+                    ref={scrollRef}
                     sx={{
                       backgroundColor:
                         editMessage?._id === message?._id
