@@ -44,6 +44,14 @@ const messageChannelSchema = new Schema(
       type: Number,
       required: false,
     },
+    url: {
+      type: String,
+      required: false,
+    },
+    secretUrl: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
