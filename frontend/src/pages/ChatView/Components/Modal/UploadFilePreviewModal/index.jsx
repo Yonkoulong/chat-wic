@@ -139,7 +139,6 @@ export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
           type: respLinkImage?.data?.resource_type,
           replyId: null,
         };
-
         const respPostMessage = await postMessageChannel(
           newPayloadMessageChannel
         );

@@ -27,32 +27,30 @@ const templateRespUser = {
   email: 1,
   firstName: 1,
   lastName: 1,
-  avatar: 1
+  avatar: 1,
 };
 
 const postCreateDirect = async (req, res) => {
   const { userIds, organizeId } = req?.body;
 
-  if(!userIds || !organizeId || !isObjectIdInMongodb(organizeId)){
-    return res?.status(httpCode.badRequest).json(responseError.badRequest); 
+  if (!userIds || !organizeId || !isObjectIdInMongodb(organizeId)) {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
   const convertUserIds = isArray(userIds) ? userIds : [];
   const directId = new ObjectIdMongodb();
   const newDirect = {
-    _id : directId,
-    userIds : convertUserIds,
-    organizeId
-  }
+    _id: directId,
+    userIds: convertUserIds,
+    organizeId,
+  };
 
-  try { 
+  try {
     await DirectModel.create(newDirect);
-    return res.status(httpCode.ok).json(formatResponse(newDirect)); 
-  }catch{
-    return res?.status(httpCode.badRequest).json(responseError.badRequest); 
+    return res.status(httpCode.ok).json(formatResponse(newDirect));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
-
-  
 };
 
 const postGetDirectsByUserId = async (req, res) => {
@@ -61,31 +59,32 @@ const postGetDirectsByUserId = async (req, res) => {
 
   try {
     let directByUserId = await DirectModel.find({
-      userIds: { $in: [userId] },organizeId
+      userIds: { $in: [userId] },
+      organizeId,
     });
 
     let usersIdsInDirects = [];
 
-    directByUserId?.forEach(item => {
+    directByUserId?.forEach((item) => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
-      usersIdsInDirects = [...usersIdsInDirects, ...ids] ;
+      usersIdsInDirects = [...usersIdsInDirects, ...ids];
     });
 
-    const usersInfoInDirects = await UserModel.find({id : {$in : usersIdsInDirects}}, templateRespUser);
+    const usersInfoInDirects = await UserModel.find(
+      { id: { $in: usersIdsInDirects } },
+      templateRespUser
+    );
     const respDataDirects = [];
     directByUserId.forEach((item, index) => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
       let usersInfo = [];
-      usersInfoInDirects.forEach(user => {
-        if(ids.includes(user?.id)){
-          usersInfo.push(user)
+      usersInfoInDirects.forEach((user) => {
+        if (ids.includes(user?.id)) {
+          usersInfo.push(user);
         }
-      })
-      console.log(usersInfo)
-      respDataDirects.push({...item?._doc, usersInfo})
-    })
-
-    console.log(respDataDirects)
+      });
+      respDataDirects.push({ ...item?._doc, usersInfo });
+    });
 
     return res.status(httpCode.ok).json(formatResponse(respDataDirects));
   } catch {
@@ -94,40 +93,43 @@ const postGetDirectsByUserId = async (req, res) => {
 };
 
 const postCheckAlreadyExistDirect = async (req, res) => {
-  const { userIds , organizeId} = req?.body;
+  const { userIds, organizeId } = req?.body;
   let user1Id = null;
   let user2Id = null;
-  if(userIds?.length > 1){
-    user1Id= userIds[0]?.toString();
+  if (userIds?.length > 1) {
+    user1Id = userIds[0]?.toString();
     user2Id = userIds[1]?.toString();
   }
   // [2 , 1]
   let directByUserId = await DirectModel.find({
-    userIds: { $elemMatch :  {$in : userIds} }, organizeId
+    userIds: { $elemMatch: { $in: userIds } },
+    organizeId,
   });
   let matchDirectExist = null;
-  directByUserId.forEach(direct => {
-    
-    if(direct?.userIds?.includes(user1Id) && direct?.userIds?.includes(user2Id)){
+  directByUserId.forEach((direct) => {
+    if (
+      direct?.userIds?.includes(user1Id) &&
+      direct?.userIds?.includes(user2Id)
+    ) {
       matchDirectExist = direct;
     }
-  })  
-  if(matchDirectExist){
+  });
+  if (matchDirectExist) {
     // exist
-    return res.status(httpCode.ok).json(formatResponse(matchDirectExist))
-  }else{
+    return res.status(httpCode.ok).json(formatResponse(matchDirectExist));
+  } else {
     // new direct
     const _id = new ObjectIdMongodb();
     const newDirect = {
       _id,
       userIds,
-      organizeId
-    }
-    try { 
+      organizeId,
+    };
+    try {
       await DirectModel.create(newDirect);
-      return res.status(httpCode.ok).json(formatResponse(newDirect)); 
-    }catch{
-      return res?.status(httpCode.badRequest).json(responseError.badRequest); 
+      return res.status(httpCode.ok).json(formatResponse(newDirect));
+    } catch {
+      return res?.status(httpCode.badRequest).json(responseError.badRequest);
     }
   }
 };
@@ -149,20 +151,19 @@ const postGetDirectDetail = async (req, res) => {
         const userInfoInDirect = await UserModel.find({
           _id: directById?.userIds,
         });
-        
+
         const userInfo = [];
 
-        if(userInfoInDirect && userInfoInDirect.length > 0) {
+        if (userInfoInDirect && userInfoInDirect.length > 0) {
           userInfoInDirect?.forEach((uInfo) => {
             userInfo.push(uInfo);
-          })
+          });
         }
 
         responseDirectDetail = {
-          ...directById, 
-          userInfo: userInfo
-        }
-
+          ...directById,
+          userInfo: userInfo,
+        };
       } catch (error) {
         throw error;
       }
