@@ -26,6 +26,9 @@ const CustomRouter = ({ basename, children, history }) => {
 
 function App() {
   
+  useEffect(() => {
+    
+  }, [])
 
   return (
     <ThemeProvider>
