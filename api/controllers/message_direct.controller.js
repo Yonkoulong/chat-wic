@@ -16,7 +16,16 @@ const postCreateMessageDirect = async (req, res) => {
   console.log(req?.params);
   console.log(req?.body);
   const { directId } = req?.params;
-  const { content, messageFrom, type, replyId } = req?.body;
+  const {
+    content,
+    messageFrom,
+    type,
+    replyId,
+    url,
+    secretUrl,
+    fileName,
+    size,
+  } = req?.body;
 
   if (isObjectIdInMongodb(directId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
@@ -34,6 +43,13 @@ const postCreateMessageDirect = async (req, res) => {
 
     if (type === MESSAGE_TYPES.IMAGE) {
       newMessage.srcImage = content;
+    }
+
+    if (type === MESSAGE_TYPES.RAW) {
+      if (!!url) newMessage.url = url;
+      if (!!secretUrl) newMessage.secretUrl = secretUrl;
+      if (!!fileName) newMessage.secretUrl = fileName;
+      if (!!size) newMessage.secretUrl = size;
     }
 
     try {
@@ -127,7 +143,7 @@ const putUpdateMessageDirect = async (req, res) => {
     };
 
     let messageReactions = messageData?.reactions || [];
-    
+
     const isWillRemoveReaction =
       messageReactions?.filter((item) => {
         return (

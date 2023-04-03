@@ -23,7 +23,16 @@ const getMessagesChannel = async (_req, res) => {
 
 const postMessageChannel = async (req, res) => {
   const { channelId } = req?.params;
-  const { content, messageFrom, type, replyId } = req.body;
+  const {
+    content,
+    messageFrom,
+    type,
+    replyId,
+    url,
+    secretUrl,
+    fileName,
+    size,
+  } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
@@ -43,6 +52,13 @@ const postMessageChannel = async (req, res) => {
 
     if (type === MESSAGE_TYPES.IMAGE) {
       newMessage.srcImage = content;
+    }
+
+    if (type === MESSAGE_TYPES.RAW) {
+      if (!!url) newMessage.url = url;
+      if (!!secretUrl) newMessage.secretUrl = secretUrl;
+      if (!!fileName) newMessage.secretUrl = fileName;
+      if (!!size) newMessage.secretUrl = size;
     }
 
     try {
