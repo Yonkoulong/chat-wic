@@ -54,6 +54,7 @@ import {
   putMessageDirect,
   deleteMessageDirect,
 } from "@/services/direct.services";
+import { useSocketStore } from "@/stores/SocketStore";
 
 const flexCenter = {
   display: "flex",
@@ -61,10 +62,12 @@ const flexCenter = {
 };
 
 export const RoomContent = () => {
+  const { client } = useSocketStore((state) => state);
+
   const userInfo = useAppStore((state) => state.userInfo);
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
-  const messages = useChatStore((state) => state.messages);
+  const { messages, pushMessage } = useChatStore((state) => state);
   const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -79,6 +82,12 @@ export const RoomContent = () => {
   const fetchMessagesDirect = useChatStore(
     (state) => state.fetchMessagesDirect
   );
+
+  useEffect(() => {
+    client?.on("chat/roomId", (mes) => {
+      pushMessage(mes.data);
+    });
+  }, [client]);
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [idEditMessage, setIdEidtMessage] = useState(null);

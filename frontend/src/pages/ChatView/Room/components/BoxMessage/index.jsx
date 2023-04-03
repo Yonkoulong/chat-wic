@@ -23,6 +23,7 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { useAppStore } from "@/stores/AppStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import { BoxMessageContainer } from "./BoxMessage.styles";
 import {
   borderColor,
@@ -67,6 +68,7 @@ export const BoxMessage = () => {
   const fetchMessagesDirect = useChatStore(
     (state) => state.fetchMessagesDirect
   );
+  const { client } = useSocketStore((state) => state);
 
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
@@ -175,20 +177,20 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
+          client?.emit("send-channel-msg", newPayloadMessageChannel);
 
           if (resp) {
-            fetchMessagesChannel({ channelId: id });
+            // fetchMessagesChannel({ channelId: id });
           }
         }
       }
 
       //Direct
       if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-       
         if (!isObjectEmpty(editMessage)) {
           const newPayLoadEditMessageDirect = {
             content: value,
-            reaction: {}
+            reaction: {},
           };
 
           const resp = await putMessageDirect(id, newPayLoadEditMessageDirect);
@@ -260,6 +262,15 @@ export const BoxMessage = () => {
       }
     }
   }, [quoteMessage, editMessage]);
+
+  useEffect(() => {
+    client?.on("msg-channel-recieve", (data) => {
+      if(data) {
+        //test chat channel
+        fetchMessagesChannel({ channelId: id });
+      }
+    });
+  }, [client]);
 
   return (
     <BoxMessageContainer>

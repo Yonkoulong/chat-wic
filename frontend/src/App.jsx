@@ -4,6 +4,7 @@ import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import io from "socket.io-client";
+import { useSocketStore } from "./stores/SocketStore";
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -23,14 +24,24 @@ const CustomRouter = ({ basename, children, history }) => {
   );
 };
 
-let socket;
-
 function App() {
-  socket = io(import.meta.env.VITE_APP_ROOT_SOCKET_CONNECTION || "http://localhost:4000");
+  const { setClient, client } = useSocketStore((state) => state);
 
-  console.log(socket);
-  // useEffect(() => {}, []);
+  useEffect(() => {
+    const client = io("http://127.0.0.1:8000/");
 
+    client.on("connect", () => {
+      setClient(client);
+    });
+
+    client.on("disconnect", () => {
+      setClient(null);
+    });
+
+    return () => {
+      client.disconnect();
+    };
+  }, []);
   return (
     <ThemeProvider>
       <CustomRouter history={history}>
