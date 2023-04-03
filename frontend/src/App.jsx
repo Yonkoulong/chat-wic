@@ -3,7 +3,7 @@ import { Routes, Route, Router } from "react-router-dom";
 import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
-
+import io from "socket.io-client";
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -23,12 +23,13 @@ const CustomRouter = ({ basename, children, history }) => {
   );
 };
 
+let socket;
 
 function App() {
-  
-  useEffect(() => {
-    
-  }, [])
+  socket = io(import.meta.env.VITE_CHAT_WIC_API || "http://localhost:8080");
+
+  console.log(socket);
+  useEffect(() => {}, []);
 
   return (
     <ThemeProvider>

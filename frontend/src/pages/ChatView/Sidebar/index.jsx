@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import io from 'socket.io-client';
 
 import Popover from "@mui/material/Popover";
 import { Box, Typography } from "@/shared/components";
