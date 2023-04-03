@@ -32,10 +32,6 @@ const messageChannelSchema = new Schema(
       type: Array,
       required: false,
     },
-    threadId: {
-      type: String,
-      required: false,
-    },
     threadIdContainMessage: {
       type: String,
       required: false,
@@ -50,6 +46,14 @@ const messageChannelSchema = new Schema(
     },
     secretUrl: {
       type: String,
+      required: false,
+    },
+    fileName: {
+      type: String,
+      required: false,
+    },
+    size: {
+      type: Number,
       required: false,
     },
   },
