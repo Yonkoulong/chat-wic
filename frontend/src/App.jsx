@@ -4,6 +4,7 @@ import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import io from "socket.io-client";
+import { useSocketStore } from "./stores/SocketStore";
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -23,13 +24,24 @@ const CustomRouter = ({ basename, children, history }) => {
   );
 };
 
-let socket;
-
 function App() {
-  socket = io(import.meta.env.VITE_CHAT_WIC_API || "http://localhost:8080");
+  const { setClient } = useSocketStore((state) => state);
+  useEffect(() => {
+    const client = io("http://127.0.0.1:8000/");
 
-  console.log(socket);
-  useEffect(() => {}, []);
+    client.on("connect", () => {
+      setClient(client);
+      console.log("client", client);
+    });
+
+    client.on("disconnect", () => {
+      setClient(null);
+    });
+
+    return () => {
+      client.disconnect();
+    };
+  }, []);
 
   return (
     <ThemeProvider>

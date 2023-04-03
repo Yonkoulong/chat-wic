@@ -13,6 +13,7 @@ import { getDirectDetail } from "@/services/direct.services";
 import { useRoomStore } from "@/stores/RoomStore";
 import { enumTypeRooms, enumPopupFeatures } from "@/shared/utils/constant";
 import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
+import { useSocketStore } from "../../../stores/SocketStore";
 
 export const RoomChat = () => {
   const { id } = useParams();
@@ -92,7 +93,9 @@ export const RoomChat = () => {
           <BoxMessage />
         </Box>
         {typeFeatureRoom ? (
-          <Box width="35%" sx={{ borderLeft: `1px solid ${borderColor}`}}>{handleShowPopupFeatures()}</Box>
+          <Box width="35%" sx={{ borderLeft: `1px solid ${borderColor}` }}>
+            {handleShowPopupFeatures()}
+          </Box>
         ) : null}
       </Box>
     </RoomChatContainer>
