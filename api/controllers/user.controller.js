@@ -339,6 +339,88 @@ const getRefreshToken = async (req, res) => {
   return res.status(httpCode.badRequest).json(responseError.invalidToken);
 };
 
+const postUsersList = async (req, res) => {
+  const {
+    organizeId,
+    paging,
+    // isPaging,
+    username,
+    id,
+    email,
+    role,
+    userStatus,
+    createdAt,
+  } = req.body;
+
+  const page = !!paging ? paging?.page : 1;
+  const size = !!paging ? paging?.size : 10;
+  let usersWithOrganizeId = [];
+  let allUsers = [];
+
+  // query user
+  const queryUser = { organizeId };
+  if (username) {
+    queryUser.username = { $regex: username };
+  }
+
+  if (id) {
+    queryUser.id = { $regex: id };
+  }
+
+  if (email) {
+    queryUser.email = { $regex: email };
+  }
+
+  if (role) {
+    queryUser.role = { $regex: role };
+  }
+
+  if (userStatus) {
+    queryUser.userStatus = { $regex: userStatus?.toUpperCase() };
+  }
+
+  if (createdAt?.from && createdAt?.to) {
+    queryUser.createdAt = {
+      $gte: ISODate(createdAt.from),
+      $lt: ISODate(createdAt.to),
+    };
+  }
+
+  try {
+    allUsers = await User.find(queryUser);
+  } catch (err) {
+    console.log(err);
+  }
+
+  try {
+    if (!!paging) {
+      const numberToSkip = (page - 1) * size;
+      usersWithOrganizeId = await User.find(queryUser)
+        .skip(numberToSkip)
+        .limit(size);
+    } else {
+      usersWithOrganizeId = allUsers;
+    }
+
+    const data = {
+      content: usersWithOrganizeId,
+      paging: {
+        page: page,
+        size: size,
+        totalPage: calculateTotalPage(
+          allUsers?.length || 1,
+          usersWithOrganizeId?.length || 1
+        ),
+        totalRecord: allUsers?.length || 10,
+      },
+    };
+
+    return res.status(httpCode.ok).json(data);
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 const putUpdateUserStatus = async (req, res) => {
   const { id } = req.params;
   const { userStatus } = req.body;
@@ -368,6 +450,11 @@ module.exports = [
     method: "post",
     controller: postUsersWithOrganizeId,
     routeName: "/users",
+  },
+  {
+    method: "post",
+    controller: postUsersList,
+    routeName: "/users-list-all",
   },
   {
     method: "get",
