@@ -339,6 +339,30 @@ const getRefreshToken = async (req, res) => {
   return res.status(httpCode.badRequest).json(responseError.invalidToken);
 };
 
+const putUpdateUserStatus = async (req, res) => {
+  const { id } = req.params;
+  const { userStatus } = req.body;
+
+  try {
+    const userInfo = await User.find({ id });
+    if (userInfo?.length > 0) {
+      const newUserInfo = { ...userInfo[0]?._doc, userStatus };
+      await User.updateOne(
+        { id },
+        {
+          $set: newUserInfo,
+        }
+      );
+
+      return res.status(httpCode.ok).json(formatResponse(newUserInfo));
+    } else {
+      return res.status(httpCode.notFound).json(responseError.notFound);
+    }
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
+
 module.exports = [
   {
     method: "post",
@@ -379,5 +403,10 @@ module.exports = [
     method: "post",
     controller: getRefreshToken,
     routeName: "/user/refresh-token",
+  },
+  {
+    method: "put",
+    controller: putUpdateUserStatus,
+    routeName: "/user/:id/update-user-status",
   },
 ];
