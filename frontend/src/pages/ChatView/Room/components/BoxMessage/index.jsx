@@ -177,7 +177,7 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
-          client?.emit("send-channel-msg", newPayloadMessageChannel);
+          client?.emit(`send-channel-msg`, newPayloadMessageChannel);
 
           if (resp) {
             // fetchMessagesChannel({ channelId: id });

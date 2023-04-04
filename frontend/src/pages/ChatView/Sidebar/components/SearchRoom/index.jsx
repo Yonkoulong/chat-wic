@@ -53,7 +53,7 @@ export const SearchRoom = ({ closeSearchRoom }) => {
       };
       
       const resp = await postCheckAlreadyExistDirect(payload);
-      console.log(resp?.data?.content?._id);
+      
       if(resp) {
         redirectTo(`/chat/direct/${resp?.data?.content?._id}`);
       }

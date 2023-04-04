@@ -63,6 +63,7 @@ const postMessageChannel = async (req, res) => {
 
     try {
       await MessageChannel.create(newMessage);
+      
       return res?.status(httpCode.ok).json(newMessage);
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);

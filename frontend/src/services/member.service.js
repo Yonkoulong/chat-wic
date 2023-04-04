@@ -9,6 +9,10 @@ export async function getMembersByOrganizeId(payload) {
     return requestAxios.post("/users", payload)
 }
 
+export async function getMembersByOrganizeIdNoPremission(payload) {
+    return requestAxios.post("/users-list-all", payload);
+}
+
 export async function getMemberDetail(id) {
     return requestAxios.get(`/user/${id}`);
 }
@@ -23,4 +27,8 @@ export async function getResetPasswordByUserId(id) {
 
 export async function deleteUserByUserIds(payload) {
     return requestAxios.delete("/user/delete", { data: payload });
+}
+
+export async function putUpdateUserStatus(payload) {
+    return requestAxios.put(`/user/${payload?.id}/update-user-status`, payload)
 }

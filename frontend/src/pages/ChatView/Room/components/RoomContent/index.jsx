@@ -83,12 +83,6 @@ export const RoomContent = () => {
     (state) => state.fetchMessagesDirect
   );
 
-  useEffect(() => {
-    client?.on("chat/roomId", (mes) => {
-      pushMessage(mes.data);
-    });
-  }, [client]);
-
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [idEditMessage, setIdEidtMessage] = useState(null);
   const [anchorReaction, setAnchorReaction] = useState(null);
@@ -328,6 +322,14 @@ export const RoomContent = () => {
       inline: "start",
     });
   }, [messages]);
+
+  useEffect(() => {
+    console.log(client);
+    client?.on(`msg-channel-recieve/${roomInfo?._id}`, (mes) => {
+      console.log("client", mes.content);
+      pushMessage(mes.content);
+    });
+  }, [client]);
 
   //close anchor
   const handleCloseAnchorReaction = () => {

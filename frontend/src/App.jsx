@@ -28,8 +28,7 @@ function App() {
   const { setClient, client } = useSocketStore((state) => state);
 
   useEffect(() => {
-    const client = io("http://127.0.0.1:8000/");
-
+    const client = io("http://localhost:8080");
     client.on("connect", () => {
       setClient(client);
     });
@@ -42,6 +41,7 @@ function App() {
       client.disconnect();
     };
   }, []);
+  
   return (
     <ThemeProvider>
       <CustomRouter history={history}>

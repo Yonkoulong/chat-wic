@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getMembersByOrganizeId } from '@/services/member.service';
+import { getMembersByOrganizeId, getMembersByOrganizeIdNoPremission } from '@/services/member.service';
 
 export const useMemberStore = create((set) => ({
     members: [],
@@ -9,10 +9,10 @@ export const useMemberStore = create((set) => ({
     loading: false,
 
     fetchMembers: async (payload) => {
-        const response = await getMembersByOrganizeId(payload);
+        const response = await getMembersByOrganizeIdNoPremission(payload);
         if(response) {
             const {page, size, totalPage, totalRecord } = response?.data?.paging;
-            console.log(payload);
+            
             set({ members: response?.data?.content });
             set({ paging: {page, size} });
             set({ totalRecord });

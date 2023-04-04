@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import io from 'socket.io-client';
 
 import Popover from "@mui/material/Popover";
 import { Box, Typography } from "@/shared/components";
@@ -13,9 +12,13 @@ import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import GridViewIcon from "@mui/icons-material/GridView";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+
 import { getChannelsByUser } from "@/services/channel.services";
 import { getDirectsByUserId } from "@/services/direct.services";
+import { putUpdateUserStatus } from '@/services/member.service';
+
 import { useAppStore } from "@/stores/AppStore";
+import { useSocketStore } from "@/stores/SocketStore";
 
 import {
   ModalCreateDirect,
@@ -66,14 +69,14 @@ import {
   errorColor,
   primaryColor,
 } from "@/shared/utils/colors.utils";
-import { enumRoles } from "@/shared/utils/constant";
+import { enumRoles, enumMemberStatus } from "@/shared/utils/constant";
 import { redirectTo } from "@/shared/utils/history";
 
 const flexCenter = { display: "flex", alignItems: "center" };
 
 const Sidebar = () => {
   const { userInfo } = useAppStore((state) => state);
-
+  const client = useSocketStore((state) => state.client);
   const [anchorUserInfo, setAnchorUserInfo] = useState(null);
   const [anchorRoom, setAnchorRoom] = useState(null);
   const [totalHeightSubtract, setTotalHeightSubtract] = useState(0);
@@ -116,7 +119,18 @@ const Sidebar = () => {
     setAnchorRoom(null);
   };
 
-  const handleLogout = () => {};
+  const handleLogout = async  () => {
+    if(client && userInfo) {
+
+      const resp = putUpdateUserStatus(userInfo?._id, { userStatus: enumMemberStatus.OFFLINE })
+      
+      if(resp) {
+        client.emit('update-user-status', resp);
+        localStorage.removeItem("token");
+        redirectTo("/");
+      }
+    }
+  };
 
   const handleClickOpenModalCreateChannel = () => {
     setOpenCreateChannelModal(true);

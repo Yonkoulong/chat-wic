@@ -44,8 +44,9 @@ export const enumRoles = {
 }
 
 export const enumMemberStatus = {
-  ACTIVE: "ACTIVE",
-  INACTIVE: "INACTIVE"
+  ONLINE: "online",
+  OFFLINE: "offline",
+  BUSY: 'busy'
 }
 
 export const enumPopupFeatures = {
