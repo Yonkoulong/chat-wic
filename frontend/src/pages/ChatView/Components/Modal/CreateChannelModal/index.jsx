@@ -29,6 +29,7 @@ import {
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
 } from "./CreateChannelModal.styles";
+import { useSocketStore } from "@/stores/SocketStore";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -77,6 +78,7 @@ const defaultValues = {
 
 export const ModalCreateChannel = ({ open, onClose }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
+  const client = useSocketStore((state) => state.client);
   const { userInfo } = useAppStore((state) => state);
 
   const [membersSelected, setMembersSelected] = useState([]);
@@ -115,6 +117,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
 
       if (respData) {
         const idChannel = respData?.data?.content?._id;
+        client.emit('create-channel-room', respData?.data?.content)
         setLoading(true);
         toast.success("Create channel successfully.");
         handleClose();

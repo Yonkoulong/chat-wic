@@ -19,6 +19,7 @@ export const RoomChat = () => {
   const { id } = useParams();
   const location = useLocation();
 
+  const client = useSocketStore((state) => state.client);
   const setRoomInfo = useRoomStore((state) => state.setRoomInfo);
   const setTypeRoom = useRoomStore((state) => state.setTypeRoom);
   const typeFeatureRoom = useRoomStore((state) => state.typeFeatureRoom);
@@ -80,6 +81,11 @@ export const RoomChat = () => {
       }
     })();
   }, [location]);
+
+  useEffect(() => {
+    if(!id || !client) { return; }
+    client.emit('room', id);
+  }, [id])
 
   return (
     <RoomChatContainer>

@@ -324,11 +324,21 @@ export const RoomContent = () => {
   }, [messages]);
 
   useEffect(() => {
-    console.log(client);
-    client?.on(`msg-channel-recieve/${roomInfo?._id}`, (mes) => {
-      console.log("client", mes.content);
-      pushMessage(mes.content);
-    });
+    if (!client) {
+      return;
+    }
+    
+    if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+      client.on("receive-message-channel", (mes) => {
+        pushMessage(mes);
+      });
+    }
+
+    if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
+      client.on("receive-message-direct", (mes) => {
+        pushMessage(mes);
+      });
+    }
   }, [client]);
 
   //close anchor

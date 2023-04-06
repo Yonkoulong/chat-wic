@@ -18,6 +18,7 @@ import { getDirectsByUserId } from "@/services/direct.services";
 import { putUpdateUserStatus } from '@/services/member.service';
 
 import { useAppStore } from "@/stores/AppStore";
+import { useRoomStore } from "@/stores/RoomStore";
 import { useSocketStore } from "@/stores/SocketStore";
 
 import {
@@ -76,6 +77,7 @@ const flexCenter = { display: "flex", alignItems: "center" };
 
 const Sidebar = () => {
   const { userInfo } = useAppStore((state) => state);
+  const { channelRooms, directRooms, setChannelRooms, setDirectRooms } = useRoomStore((state) => state);
   const client = useSocketStore((state) => state.client);
   const [anchorUserInfo, setAnchorUserInfo] = useState(null);
   const [anchorRoom, setAnchorRoom] = useState(null);
@@ -83,8 +85,7 @@ const Sidebar = () => {
   const [openCreateChannelModal, setOpenCreateChannelModal] = useState(false);
   const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] =
     useState(false);
-  const [channels, setChannels] = useState([]);
-  const [directs, setDirects] = useState([]);
+
   const [openSearchRoom, setOpenSearchRoom] = useState(false);
 
   const SidebarHeaderRef = useRef(0);
@@ -188,12 +189,12 @@ const Sidebar = () => {
         }
         const respChannels = await getChannelsByUser(userInfo);
         if (Array.isArray(respChannels?.data?.content)) {
-          setChannels(respChannels?.data?.content);
+          setChannelRooms(respChannels?.data?.content);
         }
 
         const respDirects = await getDirectsByUserId(userInfo);
         if (Array.isArray(respDirects?.data?.content)) {
-          setDirects(respDirects?.data?.content);
+          setDirectRooms(respDirects?.data?.content);
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.content;
@@ -201,6 +202,29 @@ const Sidebar = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if(!client) { return; }
+
+      client.on('channel-created', (data) => {
+        if(!data) { return; }
+        console.log("channel-created: ", data);
+        const respChannels =  getChannelsByUser(userInfo);
+        if (Array.isArray(respChannels?.data?.content)) {
+          setChannelRooms(respChannels?.data?.content);
+        }
+      });
+
+      client.on('direct-created', (data) => {
+        if(!data) { return; }
+
+        const respDirects = getChannelsByUser(userInfo);
+        if (Array.isArray(respDirects?.data?.content)) {
+          setDirectRooms(respDirects?.data?.content);
+        }
+      });
+
+  }, [client])
 
   return (
     <SidebarContainer>
@@ -463,8 +487,8 @@ const Sidebar = () => {
                   <ArrowDropDownIcon />
                   <SidebarBodyItemNameText>Channels</SidebarBodyItemNameText>
                 </SidebarBodyItemName>
-                {channels.length > 0 &&
-                  channels.map((channel) => {
+                {channelRooms.length > 0 &&
+                  channelRooms.map((channel) => {
                     return (
                       <SidebarBodyItemRooms key={channel?._id}>
                         <SidebarBodyItemRoomWrapper
@@ -501,8 +525,8 @@ const Sidebar = () => {
                   <ArrowDropDownIcon />
                   <SidebarBodyItemNameText>Direct</SidebarBodyItemNameText>
                 </SidebarBodyItemName>
-                {directs?.length > 0 &&
-                  directs.map((direct) => {
+                {directRooms?.length > 0 &&
+                  directRooms.map((direct) => {
                     return handleRenderDirectMemberOnSideBar(direct);
                   })}
               </SidebarBodyItem>

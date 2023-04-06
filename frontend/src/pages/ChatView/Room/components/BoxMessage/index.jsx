@@ -55,6 +55,7 @@ export const BoxMessage = () => {
 
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const userInfo = useAppStore((state) => state.userInfo);
+  const { messages, pushMessage } = useChatStore((state) => state);
   const quoteMessage = useChatStore((state) => state.quoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -177,10 +178,11 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
-          client?.emit(`send-channel-msg`, newPayloadMessageChannel);
+          client.emit('send-message-channel', newPayloadMessageChannel);
 
           if (resp) {
             // fetchMessagesChannel({ channelId: id });
+            pushMessage(newPayloadMessageChannel)
           }
         }
       }
@@ -207,9 +209,12 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageDirect(id, newPayloadMessageDirect);
+          client.emit('send-message-direct', {
+            ...newPayloadMessageDirect, directId: id
+          });
 
           if (resp) {
-            fetchMessagesDirect({ directId: id });
+            // fetchMessagesDirect({ directId: id });
           }
         }
       }

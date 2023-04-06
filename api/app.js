@@ -37,20 +37,59 @@ const setupApp = async () => {
     console.log("We have a new connection!!!!", socket?.id);
 
     //status member
-    socket.on('update-status-user', (data) => {
-      console.log(data);
-      if(data) {
-        io.emit('status-user-updated', data);
-      }
+    // socket.on('update-status-user', (data) => {
+    //   console.log(data);
+    //   if(data) {
+    //     io.emit('status-user-updated', data);
+    //   }
+    // })
+
+    socket.on('room', data => {
+      //data is idRoom
+      socket.join(data);
+      console.log("You are connecting to this room", data);
     })
 
-    //channel message
-    socket.on(`send-channel-msg`, (data) => {
-      if (data) {
-        // io.sockets.emit(`msg-channel-recieve/${data?.channelId}`, data);
-        console.log(data)
-        io.in(data?.channelId).emit('msg-channel-recieve', data);
-      }
+    //channel
+    socket.on('create-channel-room', (data) => {
+      socket.join(data?._id);
+      socket.to(idChannel).emit('channel-created', data); 
+    })
+
+    socket.on('send-message-channel', (data) => {
+      socket.to(data.channelId).emit('receive-message-channel', data);
+    })
+
+    socket.on('delete-message-channel', (data) => {
+      socket.to(data.channelId).emit('receive-message-channel', data);
+    })
+
+    socket.on('edit-message-channel', (data) => {
+      socket.to(data.channelId).emit('receive-message-channel', data);
+    })
+
+
+    //direct
+    socket.on('create-direct-room', (data) => {
+      socket.join(idChannel);
+      io.to(idChannel).emit('direct-created', idChannel); 
+    })
+
+    socket.on('send-message-direct', (data) => {
+      socket.to(data.directId).emit('receive-message-direct', data);
+    })
+
+    socket.on('delete-message-direct', (data) => {
+      socket.to(data.directId).emit('receive-message-direct', data);
+    })
+
+    socket.on('edit-message-direct', (data) => {
+      socket.to(data.directId).emit('receive-message-direct', data);
+    })
+
+    //behavior
+    socket.on("typing", (data) => {
+      socket.to(data.room).emit('typing');
     })
 
     socket.on("disconnect", () => {
