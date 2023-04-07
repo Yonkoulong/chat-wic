@@ -330,6 +330,7 @@ export const RoomContent = () => {
     
     if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
       client.on("receive-message-channel", (mes) => {
+        console.log(mes);
         pushMessage(mes);
       });
     }

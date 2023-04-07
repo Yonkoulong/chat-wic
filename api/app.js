@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 const http = require("http");
+const ChannelModel = require("./models/channel.model");
 
 mongoose.set("strictQuery", true);
 
@@ -33,8 +34,23 @@ const setupApp = async () => {
     },
   })
 
-  io.on("connection", (socket) => {
-    console.log("We have a new connection!!!!", socket?.id);
+  io.on("connection", async(socket) => {
+    console.log("We have a new connection!!!!", socket.handshake.headers?.userid);
+    //list channell
+    try{
+      const channelsByUserId = await ChannelModel.find({
+        userIds: { $in: [socket.handshake.headers?.userid] },
+      });
+      
+      if(channelsByUserId) {
+        channelsByUserId.forEach((channel) => {
+          socket.join([channel?._id]);
+        })
+      }
+    } catch {
+
+    }
+
 
     //status member
     // socket.on('update-status-user', (data) => {
@@ -46,27 +62,31 @@ const setupApp = async () => {
 
     socket.on('room', data => {
       //data is idRoom
-      socket.join(data);
+      // socket.join(data);
       console.log("You are connecting to this room", data);
     })
+
+    //invite
+    socket.on('invite', data => {
+
+    });
 
     //channel
     socket.on('create-channel-room', (data) => {
       socket.join(data?._id);
-      socket.to(idChannel).emit('channel-created', data); 
     })
 
     socket.on('send-message-channel', (data) => {
       socket.to(data.channelId).emit('receive-message-channel', data);
     })
 
-    socket.on('delete-message-channel', (data) => {
-      socket.to(data.channelId).emit('receive-message-channel', data);
-    })
+    // socket.on('delete-message-channel', (data) => {
+    //   socket.to(data.channelId).emit('receive-message-channel', data);
+    // })
 
-    socket.on('edit-message-channel', (data) => {
-      socket.to(data.channelId).emit('receive-message-channel', data);
-    })
+    // socket.on('edit-message-channel', (data) => {
+    //   socket.to(data.channelId).emit('receive-message-channel', data);
+    // })
 
 
     //direct
@@ -79,13 +99,13 @@ const setupApp = async () => {
       socket.to(data.directId).emit('receive-message-direct', data);
     })
 
-    socket.on('delete-message-direct', (data) => {
-      socket.to(data.directId).emit('receive-message-direct', data);
-    })
+    // socket.on('delete-message-direct', (data) => {
+    //   socket.to(data.directId).emit('receive-message-direct', data);
+    // })
 
-    socket.on('edit-message-direct', (data) => {
-      socket.to(data.directId).emit('receive-message-direct', data);
-    })
+    // socket.on('edit-message-direct', (data) => {
+    //   socket.to(data.directId).emit('receive-message-direct', data);
+    // })
 
     //behavior
     socket.on("typing", (data) => {

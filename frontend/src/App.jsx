@@ -3,8 +3,6 @@ import { Routes, Route, Router } from "react-router-dom";
 import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
 import { ThemeProvider } from "@/context/ThemeProvider";
-import io from "socket.io-client";
-import { useSocketStore } from "./stores/SocketStore";
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -25,23 +23,7 @@ const CustomRouter = ({ basename, children, history }) => {
 };
 
 function App() {
-  const { setClient, client } = useSocketStore((state) => state);
-
-  useEffect(() => {
-    const client = io("http://localhost:8080");
-    client.on("connect", () => {
-      setClient(client);
-    });
-
-    client.on("disconnect", () => {
-      setClient(null);
-    });
-
-    return () => {
-      client.disconnect();
-    };
-  }, []);
-  
+ 
   return (
     <ThemeProvider>
       <CustomRouter history={history}>
