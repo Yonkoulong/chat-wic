@@ -203,28 +203,6 @@ const Sidebar = () => {
     })();
   }, []);
 
-  useEffect(() => {
-    if(!client) { return; }
-
-      client.on('channel-created', (data) => {
-        if(!data) { return; }
-        console.log("channel-created: ", data);
-        const respChannels =  getChannelsByUser(userInfo);
-        if (Array.isArray(respChannels?.data?.content)) {
-          setChannelRooms(respChannels?.data?.content);
-        }
-      });
-
-      client.on('direct-created', (data) => {
-        if(!data) { return; }
-
-        const respDirects = getChannelsByUser(userInfo);
-        if (Array.isArray(respDirects?.data?.content)) {
-          setDirectRooms(respDirects?.data?.content);
-        }
-      });
-
-  }, [client])
 
   return (
     <SidebarContainer>

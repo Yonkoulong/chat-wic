@@ -21,6 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
@@ -76,6 +77,7 @@ const defaultValues = {
 export const ModalCreateDirect = ({ open, onClose }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
+  const client = useSocketStore((state) => state.client);
 
   const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -114,6 +116,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
 
       if (respData) {
         const idDirect = respData?.data?.content?._id;
+        client.emit('create-direct-room', respData?.data?.content)
         setLoading(true);
         handleClose();
         redirectTo(`/chat/direct/${idDirect}`);

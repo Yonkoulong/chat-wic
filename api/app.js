@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 const http = require("http");
 const ChannelModel = require("./models/channel.model");
+const DirectModel = require("./models/direct.model");
 
 mongoose.set("strictQuery", true);
 
@@ -41,7 +42,7 @@ const setupApp = async () => {
     );
     socket.data.userId = socket.handshake.headers?.userid;
 
-    //list channell
+    //list channel
     const connecteds = io.sockets.sockets;
     try {
       const channelsByUserId = await ChannelModel.find({
@@ -53,7 +54,24 @@ const setupApp = async () => {
           socket.join([channel?._id]);
         });
       }
-    } catch {}
+    } catch (error) {
+      throw error;
+    }
+
+    //list direct
+    try {
+      const directsByUserId = await DirectModel.find({
+        userIds: { $in: [socket.handshake.headers?.userid] },
+      });
+
+      if (directsByUserId) {
+        directsByUserId.forEach((direct) => {
+          socket.join([direct?._id]);
+        })
+      }
+    } catch (error) {
+      throw error;
+    }
 
     //status member
     // socket.on('update-status-user', (data) => {
@@ -69,9 +87,6 @@ const setupApp = async () => {
       console.log("You are connecting to this room", data);
     });
 
-    //invite
-    socket.on("invite", (data) => {});
-
     //channel
     socket.on("create-channel-room", async (data) => {
       socket.join(data?._id);
@@ -85,7 +100,7 @@ const setupApp = async () => {
     });
 
     socket.on("send-message-channel", (data) => {
-      io.to(data.channelId).emit("receive-message-channel", data);
+      socket.to(data.channelId).emit("receive-message-channel", data);
     });
 
     // socket.on('delete-message-channel', (data) => {
@@ -97,13 +112,19 @@ const setupApp = async () => {
     // })
 
     //direct
-    socket.on("create-direct-room", (data) => {
-      socket.join(idChannel);
-      io.to(idChannel).emit("direct-created", idChannel);
+    socket.on("create-direct-room", async (data) => {
+      socket.join(data?._id);
+      const sockets = await io.fetchSockets();
+      const membersSocketId = sockets
+        .filter((item) => {
+          return data.userIds.includes(item.data.userId);
+        })
+        .map((x) => x.id);
+      io.to(membersSocketId).emit("invited-to-a-direct", { data: data?._id });
     });
 
     socket.on("send-message-direct", (data) => {
-      socket.to(data.directId).emit("receive-message-direct", data);
+      socket.to(data?.directId).emit("receive-message-direct", data);
     });
 
     // socket.on('delete-message-direct', (data) => {

@@ -45,6 +45,7 @@ import {
   blackColor,
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
+import { chatTimestamp } from "@/shared/utils/utils"
 import {
   putUpdateMessageChannel,
   deleteMessageChannel,
@@ -330,17 +331,17 @@ export const RoomContent = () => {
     
     if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
       client.on("receive-message-channel", (mes) => {
-        console.log(mes);
         pushMessage(mes);
       });
     }
 
     if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
       client.on("receive-message-direct", (mes) => {
+        console.log(mes);
         pushMessage(mes);
       });
     }
-  }, [client]);
+  }, [client, messages]);
 
   //close anchor
   const handleCloseAnchorReaction = () => {
@@ -553,7 +554,7 @@ export const RoomContent = () => {
                     <MessageContentWrapper>
                       <MessageTitle>
                         <UserName>{message?.senderName}</UserName>
-                        <TimeMessage>{message?.createdAt}</TimeMessage>
+                        <TimeMessage>{chatTimestamp(message?.createdAt)}</TimeMessage>
                       </MessageTitle>
 
                       <MessageContentBox>

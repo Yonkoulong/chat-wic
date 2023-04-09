@@ -32,6 +32,7 @@ const postMessageChannel = async (req, res) => {
     secretUrl,
     fileName,
     size,
+    senderName
   } = req.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
@@ -41,13 +42,14 @@ const postMessageChannel = async (req, res) => {
     const newMessage = {
       _id: messageId,
       messageFrom: convertMessageFromToObjectIdMongo,
+      senderName: senderName,
       content,
       channelId: convertChannelIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
       reactions: [],
       threadIdContainMessage: "",
-      threadId: "",
+      threadId: ""
     };
 
     if (type === MESSAGE_TYPES.IMAGE) {

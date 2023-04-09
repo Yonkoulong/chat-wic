@@ -29,11 +29,15 @@ import { redirectTo } from '@/shared/utils/history';
 
 import { useAppStore } from "@/stores/AppStore";
 import { useMemberStore } from "@/stores/MemberStore";
+import { useSocketStore } from "@/stores/SocketStore";
+
 import { useDebounce } from "@/shared/hooks";
 import { postCheckAlreadyExistDirect } from "@/services/direct.services";
 
 export const SearchRoom = ({ closeSearchRoom }) => {
   const { userInfo } = useAppStore((state) => state);
+  const client = useSocketStore((state) => state.client);
+
   const { fetchMembers, members, setLoading, loading } = useMemberStore(
     (state) => state
   );
@@ -55,6 +59,7 @@ export const SearchRoom = ({ closeSearchRoom }) => {
       const resp = await postCheckAlreadyExistDirect(payload);
       
       if(resp) {
+        client.emit('create-direct-room', resp?.data?.content)
         redirectTo(`/chat/direct/${resp?.data?.content?._id}`);
       }
     } catch (error) {

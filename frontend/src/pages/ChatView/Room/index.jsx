@@ -84,8 +84,9 @@ export const RoomChat = () => {
 
   useEffect(() => {
     if(!id || !client) { return; }
+
     client.emit('room', id);
-  }, [id])
+  }, [id, client])
 
   return (
     <RoomChatContainer>

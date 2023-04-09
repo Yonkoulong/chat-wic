@@ -7,12 +7,14 @@ import io from "socket.io-client";
 import { useSocketStore } from "@/stores/SocketStore";
 import { useAppStore } from "@/stores/AppStore";
 import { getChannelsByUser } from "@/services/channel.services";
+import { getDirectsByUserId } from "@/services/direct.services";
 import { useRoomStore } from "@/stores/RoomStore";
+
 
 export const ChatView = () => {
   const { setClient, client } = useSocketStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
-  const { setChannelRooms } = useRoomStore((state) => state);
+  const { setChannelRooms, setDirectRooms } = useRoomStore((state) => state);
 
   useEffect(() => {
     const client = io("http://localhost:8080", {
@@ -20,12 +22,22 @@ export const ChatView = () => {
     });
     client.on("connect", () => {
       setClient(client);
+
+      //channel
       client.on("invited-to-a-channel", async () => {
         const respChannels = await getChannelsByUser(userInfo);
         if (Array.isArray(respChannels?.data?.content)) {
           setChannelRooms(respChannels?.data?.content);
         }
       });
+
+      //direct
+      client.on("invited-to-a-direct", async () => {
+        const respDirects = await getDirectsByUserId(userInfo);
+        if(Array.isArray(respDirects?.data?.content)) {
+          setDirectRooms(respDirects?.data?.content);
+        }
+      })
     });
 
     client.on("disconnect", () => {

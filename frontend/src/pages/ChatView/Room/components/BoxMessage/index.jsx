@@ -171,6 +171,7 @@ export const BoxMessage = () => {
         } else {
           const newPayloadMessageChannel = {
             messageFrom: userInfo?._id,
+            senderName: userInfo?.username,
             content: value,
             channelId: id,
             type: type,
@@ -178,11 +179,9 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
-          client.emit('send-message-channel', newPayloadMessageChannel);
-
           if (resp) {
-            // fetchMessagesChannel({ channelId: id });
-            pushMessage(newPayloadMessageChannel)
+            client.emit("send-message-channel", resp?.data);
+            pushMessage(resp?.data);
           }
         }
       }
@@ -209,12 +208,10 @@ export const BoxMessage = () => {
           };
 
           const resp = await postMessageDirect(id, newPayloadMessageDirect);
-          client.emit('send-message-direct', {
-            ...newPayloadMessageDirect, directId: id
-          });
 
           if (resp) {
-            // fetchMessagesDirect({ directId: id });
+            client.emit("send-message-direct", resp?.data);
+            pushMessage(resp?.data);
           }
         }
       }
@@ -267,15 +264,6 @@ export const BoxMessage = () => {
       }
     }
   }, [quoteMessage, editMessage]);
-
-  useEffect(() => {
-    client?.on("msg-channel-recieve", (data) => {
-      if(data) {
-        //test chat channel
-        fetchMessagesChannel({ channelId: id });
-      }
-    });
-  }, [client]);
 
   return (
     <BoxMessageContainer>

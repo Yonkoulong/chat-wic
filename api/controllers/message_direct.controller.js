@@ -13,8 +13,6 @@ const {
 const { isObjectIdInMongodb } = require("../utils/validation");
 
 const postCreateMessageDirect = async (req, res) => {
-  console.log(req?.params);
-  console.log(req?.body);
   const { directId } = req?.params;
   const {
     content,
