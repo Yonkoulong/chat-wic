@@ -373,7 +373,7 @@ const Sidebar = () => {
               </Popover>
             </SidebarHeaderItem>
 
-            <SidebarHeaderItem>
+            <SidebarHeaderItem onClick={() => redirectTo('/chat/home')}>
               <HomeIcon sx={{ display: "flex" }} />
             </SidebarHeaderItem>
 

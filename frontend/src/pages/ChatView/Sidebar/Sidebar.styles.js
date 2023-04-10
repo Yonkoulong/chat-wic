@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { Box, Typography } from '@/shared/components';
+import { Box, Typography, Paper } from '@/shared/components';
 import { blackColor, borderColor, whiteColor, hoverItemSidebarColor, textColorItemSidebar } from '@/shared/utils/colors.utils';
 
 export const SidebarContainer = styled(Box)`

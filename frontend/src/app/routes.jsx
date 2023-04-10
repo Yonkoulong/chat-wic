@@ -1,4 +1,5 @@
 import { AuthView } from "@/pages/Auth";
+import { HomePage } from "@/pages/Home";
 import { ChatHome } from "@/pages/ChatView/ChatHome";
 import { AdminPage } from "@/pages/Admin";
 import { Dashboard } from "@/pages/Admin/Dashboard";
@@ -13,7 +14,7 @@ import { RoomChat } from '@/pages/ChatView/Room';
 export const routes = [
   {
     path: "/",
-    element: <div>Hello</div>,
+    element: <HomePage />,
   },
   {
     path: "/signup",
@@ -22,10 +23,6 @@ export const routes = [
   {
     path: "/signin",
     element: <AuthView />,
-  },
-  {
-    path: "/home",
-    element: <ChatHome />,
   },
   {
     path: "/admin",
@@ -61,7 +58,7 @@ export const routes = [
     children: [
       {
         path: '/chat/home',
-        element: ''
+        element: <ChatHome />
       },
       {
         path: '/chat/channel/:id',
