@@ -11,6 +11,10 @@ const channelSchema = new Schema(
     userIds: [{ type: String, required: false }],
     administratorsIds: [{ type: String, required: false }],
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false },
+    organizeId: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

@@ -13,6 +13,7 @@ const {
   minLengthPassword,
   calculateTotalPage,
   formatResponse,
+  ORDER_DIRECTION,
 } = require("../utils/constant");
 const {
   isObjectIdInMongodb,
@@ -55,13 +56,13 @@ const postCreateDirect = async (req, res) => {
 
 const postGetDirectsByUserId = async (req, res) => {
   const { userId } = req?.params;
-  const { organizeId } = req.body;
-
+  const { organizeId, orders } = req.body;
+  const direction = orders?.updatedAt || "DESC";
   try {
     let directByUserId = await DirectModel.find({
       userIds: { $in: [userId] },
       organizeId,
-    });
+    }).sort({ updatedAt: ORDER_DIRECTION[direction] });
 
     let usersIdsInDirects = [];
 
@@ -75,7 +76,7 @@ const postGetDirectsByUserId = async (req, res) => {
       templateRespUser
     );
     const respDataDirects = [];
-    directByUserId.forEach((item, index) => {
+    directByUserId.forEach((item, _index) => {
       const ids = isArray(item?.userIds) ? item.userIds : [];
       let usersInfo = [];
       usersInfoInDirects.forEach((user) => {

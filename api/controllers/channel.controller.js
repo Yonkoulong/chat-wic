@@ -5,6 +5,7 @@ const {
   responseError,
   formatResponse,
   ObjectIdMongodb,
+  ORDER_DIRECTION,
 } = require("../utils/constant");
 const { isObjectIdInMongodb, isArray } = require("../utils/validation");
 
@@ -14,11 +15,11 @@ const templateRespUser = {
   email: 1,
   firstName: 1,
   lastName: 1,
-  avatar: 1
+  avatar: 1,
 };
 
 const postCreateChannel = async (req, res) => {
-  const { channelName, userIds, ownerId, description } = req?.body;
+  const { channelName, userIds, ownerId, description, organizeId } = req?.body;
 
   if (!isArray(userIds) && isObjectIdInMongodb(ownerId)) {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
@@ -32,6 +33,7 @@ const postCreateChannel = async (req, res) => {
     userIds: allUserIds,
     ownerId,
     description,
+    organizeId,
   };
   try {
     await ChannelModel?.create(newChannel);
@@ -43,10 +45,12 @@ const postCreateChannel = async (req, res) => {
 
 const postGetChannelsByUserId = async (req, res) => {
   const { userId } = req?.params;
+  const { orders } = req?.body;
+  const direction = orders?.updatedAt || "DESC";
   try {
     const channelsByUserId = await ChannelModel.find({
       userIds: { $in: [userId] },
-    });
+    }).sort({ updatedAt: ORDER_DIRECTION[direction] });
     return res.status(httpCode.ok).json(formatResponse(channelsByUserId));
   } catch {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
