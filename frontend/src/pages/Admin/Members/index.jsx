@@ -31,7 +31,7 @@ import {
 } from "@/shared/utils/constant";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
-import { PopUpConfirm } from '@/shared/components/Popup';
+import { PopUpConfirm } from '@/shared/components/PopUp';
 
 const getHeadCellMembersListing = (props) => [
   {
