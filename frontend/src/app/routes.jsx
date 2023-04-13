@@ -18,10 +18,12 @@ export const routes = [
   },
   {
     path: "/signup",
+    exact: true,
     element: <AuthView />,
   },
   {
     path: "/signin",
+    exact: true,
     element: <AuthView />,
   },
   {

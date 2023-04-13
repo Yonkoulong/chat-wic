@@ -25,7 +25,7 @@ const setupApp = async () => {
       console.log(err);
     });
 
-  const expressServer = server.listen(process.env.PORT_ENV == "dev" ? process.env.PORT || 8080 : "https://be-chat-wic.onrender.com", () => {
+  const expressServer = server.listen(process.env.PORT || 8080, () => {
     console.log(`listen on port ${process.env.PORT || 8080}`);
   });
 
