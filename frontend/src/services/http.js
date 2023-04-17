@@ -4,7 +4,7 @@ import { redirectTo } from "../shared/utils/history";
 import { toast } from "react-toastify";
 
 
-const baseURL = import.meta.env.VITE_CHAT_WIC_API_ENV == "dev" ? import.meta.env.VITE_CHAT_WIC_API || "http://localhost:8080" : "https://chat-wic.onrender.com";
+const baseURL = import.meta.env.VITE_CHAT_WIC_API_ENV == "dev" ? import.meta.env.VITE_CHAT_WIC_API || "http://localhost:8080" : "https://be-chat-wic.onrender.com";
 
 export const requestAxios = axios.create({
   baseURL
