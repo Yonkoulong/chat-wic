@@ -73,6 +73,7 @@ export const BoxMessage = () => {
 
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
+  const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
 
@@ -426,6 +427,11 @@ export const BoxMessage = () => {
         onClose={setOpenUpladFileModal}
         data={fileListObject}
         formFile={uploadFile}
+      />
+
+      <ModalCreateTask 
+         open={openCreateTaskModal}
+         onClose={setOpenCreateTaskModal}
       />
     </BoxMessageContainer>
   );
