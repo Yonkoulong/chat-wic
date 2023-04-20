@@ -19,7 +19,7 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { createMember } from "@/services/member.service";
+import { createMember } from "@/services/member.services";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
 import { enumRoles } from "@/shared/utils/constant";

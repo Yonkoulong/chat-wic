@@ -72,3 +72,8 @@ export const typesMessage = {
   RAW: "raw",
   VIDEO: "video"
 }
+
+export const taskStatus = {
+  DONE: 'done',
+  NOT_DONE: 'not_done'
+}

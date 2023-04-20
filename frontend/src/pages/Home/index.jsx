@@ -72,7 +72,7 @@ export const HomePage = () => {
       </Box>
       <Box sx={{ display: "flex", marginTop: "40px", gap: "30px" }}>
         <Box sx={{ flex: "0 0 50%" }}>
-          <Typography sx={{ fontSize: "32px", fontWeight: "bold" }}>
+          <Typography sx={{ fontSize: "40px", fontWeight: "bold" }}>
             Talking with everyone and keep secure.
           </Typography>
           <Typography sx={{ marginTop: "16px" }}>

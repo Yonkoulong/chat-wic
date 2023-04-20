@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getMembersByOrganizeId, getMembersByOrganizeIdNoPremission } from '@/services/member.service';
+import { getMembersByOrganizeId, getMembersByOrganizeIdNoPremission } from '@/services/member.services';
 
 export const useMemberStore = create((set) => ({
     members: [],

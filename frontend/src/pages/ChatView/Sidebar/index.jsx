@@ -15,7 +15,7 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 import { getChannelsByUser } from "@/services/channel.services";
 import { getDirectsByUserId } from "@/services/direct.services";
-import { putUpdateUserStatus } from '@/services/member.service';
+import { putUpdateUserStatus } from '@/services/member.services';
 
 import { useAppStore } from "@/stores/AppStore";
 import { useRoomStore } from "@/stores/RoomStore";

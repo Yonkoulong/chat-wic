@@ -24,7 +24,7 @@ import { blackColor } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
 import { MemberSearchField } from "./components/MemberSearchField";
 import { ModalCreateMember } from "./components/CreateMemberModal";
-import { deleteUserByUserIds } from "@/services/member.service";
+import { deleteUserByUserIds } from "@/services/member.services";
 import {
   MAX_HEIGHT_TABLE,
   formatDate,

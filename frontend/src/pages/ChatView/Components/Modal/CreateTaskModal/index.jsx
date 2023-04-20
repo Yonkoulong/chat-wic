@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { toast } from "react-toastify";
+import React, { useState, useRef, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 import {
   StyledTextField,
@@ -8,34 +8,37 @@ import {
   ControllerInput,
   SelectMultipleInput,
   ButtonCustomize,
-} from "@/shared/components";
-import PropTypes from "prop-types";
-import { styled } from "@mui/material/styles";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@/shared/components';
+import { DateRangeCustom } from '@/shared/components/DateRange';
 
-import { postChannel } from "@/services/channel.services";
-import { useMemberStore } from "@/stores/MemberStore";
-import { useAppStore } from "@/stores/AppStore";
-import { redirectTo } from "@/shared/utils/history";
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+
+import { postCreateTask } from '@/services/task.services';
+import { useMemberStore } from '@/stores/MemberStore';
+import { useAppStore } from '@/stores/AppStore';
+import { redirectTo } from '@/shared/utils/history';
+import { taskStatus } from '@/shared/utils/constant';
 
 import {
   CreateMemberFormWrapper,
   CreateMemberForm,
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
-} from "./CreateChannelModal.styles";
-import { useSocketStore } from "@/stores/SocketStore";
+} from './CreateTaskModal.styles';
+import { useSocketStore } from '@/stores/SocketStore';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
+  '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
   },
-  "& .MuiDialogActions-root": {
+  '& .MuiDialogActions-root': {
     padding: theme.spacing(1),
   },
 }));
@@ -51,7 +54,7 @@ function BootstrapDialogTitle(props) {
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: "absolute",
+            position: 'absolute',
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],
@@ -70,10 +73,13 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  channelName: "",
-  description: "",
-  ownerId: 0,
-  userIds: [],
+  title: '',
+  content: '',
+  assignee: '',
+  startDate: '',
+  endDate: '',
+  creatorId: '',
+  status: taskStatus.NOT_DONE,
 };
 
 export const ModalCreateTask = ({ open, onClose }) => {
@@ -83,6 +89,8 @@ export const ModalCreateTask = ({ open, onClose }) => {
 
   const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const inputFocusRef = useRef();
 
@@ -96,8 +104,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
   const watchFieldsInModalCreateMember = () => {
     let isEnable = false;
     const field = useWatch({ control });
-
-    if (field?.channelName && field?.userIds) {
+    if (field?.title && membersSelected[0] && startDate && endDate) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -106,17 +113,20 @@ export const ModalCreateTask = ({ open, onClose }) => {
   };
 
   const onSubmit = async (data) => {
+    
     try {
-      const newPayloadChannel = {
+      const newPayloadCreateTask = {
         ...data,
-        userIds: membersSelected?.map(mem => mem?.id),
-        ownerId: userInfo?._id,
+        assignee: membersSelected.length > 0 ? membersSelected[0]._id : '',
+        creatorId: userInfo?._id,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
       };
+      delete newPayloadCreateTask.date;
 
-      const respData = await postChannel(newPayloadChannel);
+      const respData = await postCreateTask(newPayloadCreateTask);
 
       if (respData) {
-        const idChannel = respData?.data?.content?._id;
         setLoading(true);
         handleClose();
       }
@@ -128,11 +138,18 @@ export const ModalCreateTask = ({ open, onClose }) => {
 
   const handleClose = () => {
     reset({
-      channelName: "",
-      description: "",
-      ownerId: 0,
-      userIds: [],
+      title: '',
+      content: '',
+      assignee: '',
+      startDate: '',
+      endDate: '',
+      creatorId: '',
+      status: taskStatus.NOT_DONE,
     });
+    
+    setStartDate(null);
+    setEndDate(null);
+    setMembersSelected([]);
     onClose(false);
   };
 
@@ -141,8 +158,8 @@ export const ModalCreateTask = ({ open, onClose }) => {
     try {
       await fetchMembers({
         organizeId: userInfo?.organizeId,
-        id: "",
-        email: "",
+        id: '',
+        email: '',
       });
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -155,14 +172,14 @@ export const ModalCreateTask = ({ open, onClose }) => {
 
   const handleSelectedMember = (member) => {
     if (!member) return;
-   
-    const inputRef = inputFocusRef.current.querySelector("input");
+
+    const inputRef = inputFocusRef.current.querySelector('input');
 
     let newMembersSelected = [];
     newMembersSelected = [member];
 
-    if (inputRef.value != "") {
-      inputRef.value = "";
+    if (inputRef.value != '') {
+      inputRef.value = '';
       handleGetUsers();
     }
 
@@ -183,7 +200,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
     try {
       await fetchMembers({
         organizeId: userInfo?.organizeId,
-        id: "",
+        id: '',
         email: e.target.value,
         paging: { page: 1, size: 10 },
       });
@@ -196,8 +213,18 @@ export const ModalCreateTask = ({ open, onClose }) => {
 
   const handleFocusInputAfterClick = () => {
     const inputRef = inputFocusRef.current;
-    inputRef.querySelector("input").focus();
+    inputRef.querySelector('input').focus();
   };
+
+  const handleChangeDate = (dates) => {
+    const [start, end] = dates;
+    setStartDate(start);
+    setEndDate(end);
+  };
+
+  useEffect(() => {
+    
+  }, [])
 
   return (
     <BootstrapDialog
@@ -207,20 +234,20 @@ export const ModalCreateTask = ({ open, onClose }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create channel
+        Assign new task
       </BootstrapDialogTitle>
       <CreateMemberFormWrapper>
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <CreateMemberInputContainer>
               <StyledLabelTextField>
-                Channel name <span className="require-field">*</span>
+                Title <span className="require-field">*</span>
               </StyledLabelTextField>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Channel name"
-                fieldName="channelName"
+                fieldNameErrorMessage="title"
+                fieldName="title"
                 required={true}
               >
                 {(field) => (
@@ -229,18 +256,18 @@ export const ModalCreateTask = ({ open, onClose }) => {
                     fullWidth
                     size="small"
                     type="text"
-                    placeholder="Enter channel name"
+                    placeholder="Enter title task"
                   />
                 )}
               </ControllerInput>
             </CreateMemberInputContainer>
             <CreateMemberInputContainer>
-              <StyledLabelTextField>Description</StyledLabelTextField>
+              <StyledLabelTextField>Content</StyledLabelTextField>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Channel description"
-                fieldName="description"
+                fieldNameErrorMessage="Content"
+                fieldName="content"
                 required={false}
               >
                 {(field) => (
@@ -249,7 +276,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
                     fullWidth
                     size="small"
                     type="text"
-                    placeholder="Enter channel description"
+                    placeholder="Enter content"
                     multiline
                     rows={4}
                   />
@@ -264,7 +291,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Members"
-                fieldName="userIds"
+                fieldName="assignee"
                 required={false}
               >
                 {(field) => (
@@ -278,7 +305,29 @@ export const ModalCreateTask = ({ open, onClose }) => {
                     dataList={members}
                     dataSelected={membersSelected}
                     loading={loading}
-                    placeholder="Add member"
+                    placeholder="Assignee"
+                  />
+                )}
+              </ControllerInput>
+            </CreateMemberInputContainer>
+
+            <CreateMemberInputContainer>
+              <StyledLabelTextField>
+                Due date<span className="require-field">*</span>
+              </StyledLabelTextField>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="date"
+                fieldName="date"
+                required={false}
+              >
+                {(field) => (
+                  <DateRangeCustom
+                    {...field}
+                    handleChange={handleChangeDate}
+                    startDate={startDate}
+                    endDate={endDate}
                   />
                 )}
               </ControllerInput>
@@ -297,7 +346,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
               type="submit"
               disabled={watchFieldsInModalCreateMember()}
             >
-              Create
+              Assign task
             </ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>

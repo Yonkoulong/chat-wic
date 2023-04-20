@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { ModalUploadFilePreview } from "@/pages/ChatView/Components/Modal";
+import { ModalUploadFilePreview, ModalCreateTask } from "@/pages/ChatView/Components/Modal";
 import {
   Box,
   TextareaAutosize,
@@ -227,6 +227,10 @@ export const BoxMessage = () => {
     setHeightQuoteMessageBox(0);
   };
 
+  const handleClickOpenModalCreateTask = () => {
+    setOpenCreateTaskModal(true);
+  }
+
   useEffect(() => {
     if (!isObjectEmpty(quoteMessage)) {
       const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
@@ -337,13 +341,13 @@ export const BoxMessage = () => {
             ...flexCenter,
             mx: 1,
           }}
+          onClick={handleClickResetValue}
         >
           <input
             hidden
             accept="image/*"
             type="file"
             onChange={handleChangeValueImg}
-            onClick={handleClickResetValue}
             ref={imgInputRef}
           />
           <SymbolsImageOutlineIcon />
@@ -357,13 +361,13 @@ export const BoxMessage = () => {
             ...flexCenter,
             mx: 1,
           }}
+          onClick={handleClickResetValue}
         >
           <input
             hidden
             accept="*/"
             type="file"
             onChange={handleChangeValueFile}
-            onClick={handleClickResetValue}
             ref={fileInputRef}
           />
           <SymbolsAttachFileIcon />
@@ -377,6 +381,7 @@ export const BoxMessage = () => {
             ...flexCenter,
             mx: 1,
           }}
+          onClick={handleClickOpenModalCreateTask}
         >
           <FluentTaskAddIcon />
         </IconButton>
@@ -430,8 +435,8 @@ export const BoxMessage = () => {
       />
 
       <ModalCreateTask 
-         open={openCreateTaskModal}
-         onClose={setOpenCreateTaskModal}
+        open={openCreateTaskModal}
+        onClose={setOpenCreateTaskModal}
       />
     </BoxMessageContainer>
   );

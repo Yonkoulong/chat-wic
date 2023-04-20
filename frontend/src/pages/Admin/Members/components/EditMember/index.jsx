@@ -35,7 +35,7 @@ import {
   enumRoles,
   formatDate,
 } from "@/shared/utils/constant";
-import { getMemberDetail, putUserDetail } from "@/services/member.service";
+import { getMemberDetail, putUserDetail } from "@/services/member.services";
 
 const roles = [
   {
