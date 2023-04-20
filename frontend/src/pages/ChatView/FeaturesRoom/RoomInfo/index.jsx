@@ -31,10 +31,8 @@ const flexCenter = {
 };
 
 export const RoomInfo = () => {
-  const roomInfo = useRoomStore((state) => state.roomInfo);
-  const typeRoom = useRoomStore((state) => state.typeRoom);
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
   const userInfo = useAppStore((state) => state.userInfo);
-  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
   const handleCloseAnchorMoreFeatures = () => {
     setAnchorMoreFeatures(null);
@@ -42,7 +40,7 @@ export const RoomInfo = () => {
 
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
-    redirectTo(`/chat/channel/${roomInfo?._id}`);
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
   return (

@@ -50,14 +50,14 @@ export const enumMemberStatus = {
 }
 
 export const enumPopupFeatures = {
-  CALLING: 'calling',
   THREAD: 'threads',
   MEMBERS: 'members',
   ROOM_INFO: 'room-info',
   USER_INFO: 'user-info',
-  SEARCH: 'search',
+  MESSAGES: 'message',
   FILES: 'files',
-  TODO_LIST: 'todo-list'
+  TODO_LIST: 'todo-list',
+  TODO_DETAIL: 'todo-detail'
 }
 
 export const enumTypeRooms = {

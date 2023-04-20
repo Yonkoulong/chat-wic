@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@/shared/components";
 
-import GroupIcon from "@mui/icons-material/Group";
+
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -39,10 +39,10 @@ const TableCellSearchInput = styled(TextField)`
 const flexCenter = {
   display: "flex",
   alignItems: "center",
-}; 
+};
 
-export const Members = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+export const Messages = () => {
+  const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -94,9 +94,9 @@ export const Members = () => {
         }}
       >
         <Box sx={flexCenter}>
-          <GroupIcon />
+          <SearchIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Channel Information
+            Search Messages
           </Typography>
         </Box>
         <IconButton

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { Threads, Members, RoomInfo } from "@/pages/ChatView/FeaturesRoom";
+import { Threads, Members, RoomInfo, UserInfo, Messages, Files, Tasks } from "@/pages/ChatView/FeaturesRoom";
 
 import { Box } from "@/shared/components";
 import { RoomChatContainer } from "./Room.styles";
@@ -22,27 +22,26 @@ export const RoomChat = () => {
   const client = useSocketStore((state) => state.client);
   const setRoomInfo = useRoomStore((state) => state.setRoomInfo);
   const setTypeRoom = useRoomStore((state) => state.setTypeRoom);
+  const typeRoom = useRoomStore((state) => state.typeRoom);
   const typeFeatureRoom = useRoomStore((state) => state.typeFeatureRoom);
   const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
 
   const handleShowPopupFeatures = () => {
     switch (typeFeatureRoom) {
-      case enumPopupFeatures.CALLING:
-        return <></>;
       case enumPopupFeatures.THREAD:
-        return <Threads />;
+        return <Threads key={enumPopupFeatures.THREAD}/>;
       case enumPopupFeatures.MEMBERS:
-        return <Members />;
+        return <Members key={enumPopupFeatures.MEMBERS}/>;
       case enumPopupFeatures.ROOM_INFO:
-        return <RoomInfo />;
+        return <RoomInfo key={enumPopupFeatures.ROOM_INFO}/>;
       case enumPopupFeatures.USER_INFO:
-        return <></>;
-      case enumPopupFeatures.SEARCH:
-        return <></>;
-      case enumPopupFeatures.FILE:
-        return <></>;
+        return <UserInfo key={enumPopupFeatures.USER_INFO}/>;
+      case enumPopupFeatures.MESSAGES:
+        return <Messages key={enumPopupFeatures.MESSAGES}/>;
+      case enumPopupFeatures.FILES:
+        return <Files key={enumPopupFeatures.FILES}/>;
       case enumPopupFeatures.TODO_LIST:
-        return <></>;
+        return <Tasks key={enumPopupFeatures.TODO_LIST}/>;
     }
   };
 
@@ -60,7 +59,6 @@ export const RoomChat = () => {
     (async () => {
       try {
         let resp;
-
         if (location?.pathname?.indexOf(enumTypeRooms.CHANNEL) !== -1) {
           resp = await getChannelDetail({ channelId: id });
           setTypeRoom(enumTypeRooms.CHANNEL);

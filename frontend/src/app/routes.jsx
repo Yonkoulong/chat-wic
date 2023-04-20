@@ -67,10 +67,6 @@ export const routes = [
         element: <RoomChat />
       },
       {
-        path: '/chat/channel/:id/calling',
-        element: <RoomChat />
-      },
-      {
         path: '/chat/channel/:id/threads',
         element: <RoomChat />
       },
@@ -83,7 +79,7 @@ export const routes = [
         element: <RoomChat />
       },
       {
-        path: '/chat/channel/:id/search',
+        path: '/chat/channel/:id/message',
         element: <RoomChat />
       },
       {
@@ -95,6 +91,10 @@ export const routes = [
         element: <RoomChat />
       },
       {
+        path: '/chat/channel/:id/todo-detail',
+        element: <RoomChat />
+      },
+      {
         path: '/chat/channel/:id/room-info',
         element: <RoomChat />
       },
@@ -103,11 +103,7 @@ export const routes = [
         element: <RoomChat />
       },
       {
-        path: '/chat/direct/:id/calling',
-        element: <RoomChat />
-      },
-      {
-        path: '/chat/direct/:id/search',
+        path: '/chat/direct/:id/message',
         element: <RoomChat />
       },
       {

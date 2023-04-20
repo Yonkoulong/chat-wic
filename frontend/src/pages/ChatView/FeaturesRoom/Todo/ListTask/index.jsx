@@ -8,9 +8,10 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  TruncateString,
 } from "@/shared/components";
 
-import GroupIcon from "@mui/icons-material/Group";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -39,12 +40,15 @@ const TableCellSearchInput = styled(TextField)`
 const flexCenter = {
   display: "flex",
   alignItems: "center",
-}; 
+};
 
-export const Members = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+export const Tasks = () => {
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
+    (state) => state
+  );
 
   const [members, setMembers] = useState([]);
+  const [openTaskDetail, setOpenTaskDetal] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keySearch, setKeySearch] = useState();
   const debouncedValue = useDebounce(keySearch, 500);
@@ -54,13 +58,22 @@ export const Members = () => {
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
+  const handleRedirectToTaskDetail = () => {
+    setTypeFeatureRoom();
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/todo-detail`);
+  }
+
   const handleSearch = (e) => {
     setKeySearch(e.target.value);
     setLoading(true);
   };
 
+  const handleOpenTaskDetailModal = (e) => {
+    setOpenTaskDetal(true);
+  };
+
   useEffect(() => {
-    setMembers(roomInfo?.membersInChannel)
+    setMembers(roomInfo?.membersInChannel);
   }, []);
 
   useEffect(() => {
@@ -70,7 +83,7 @@ export const Members = () => {
           username: debouncedValue,
           paging: {},
           userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId
+          ownerId: roomInfo?.ownerId,
         };
         const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
         if (resp) {
@@ -94,9 +107,9 @@ export const Members = () => {
         }}
       >
         <Box sx={flexCenter}>
-          <GroupIcon />
+          <AssignmentIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Channel Information
+            To-Do
           </Typography>
         </Box>
         <IconButton
@@ -151,20 +164,32 @@ export const Members = () => {
                     cursor: "pointer",
                   },
                 }}
-                onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
+                key={""}
+                onClick={() => handleRedirectToTaskDetail()}
               >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%"
+                  }}
+                >
                   <Box>
-                    <img
-                      src={member?.avatar}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain", borderRadius: "10px" }}
-                    />
+                    <Typography fontSize="15px" fontWeight="bold">
+                      task name
+                    </Typography>
+                    <TruncateString color={borderColor} line={"1"}>
+                      Message
+                    </TruncateString>
                   </Box>
-                  <Box ml={1}>
-                    <Typography fontSize="15px">{member?.username}</Typography>
+                  <Box>
+                    <Typography fontSize="15px" fontWeight="bold">
+                      Deadline: <span style={{ color: borderColor, fontWeight: "normal" }}>time</span>
+                    </Typography>
+                    <Typography fontWeight="bold">
+                      Status:{" "}
+                      <span style={{ color: borderColor, fontWeight: "normal" }}>Not done</span>
+                    </Typography>
                   </Box>
                 </Box>
               </Box>

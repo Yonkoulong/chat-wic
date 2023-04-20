@@ -103,7 +103,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
-              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.CALLING)}
+              onClick={() => console.log("")}
             >
               <PhoneIcon />
             </Box>
@@ -142,7 +142,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
-              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.SEARCH)}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.MESSAGES)}
             >
               <SearchIcon />
             </Box>
@@ -250,7 +250,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
-              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.CALLING)}
+              onClick={() => console.log("")}
             >
               <PhoneIcon />
             </Box>
@@ -276,7 +276,7 @@ export const RoomHeader = () => {
                   cursor: "pointer",
                 },
               }}
-              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.SEARCH)}
+              onClick={() => handleOpenFeatureRoom(enumPopupFeatures.MESSAGES)}
             >
               <SearchIcon />
             </Box>

@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@/shared/components";
 
-import GroupIcon from "@mui/icons-material/Group";
+import { SymbolsAttachFileIcon } from "@/assets/icons";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -23,6 +23,7 @@ import {
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
 import { useRoomStore } from "@/stores/RoomStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { postSearchMemberByChannel } from "@/services/channel.services";
 
@@ -39,10 +40,12 @@ const TableCellSearchInput = styled(TextField)`
 const flexCenter = {
   display: "flex",
   alignItems: "center",
-}; 
+};
 
-export const Members = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+export const Files = () => {
+  const {typeRoom, roomInfo, setTypeFeatureRoom} = useRoomStore((state) => state);
+  
+  const { messages } = useChatStore((state) => state);
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -58,9 +61,9 @@ export const Members = () => {
     setKeySearch(e.target.value);
     setLoading(true);
   };
-
+  
   useEffect(() => {
-    setMembers(roomInfo?.membersInChannel)
+    setMembers(roomInfo?.membersInChannel);
   }, []);
 
   useEffect(() => {
@@ -70,7 +73,7 @@ export const Members = () => {
           username: debouncedValue,
           paging: {},
           userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId
+          ownerId: roomInfo?.ownerId,
         };
         const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
         if (resp) {
@@ -94,9 +97,9 @@ export const Members = () => {
         }}
       >
         <Box sx={flexCenter}>
-          <GroupIcon />
+          <SymbolsAttachFileIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Channel Information
+            Files
           </Typography>
         </Box>
         <IconButton
@@ -151,6 +154,7 @@ export const Members = () => {
                     cursor: "pointer",
                   },
                 }}
+                key={member?._id}
                 onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
               >
                 <Box sx={{ display: "flex", alignItems: "center" }}>

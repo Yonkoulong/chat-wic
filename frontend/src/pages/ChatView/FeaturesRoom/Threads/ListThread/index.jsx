@@ -42,12 +42,11 @@ const flexCenter = {
 };
 
 export const ListThread = () => {
-  const roomInfo = useRoomStore((state) => state.roomInfo);
-  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
+  const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
 
   const handleClickCloseThread = () => {
     setTypeFeatureRoom(null);
-    redirectTo(`/chat/channel/${roomInfo?._id}`);
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
   return (

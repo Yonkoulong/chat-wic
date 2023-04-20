@@ -39,10 +39,10 @@ const TableCellSearchInput = styled(TextField)`
 const flexCenter = {
   display: "flex",
   alignItems: "center",
-}; 
+};
 
-export const Members = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+export const UserInfo = () => {
+  const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
