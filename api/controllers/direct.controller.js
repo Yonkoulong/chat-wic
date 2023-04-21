@@ -163,7 +163,7 @@ const postGetDirectDetail = async (req, res) => {
 
         responseDirectDetail = {
           ...directById,
-          userInfo: userInfo,
+          usersInfo: userInfo,
         };
       } catch (error) {
         throw error;

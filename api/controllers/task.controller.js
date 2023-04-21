@@ -45,6 +45,7 @@ const posCreateTask = async (req, res) => {
     status,
     creatorId,
     organizeId,
+    channelId
   } = req?.body;
 
   try {
@@ -72,6 +73,7 @@ const posCreateTask = async (req, res) => {
         endDate,
         status,
         creatorId,
+        channelId
       };
 
       if (organizeId) {
@@ -169,10 +171,15 @@ const putUpdateTask = async (req, res) => {
 };
 
 const getTaskByOrganize = async (req, res) => {
-  const { organizeId } = req?.params;
+  const { organizeId, channelId, title } = req?.params;
+  const querySearch = {organizeId, channelId}
+  if (title) {
+    querySearch.title = { $regex: title };
+  }
+
   try {
     // match task
-    const taskInfo = await TaskSchema.find({ organizeId });
+    const taskInfo = await TaskSchema.find(querySearch);
 
     if (taskInfo?.length > 0) {
       let usersId = [];
