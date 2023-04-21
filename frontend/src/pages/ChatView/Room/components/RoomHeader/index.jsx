@@ -23,6 +23,7 @@ import {
   primaryColor,
   hoverBackgroundColor,
 } from "@/shared/utils/colors.utils";
+import { handleReturnInfoDirectRoom } from "@/shared/utils/utils";
 
 const flexCenter = {
   display: "flex",
@@ -46,6 +47,7 @@ export const RoomHeader = () => {
   };
 
   const handleOpenFeatureRoom = (feature) => {
+    console.log(roomInfo);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`);
     setTypeFeatureRoom(feature);
 
@@ -67,9 +69,7 @@ export const RoomHeader = () => {
         );
       }
       case enumTypeRooms.DIRECT: {
-        let filterUserInDirect = roomInfo?.userInfo.find(
-          (user) => user?._id !== userInfo?._id
-        );
+        let filterUserInDirect = handleReturnInfoDirectRoom(userInfo, roomInfo);
 
         return (
           <>
@@ -236,9 +236,7 @@ export const RoomHeader = () => {
         );
       }
       case enumTypeRooms.DIRECT: {
-        let filterUserInDirect = roomInfo?.userInfo.find(
-          (user) => user?._id !== userInfo?._id
-        );
+        
         return (
           <>
             <Box

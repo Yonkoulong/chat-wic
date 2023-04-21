@@ -328,18 +328,20 @@ export const RoomContent = () => {
     if (!client) {
       return;
     }
+  
+    const handler = (mess)=> pushMessage(mess)
     
     if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-      client.on("receive-message-channel", (mes) => {
-        pushMessage(mes);
-      });
+      client.on("receive-message-channel", handler);
     }
 
     if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-      client.on("receive-message-direct", (mes) => {
-        console.log(mes);
-        pushMessage(mes);
-      });
+      client.on("receive-message-direct", handler)
+    }
+
+    return ()=>{
+      client?.off("receive-message-channel", handler)
+      client?.off("receive-message-direct", handler)
     }
   }, [client, messages]);
 

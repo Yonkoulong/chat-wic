@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import styled, { css } from "styled-components";
+
 import {
   Box,
   TextField,
@@ -58,9 +59,8 @@ export const Tasks = () => {
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
-  const handleRedirectToTaskDetail = () => {
-    setTypeFeatureRoom();
-    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/todo-detail`);
+  const handleRedirectToTaskDetail = (taskId) => {
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/todo-detail/${taskId}`);
   }
 
   const handleSearch = (e) => {
@@ -164,7 +164,7 @@ export const Tasks = () => {
                     cursor: "pointer",
                   },
                 }}
-                key={""}
+                key={member?._id}
                 onClick={() => handleRedirectToTaskDetail()}
               >
                 <Box
@@ -174,21 +174,23 @@ export const Tasks = () => {
                     width: "100%"
                   }}
                 >
-                  <Box>
+                  <Box sx={{ display: "flex", flexDirection: 'column', justifyContent: 'space-between' }}>
                     <Typography fontSize="15px" fontWeight="bold">
                       task name
                     </Typography>
-                    <TruncateString color={borderColor} line={"1"}>
-                      Message
-                    </TruncateString>
+                    <Typography sx={{ fontSize: "12px", color: borderColor, width: "130px" }} noWrap={true}>
+                      Messageasd asd sad sa dasd as dasd asd asd asd as dasd sad sad sad asd asd sa
+                    </Typography>
                   </Box>
                   <Box>
                     <Typography fontSize="15px" fontWeight="bold">
-                      Deadline: <span style={{ color: borderColor, fontWeight: "normal" }}>time</span>
+                      Deadline: <span style={{ color: borderColor, fontWeight: "normal", fontSize: '12px' }}>time</span>
                     </Typography>
-                    <Typography fontWeight="bold">
+                    <Typography fontSize="15px" fontWeight="bold">
                       Status:{" "}
-                      <span style={{ color: borderColor, fontWeight: "normal" }}>Not done</span>
+                      <span style={{ color: borderColor, fontWeight: "normal", fontSize: '12px'}}>
+                        Not done
+                      </span>
                     </Typography>
                   </Box>
                 </Box>

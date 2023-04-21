@@ -24,24 +24,29 @@ export const ChatView = () => {
         extraHeaders: { userId: userInfo?._id },
       }
     );
+
+    const handlerInviteChannel = async () => {
+      const respChannels = await getChannelsByUser(userInfo);
+      if (Array.isArray(respChannels?.data?.content)) {
+        setChannelRooms(respChannels?.data?.content);
+      }
+    };
+
+    const handlerInviteDirect = async () => {
+      const respDirects = await getDirectsByUserId(userInfo);
+      if (Array.isArray(respDirects?.data?.content)) {
+        setDirectRooms(respDirects?.data?.content);
+      }
+    };
+
     client.on('connect', () => {
       setClient(client);
 
       //channel
-      client.on('invited-to-a-channel', async () => {
-        const respChannels = await getChannelsByUser(userInfo);
-        if (Array.isArray(respChannels?.data?.content)) {
-          setChannelRooms(respChannels?.data?.content);
-        }
-      });
+      client.on('invited-to-a-channel', handlerInviteChannel);
 
       //direct
-      client.on('invited-to-a-direct', async () => {
-        const respDirects = await getDirectsByUserId(userInfo);
-        if (Array.isArray(respDirects?.data?.content)) {
-          setDirectRooms(respDirects?.data?.content);
-        }
-      });
+      client.on('invited-to-a-direct', handlerInviteDirect);
     });
 
     client.on('disconnect', () => {
@@ -49,6 +54,8 @@ export const ChatView = () => {
     });
 
     return () => {
+      client.off('invited-to-a-channel', handlerInviteChannel);
+      client.off('invited-to-a-direct', handlerInviteDirect);
       client.disconnect();
     };
   }, []);

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { Threads, Members, RoomInfo, UserInfo, Messages, Files, Tasks } from "@/pages/ChatView/FeaturesRoom";
+import { Threads, Members, RoomInfo, UserInfo, Messages, Files, Tasks, TaskDetail } from "@/pages/ChatView/FeaturesRoom";
 
 import { Box } from "@/shared/components";
 import { RoomChatContainer } from "./Room.styles";
@@ -29,19 +29,21 @@ export const RoomChat = () => {
   const handleShowPopupFeatures = () => {
     switch (typeFeatureRoom) {
       case enumPopupFeatures.THREAD:
-        return <Threads key={enumPopupFeatures.THREAD}/>;
+        return <Threads />;
       case enumPopupFeatures.MEMBERS:
-        return <Members key={enumPopupFeatures.MEMBERS}/>;
+        return <Members />;
       case enumPopupFeatures.ROOM_INFO:
-        return <RoomInfo key={enumPopupFeatures.ROOM_INFO}/>;
+        return <RoomInfo />;
       case enumPopupFeatures.USER_INFO:
-        return <UserInfo key={enumPopupFeatures.USER_INFO}/>;
+        return <UserInfo />;
       case enumPopupFeatures.MESSAGES:
-        return <Messages key={enumPopupFeatures.MESSAGES}/>;
+        return <Messages />;
       case enumPopupFeatures.FILES:
-        return <Files key={enumPopupFeatures.FILES}/>;
+        return <Files />;
       case enumPopupFeatures.TODO_LIST:
-        return <Tasks key={enumPopupFeatures.TODO_LIST}/>;
+        return <Tasks />;
+      case enumPopupFeatures.TODO_DETAIL:
+        return <TaskDetail />
     }
   };
 
@@ -59,6 +61,7 @@ export const RoomChat = () => {
     (async () => {
       try {
         let resp;
+        
         if (location?.pathname?.indexOf(enumTypeRooms.CHANNEL) !== -1) {
           resp = await getChannelDetail({ channelId: id });
           setTypeRoom(enumTypeRooms.CHANNEL);
@@ -68,7 +71,6 @@ export const RoomChat = () => {
           resp = await getDirectDetail({ directId: id });
           setTypeRoom(enumTypeRooms.DIRECT);
         }
-
         if (resp) {
           setRoomInfo(resp?.data?.content);
           handleFindLocationMatchPopupFeature();

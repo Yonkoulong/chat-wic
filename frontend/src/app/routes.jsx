@@ -91,7 +91,7 @@ export const routes = [
         element: <RoomChat />
       },
       {
-        path: '/chat/channel/:id/todo-detail',
+        path: '/chat/channel/:id/todo-detail/:taskId',
         element: <RoomChat />
       },
       {

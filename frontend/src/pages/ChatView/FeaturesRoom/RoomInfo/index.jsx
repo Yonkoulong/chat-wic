@@ -82,6 +82,7 @@ export const RoomInfo = () => {
               height: "280px",
               border: "1px solid",
               margin: "0 auto",
+              borderRadius: '10px'
             }}
           >
             <img src="" alt="" width="100%" />

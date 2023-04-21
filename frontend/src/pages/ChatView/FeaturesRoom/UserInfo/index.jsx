@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import styled, { css } from "styled-components";
+import React, { useEffect, useState } from "react";
+
+import InfoIcon from "@mui/icons-material/Info";
+import CloseIcon from "@mui/icons-material/Close";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+
 import {
   Box,
-  TextField,
-  InputAdornment,
   Typography,
   IconButton,
   CircularProgress,
+  Button,
 } from "@/shared/components";
-
-import GroupIcon from "@mui/icons-material/Group";
-import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
 
 import {
   primaryColor,
@@ -21,20 +20,11 @@ import {
   hoverBackgroundColor,
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
-import { redirectTo } from "@/shared/utils/history";
-import { useRoomStore } from "@/stores/RoomStore";
-import { useDebounce } from "@/shared/hooks/useDebounce";
-import { postSearchMemberByChannel } from "@/services/channel.services";
 
-const TableCellSearchInput = styled(TextField)`
-  ${({ theme: {} }) => css`
-    fieldSet {
-    }
-    &&& {
-      background-color: white;
-    }
-  `}
-`;
+import { useRoomStore } from "@/stores/RoomStore";
+import { useAppStore } from "@/stores/AppStore";
+import { redirectTo } from "@/shared/utils/history";
+import { handleReturnInfoDirectRoom, chatTimestamp } from "@/shared/utils/utils";
 
 const flexCenter = {
   display: "flex",
@@ -42,46 +32,29 @@ const flexCenter = {
 };
 
 export const UserInfo = () => {
-  const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+  const userInfo = useAppStore((state) => state.userInfo);
 
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [keySearch, setKeySearch] = useState();
-  const debouncedValue = useDebounce(keySearch, 500);
+  const [userInfoDirect, setUserInfoDirect] = useState({});
+
+  const handleCloseAnchorMoreFeatures = () => {
+    setAnchorMoreFeatures(null);
+  };
 
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
-  const handleSearch = (e) => {
-    setKeySearch(e.target.value);
-    setLoading(true);
-  };
-
   useEffect(() => {
-    setMembers(roomInfo?.membersInChannel)
+    if(!userInfo && !roomInfo) { return; }
+    console.log(userInfo);
+    console.log(roomInfo);
+    const filterUserInfoDirect = handleReturnInfoDirectRoom(userInfo, roomInfo);
+    if(filterUserInfoDirect) {
+      setUserInfoDirect(filterUserInfoDirect);
+    }
   }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const payload = {
-          username: debouncedValue,
-          paging: {},
-          userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId
-        };
-        const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
-        if (resp) {
-          setMembers(resp?.data?.content);
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [debouncedValue]);
 
   return (
     <Box>
@@ -94,9 +67,9 @@ export const UserInfo = () => {
         }}
       >
         <Box sx={flexCenter}>
-          <GroupIcon />
+          <InfoIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Channel Information
+            User info
           </Typography>
         </Box>
         <IconButton
@@ -112,64 +85,44 @@ export const UserInfo = () => {
           <CloseIcon />
         </IconButton>
       </Box>
-
-      <Box sx={{ padding: 2, borderBottom: `1px solid ${borderColor}` }}>
-        <TableCellSearchInput
-          placeholder="Search"
-          fullWidth
-          //   name={fieldName}
-          size="small"
-          value={keySearch}
-          onChange={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start" sx={{ cursor: "pointer" }}>
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
-        {loading && (
-          <Box my={10} textAlign="center">
-            <CircularProgress color="inherit" size={30} />
+      <Box sx={{ padding: 2 }}>
+        <Box
+          sx={{ margin: "0 auto", display: "flex", flexDirection: "column" }}
+        >
+          <Box
+            sx={{
+              width: "280px",
+              height: "280px",
+              border: "1px solid",
+              margin: "0 auto",
+              borderRadius: '10px'
+            }}
+          >
+            <img src="" alt="" width="100%" />
           </Box>
-        )}
-        {!loading &&
-          members?.map((member) => {
-            return (
-              <Box
-                sx={{
-                  ...flexCenter,
-                  justifyContent: "space-between",
-                  padding: 2,
-                  borderBottom: `1px solid ${borderColor}`,
-                  ":hover": {
-                    backgroundColor: hoverTextColor,
-                    cursor: "pointer",
-                  },
-                }}
-                onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Box>
-                    <img
-                      src={member?.avatar}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain", borderRadius: "10px" }}
-                    />
-                  </Box>
-                  <Box ml={1}>
-                    <Typography fontSize="15px">{member?.username}</Typography>
-                  </Box>
-                </Box>
-              </Box>
-            );
-          })}
+
+          <Button
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            sx={{ margin: "16px auto 0", fontWeight: 'bold' }}
+            
+          >
+            Block
+          </Button>
+        </Box>
+
+        <Box sx={{ ...flexCenter, marginTop: 4 }}>
+          <PersonIcon />
+          <Typography ml={1}>{userInfoDirect && userInfoDirect?.username}</Typography>
+        </Box>
+        <Box>
+          <Typography mt={2} fontSize="15px">Email</Typography>
+          <Typography color={borderColor}>{userInfoDirect && userInfoDirect?.email}</Typography>
+        </Box>
+        <Box>
+          <Typography mt={2} fontSize="15px">Created</Typography>
+          <Typography color={borderColor}>{roomInfo && chatTimestamp(roomInfo?.createdAt)}</Typography>
+        </Box>
       </Box>
     </Box>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import styled, { css } from "styled-components";
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import styled, { css } from 'styled-components';
 import {
   Box,
   TextField,
@@ -8,12 +8,12 @@ import {
   Typography,
   IconButton,
   CircularProgress,
-  TruncateString,
-} from "@/shared/components";
+} from '@/shared/components';
 
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
+import Checkbox from '@mui/material/Checkbox';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import EditIcon from '@mui/icons-material/Edit';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
   primaryColor,
@@ -21,11 +21,12 @@ import {
   inActiveColor,
   hoverBackgroundColor,
   hoverTextColor,
-} from "@/shared/utils/colors.utils";
-import { redirectTo } from "@/shared/utils/history";
-import { useRoomStore } from "@/stores/RoomStore";
-import { useDebounce } from "@/shared/hooks/useDebounce";
-import { postSearchMemberByChannel } from "@/services/channel.services";
+  activeColor
+} from '@/shared/utils/colors.utils';
+import { redirectTo } from '@/shared/utils/history';
+import { useRoomStore } from '@/stores/RoomStore';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import { postSearchMemberByChannel } from '@/services/channel.services';
 
 const TableCellSearchInput = styled(TextField)`
   ${({ theme: {} }) => css`
@@ -38,8 +39,8 @@ const TableCellSearchInput = styled(TextField)`
 `;
 
 const flexCenter = {
-  display: "flex",
-  alignItems: "center",
+  display: 'flex',
+  alignItems: 'center',
 };
 
 export const TaskDetail = () => {
@@ -62,7 +63,6 @@ export const TaskDetail = () => {
     setKeySearch(e.target.value);
     setLoading(true);
   };
-
 
   useEffect(() => {
     setMembers(roomInfo?.membersInChannel);
@@ -93,7 +93,7 @@ export const TaskDetail = () => {
       <Box
         sx={{
           ...flexCenter,
-          justifyContent: "space-between",
+          justifyContent: 'space-between',
           padding: 2,
           borderBottom: `1px solid ${borderColor}`,
         }}
@@ -101,14 +101,14 @@ export const TaskDetail = () => {
         <Box sx={flexCenter}>
           <AssignmentIcon />
           <Typography ml={0.5} fontWeight="bold">
-            To-Do
+            Task detail
           </Typography>
         </Box>
         <IconButton
           aria-label="close"
           component="label"
           sx={{
-            ":hover": {
+            ':hover': {
               color: primaryColor,
             },
           }}
@@ -118,74 +118,120 @@ export const TaskDetail = () => {
         </IconButton>
       </Box>
 
-      <Box sx={{ padding: 2, borderBottom: `1px solid ${borderColor}` }}>
-        <TableCellSearchInput
-          placeholder="Search"
-          fullWidth
-          //   name={fieldName}
-          size="small"
-          value={keySearch}
-          onChange={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start" sx={{ cursor: "pointer" }}>
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
+      <Box sx={{ maxHeight: `calc(100vh - 148px)`, overflowY: 'auto' }}>
         {loading && (
           <Box my={10} textAlign="center">
             <CircularProgress color="inherit" size={30} />
           </Box>
         )}
-        {!loading &&
-          members?.map((member) => {
-            return (
-              <Box
-                sx={{
-                  ...flexCenter,
-                  justifyContent: "space-between",
-                  padding: 2,
-                  borderBottom: `1px solid ${borderColor}`,
-                  ":hover": {
-                    backgroundColor: hoverTextColor,
-                    cursor: "pointer",
-                  },
-                }}
-                key={""}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "100%"
-                  }}
-                >
-                  <Box>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      task name
-                    </Typography>
-                    <TruncateString color={borderColor} line={"1"}>
-                      Message
-                    </TruncateString>
+        {!loading && (
+          <Box sx={{ display: 'flex', width: '100%' }}>
+            <Box sx={{ flex: '0 0 50%', maxWidth: '50%', padding: '8px 16px' }}>
+              <Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>
+                Title
+              </Typography>
+              <Box sx={{ margin: '16px 0 0 8px' }}>Content</Box>
+            </Box>
+            <Box
+              sx={{
+                padding: '8px 16px',
+                borderStyle: 'solid none solid solid',
+                borderWidth: '1px',
+                borderColor: '#fff',
+                boxShadow: "rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset",
+                flex: '0 0 50%',
+                maxWidth: '50%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                height: '100%',
+              }}
+            >
+              <Box>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Status
+                </Typography>
+                <Typography ml={1} mt={1} fontSize="12px" color="orange">
+                  Not Done
+                </Typography>
+              </Box>
+              <Box>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Expired date
+                </Typography>
+                <Typography ml={1} mt={1} fontSize="14px">
+                  27/02/2023
+                </Typography>
+                <Typography ml={1} mt={1} fontSize="14px" color="orange">
+                  Remain days: 2 day(s)
+                </Typography>
+              </Box>
+              <Box>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Assigned to
+                </Typography>
+                <Box ml={1} mt={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box  sx={{ width: '40px', height: '40px' }}>
+                    <img
+                      src=""
+                      alt=""
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                      }}
+                    />
                   </Box>
-                  <Box>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      Deadline: <span style={{ color: borderColor, fontWeight: "normal" }}>time</span>
-                    </Typography>
-                    <Typography fontWeight="bold">
-                      Status:{" "}
-                      <span style={{ color: borderColor, fontWeight: "normal" }}>Not done</span>
-                    </Typography>
+                  <Typography sx={{ ml: 0.5 }} fontSize="12px">Nguyen Hai Long</Typography>
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Actions
+                </Typography>
+                <Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '4px 8px',
+                      borderRadius: '5px',
+                      background: hoverBackgroundColor,
+                      marginTop: '8px',
+                      ':hover': {
+                        cursor: 'pointer',
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    <Checkbox />
+                    <Typography fontSize="12px">Done</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '4px 8px',
+                      marginTop: '8px',
+                      background: hoverBackgroundColor,
+                      borderRadius: '5px',
+                      ':hover': {
+                        cursor: 'pointer',
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    <IconButton>
+                      <EditIcon />
+                    </IconButton>
+                    <Typography  fontSize="12px">Edit</Typography>
                   </Box>
                 </Box>
               </Box>
-            );
-          })}
+            </Box>
+          </Box>
+        )}
       </Box>
     </Box>
   );

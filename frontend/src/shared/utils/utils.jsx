@@ -39,3 +39,12 @@ export function chatTimestamp(date) {
         return <span>{moment(date).format('lll')}</span>
     }
 }
+
+export function handleReturnInfoDirectRoom (userLogged, direct) {
+    
+    const filterDirectRoom = direct?.usersInfo?.find(
+        (userId) => userId?._id !== userLogged?._id
+    );
+
+    return filterDirectRoom;
+}

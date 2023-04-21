@@ -30,6 +30,7 @@ export const SidebarHeaderItem = styled(Box)`
     &:hover {
         background-color: ${hoverItemSidebarColor};
         cursor: pointer;
+        color: ${whiteColor}
     }
 `
 
@@ -119,6 +120,7 @@ export const AnchorUserInfoBottomItemText = styled(Typography)`
     ${() => css`
         &&& {
             margin-left: 8px;
+            font-size: 12px;
         }
     `}
 `
