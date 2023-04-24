@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -29,6 +30,8 @@ import {
   // CreateMemberFeatureWrapper,
 } from "./AddUserModal.styles";
 import { redirectTo } from "@/shared/utils/history";
+
+import { postAddMembersToChannel } from '@/services/channel.services';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -69,7 +72,7 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  userIds: [],
+  ids: [],
 };
 
 export const ModalAddUser = ({ open, onClose }) => {
@@ -81,6 +84,7 @@ export const ModalAddUser = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
 
   const inputFocusRef = useRef();
+  const { id } = useParams();
 
   const {
     control,
@@ -93,7 +97,7 @@ export const ModalAddUser = ({ open, onClose }) => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (field?.userIds) {
+    if (field?.ids) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -103,20 +107,17 @@ export const ModalAddUser = ({ open, onClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const newPayloadDirect = {
-        ...data,
-        organizeId: userInfo?.organizeId,
-        userIds: [...idsInDirect, userInfo?._id],
+      const newPayloadDirect = {       
+        ids: [...data.ids, ...membersSelected],
       };
-
-      // const respData = await postCheckAlreadyExistDirect(newPayloadDirect);
+      
+      const respData = await postAddMembersToChannel(id, newPayloadDirect);
 
       if (respData) {
         const idChannel = respData?.data?.content?._id;
         client.emit('create-channel-room', respData?.data?.content)
         setLoading(true);
         handleClose();
-        redirectTo(`/chat/channel/${idChannel}`);
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -223,7 +224,7 @@ export const ModalAddUser = ({ open, onClose }) => {
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Members"
-                fieldName="userIds"
+                fieldName="ids"
                 required={false}
               >
                 {(field) => (

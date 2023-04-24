@@ -13,6 +13,14 @@ export async function getChannelDetail(channelId, payload) {
   return requestAxios.post(`/channel/${channelId}`, payload);
 }
 
+export async function deleteMemberInChannel(channelId, memberId) {
+  return requestAxios.delete(`/channel/${channelId}/delete-members/${memberId}`);
+}
+
+export async function postAddMembersToChannel(channelId, payload) {
+  return requestAxios.post(`/channel/${channelId}/add-members`, payload);
+}
+
 //Message
 export async function getMessageChannelByChannelId(payload) {
   return requestAxios.post(`/message-channel/${payload?.channelId}`, {});

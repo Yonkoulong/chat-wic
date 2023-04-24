@@ -1,4 +1,5 @@
 import React from "react";
+import { useParams } from 'react-router-dom';
 
 import styled, { css } from "styled-components";
 import {
@@ -43,6 +44,8 @@ const flexCenter = {
 
 export const ListThread = () => {
   const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+
+  const { id } = useParams();
 
   const handleClickCloseThread = () => {
     setTypeFeatureRoom(null);
@@ -109,7 +112,7 @@ export const ListThread = () => {
               cursor: "pointer",
             },
           }}
-          onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
+          onClick={() => redirectTo(`/chat/channel/${id}/threads/123`)}
         >
           <Box sx={{ display: "flex" }}>
             <Box>

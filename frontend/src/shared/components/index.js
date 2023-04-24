@@ -28,7 +28,11 @@ export {
   Menu,
   OutlinedInput,
   FormGroup,
-  FormControlLabel, 
+  FormControlLabel,
+  Tabs,
+  Tab,
+  ImageList,
+  ImageListItem,
 } from "@mui/material";
 export { TextareaAutosize } from "@mui/base";
 export { ControllerInput } from "./ControllerInput";

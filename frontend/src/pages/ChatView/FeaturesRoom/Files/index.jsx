@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import styled, { css } from "styled-components";
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import styled, { css } from 'styled-components';
+
 import {
   Box,
   TextField,
@@ -8,11 +9,14 @@ import {
   Typography,
   IconButton,
   CircularProgress,
-} from "@/shared/components";
+  Tabs,
+  Tab,
+  ImageList,
+  ImageListItem,
+} from '@/shared/components';
 
-import { SymbolsAttachFileIcon } from "@/assets/icons";
-import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
+import { SymbolsAttachFileIcon } from '@/assets/icons';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
   primaryColor,
@@ -20,78 +24,141 @@ import {
   inActiveColor,
   hoverBackgroundColor,
   hoverTextColor,
-} from "@/shared/utils/colors.utils";
-import { redirectTo } from "@/shared/utils/history";
-import { useRoomStore } from "@/stores/RoomStore";
-import { useChatStore } from "@/stores/ChatStore";
-import { useDebounce } from "@/shared/hooks/useDebounce";
-import { postSearchMemberByChannel } from "@/services/channel.services";
-
-const TableCellSearchInput = styled(TextField)`
-  ${({ theme: {} }) => css`
-    fieldSet {
-    }
-    &&& {
-      background-color: white;
-    }
-  `}
-`;
+} from '@/shared/utils/colors.utils';
+import { redirectTo } from '@/shared/utils/history';
+import { typesMessage } from '@/shared/utils/constant';
+import { useRoomStore } from '@/stores/RoomStore';
+import { useChatStore } from '@/stores/ChatStore';
 
 const flexCenter = {
-  display: "flex",
-  alignItems: "center",
+  display: 'flex',
+  alignItems: 'center',
 };
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export const Files = () => {
-  const {typeRoom, roomInfo, setTypeFeatureRoom} = useRoomStore((state) => state);
-  
+  const { typeRoom, roomInfo, setTypeFeatureRoom } = useRoomStore(
+    (state) => state
+  );
+
   const { messages } = useChatStore((state) => state);
 
+  const [tabFilter, setTabFilter] = useState(0);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [keySearch, setKeySearch] = useState();
-  const debouncedValue = useDebounce(keySearch, 500);
 
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
-  const handleSearch = (e) => {
-    setKeySearch(e.target.value);
-    setLoading(true);
+  const handleChangeTab = (event, newValue) => {
+    setTabFilter(newValue);
   };
-  
+
+  const handleRenderValueOnTab = (tabEl) => {
+    return (
+      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: 'auto' }}>
+        {loading && (
+          <Box my={10} textAlign="center">
+            <CircularProgress color="inherit" size={30} />
+          </Box>
+        )}
+        {!loading && renderElementOnTab(tabEl)}
+      </Box>
+    );
+  };
+
+  const renderElementOnTab = (typeMsg) => {
+    switch (typeMsg) {
+      case typesMessage.IMAGE: {
+        const imagesFilter = messages?.filter((msg) => msg.type == typeMsg);
+        return renderTabFilterImage(imagesFilter);
+      }
+      case typesMessage.FILE: {
+        const filesFilter = messages?.filter((msg) => msg.type == typeMsg);
+        return renderTabFilterFile(filesFilter);
+      }
+      case typesMessage.VIDEO: {
+        return renderTabFilterVideo();
+      }
+    }
+  };
+
+  const renderTabFilterImage = (data) => {
+    return data?.length > 0 ? (
+      <ImageList cols={3} rowHeight={164}>
+        {data?.map((item) => (
+          <ImageListItem key={item?.content}>
+            <img
+              src={item?.content}
+              srcSet={item?.content}
+              alt=""
+              loading="lazy"
+            />
+          </ImageListItem>
+        ))}
+      </ImageList>
+    ) : (
+      <>No data</>
+    );
+  };
+
+  const renderTabFilterFile = (data) => {
+    return data?.length > 0 ? (
+      <Box sx={{}}>
+        {data?.map((item) => {
+          <Box key={item.content} sx={{ borderBottom: `1px solid red` }}>
+            <IconButton></IconButton>
+            <Typography></Typography>
+          </Box>;
+        })}
+      </Box>
+    ) : (
+      <>No data</>
+    );
+  };
+
+  const renderTabFilterVideo = () => {};
+
   useEffect(() => {
     setMembers(roomInfo?.membersInChannel);
   }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const payload = {
-          username: debouncedValue,
-          paging: {},
-          userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId,
-        };
-        const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
-        if (resp) {
-          setMembers(resp?.data?.content);
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [debouncedValue]);
 
   return (
     <Box>
       <Box
         sx={{
           ...flexCenter,
-          justifyContent: "space-between",
+          justifyContent: 'space-between',
           padding: 2,
           borderBottom: `1px solid ${borderColor}`,
         }}
@@ -106,7 +173,7 @@ export const Files = () => {
           aria-label="close"
           component="label"
           sx={{
-            ":hover": {
+            ':hover': {
               color: primaryColor,
             },
           }}
@@ -116,64 +183,27 @@ export const Files = () => {
         </IconButton>
       </Box>
 
-      <Box sx={{ padding: 2, borderBottom: `1px solid ${borderColor}` }}>
-        <TableCellSearchInput
-          placeholder="Search"
-          fullWidth
-          //   name={fieldName}
-          size="small"
-          value={keySearch}
-          onChange={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start" sx={{ cursor: "pointer" }}>
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
-        {loading && (
-          <Box my={10} textAlign="center">
-            <CircularProgress color="inherit" size={30} />
-          </Box>
-        )}
-        {!loading &&
-          members?.map((member) => {
-            return (
-              <Box
-                sx={{
-                  ...flexCenter,
-                  justifyContent: "space-between",
-                  padding: 2,
-                  borderBottom: `1px solid ${borderColor}`,
-                  ":hover": {
-                    backgroundColor: hoverTextColor,
-                    cursor: "pointer",
-                  },
-                }}
-                key={member?._id}
-                onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Box>
-                    <img
-                      src={member?.avatar}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain", borderRadius: "10px" }}
-                    />
-                  </Box>
-                  <Box ml={1}>
-                    <Typography fontSize="15px">{member?.username}</Typography>
-                  </Box>
-                </Box>
-              </Box>
-            );
-          })}
+      <Box>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs
+            value={tabFilter}
+            onChange={handleChangeTab}
+            aria-label="basic tabs example"
+          >
+            <Tab label="Image" {...a11yProps(0)} />
+            <Tab label="Files" {...a11yProps(1)} />
+            <Tab label="Video" {...a11yProps(2)} />
+          </Tabs>
+        </Box>
+        <TabPanel value={tabFilter} index={0}>
+          {handleRenderValueOnTab(typesMessage.IMAGE)}
+        </TabPanel>
+        <TabPanel value={tabFilter} index={1}>
+          {handleRenderValueOnTab(typesMessage.RAW)}
+        </TabPanel>
+        <TabPanel value={tabFilter} index={2}>
+          {handleRenderValueOnTab(typesMessage.VIDEO)}
+        </TabPanel>
       </Box>
     </Box>
   );

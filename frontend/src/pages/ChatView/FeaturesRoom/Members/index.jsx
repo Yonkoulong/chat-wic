@@ -30,7 +30,7 @@ import { enumPopupFeatures, enumRoles } from "@/shared/utils/constant";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useAppStore } from "@/stores/AppStore";
 import { useDebounce } from "@/shared/hooks/useDebounce";
-import { postSearchMemberByChannel } from "@/services/channel.services";
+import { postSearchMemberByChannel, deleteMemberInChannel } from "@/services/channel.services";
 import { PopUpConfirm } from '@/shared/components/PopUp';
 import { ModalAddUser } from "@/pages/ChatView/Components/Modal";
 
@@ -93,7 +93,10 @@ export const Members = () => {
   const handleRemoveMemberFromChannel = async () => {
     if(idMemberDelete) {
       try {
-        
+        if(idMemberDelete === userInfo?._id) {
+          return toast.error('You can not remove yourself');
+        }
+        const resp = await deleteMemberInChannel(roomInfo?._id, idMemberDelete);
       } catch (error) {
         throw error;
       }

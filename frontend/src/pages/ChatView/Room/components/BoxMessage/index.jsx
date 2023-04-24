@@ -84,6 +84,7 @@ export const BoxMessage = () => {
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
 
+
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -159,17 +160,17 @@ export const BoxMessage = () => {
   const handleClickSendIcon = () => {};
 
   const postMessageOnServer = async (value, type) => {
+    
     try {
       //Channel
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
         if (!isObjectEmpty(editMessage)) {
           const newPayLoadEditMessageChannel = {
             content: value,
-            reaction: {},
           };
 
           const resp = await putUpdateMessageChannel(
-            id,
+            editMessage?._id,
             newPayLoadEditMessageChannel
           );
 
@@ -202,7 +203,7 @@ export const BoxMessage = () => {
             reaction: {},
           };
 
-          const resp = await putMessageDirect(id, newPayLoadEditMessageDirect);
+          const resp = await putMessageDirect(editMessage?._id, newPayLoadEditMessageDirect);
 
           if (resp) {
             fetchMessagesDirect({ directId: id });
