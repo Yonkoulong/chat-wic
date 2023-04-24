@@ -16,7 +16,7 @@ const templateRespUser = {
   firstName: 1,
   lastName: 1,
   avatar: 1,
-  userStatus: 1
+  userStatus: 1,
 };
 
 const postCreateChannel = async (req, res) => {
@@ -66,23 +66,21 @@ const postGetChannelDetail = async (req, res) => {
   try {
     const channels = await ChannelModel.find({
       _id: channelId,
-      organizeId
+      organizeId,
     });
-    
+
     const filterUserInChannel = channels[0].userIds.filter((id) => {
       return id == userId;
-    })
+    });
 
-    if(filterUserInChannel.length <= 0) {
+    if (filterUserInChannel.length <= 0) {
       return res.status(httpCode.notFound).json(responseError.notFound);
     }
 
     //check belong to organization
-    if(channels[0].organizeId != organizeId) {
+    if (channels[0].organizeId != organizeId) {
       return res.status(httpCode.notFound).json(responseError.notFound);
     }
-
-
 
     let channelById = isArray(channels) ? channels[0]?._doc : {};
     if (channelById?.ownerId) {
@@ -151,9 +149,9 @@ const postSearchMemberByChannel = async (req, res) => {
 };
 
 const deleteMemberInChannel = async (req, res) => {
-  const {channelId, memberId} = req?.params;
+  const { channelId, memberId } = req?.params;
 
-  if(!channelId || !memberId) {
+  if (!channelId || !memberId) {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
   }
 
@@ -161,16 +159,16 @@ const deleteMemberInChannel = async (req, res) => {
     _id: channelId,
   });
   // not found channel
-  if(channels?.length < 1){
-    if(!channelId || !memberId) {
+  if (channels?.length < 1) {
+    if (!channelId || !memberId) {
       return res?.status(httpCode.notFound).json(responseError.notFound);
     }
   }
 
   const userIds = channels[0]?.userIds;
-  const newUserIds = userIds?.filter(id => id !== memberId);
+  const newUserIds = userIds?.filter((id) => id !== memberId);
 
-  const channelUpdated = {...channels[0]?._doc, userIds : newUserIds};
+  const channelUpdated = { ...channels[0]?._doc, userIds: newUserIds };
 
   try {
     await ChannelModel.updateOne(
@@ -185,11 +183,52 @@ const deleteMemberInChannel = async (req, res) => {
   } catch {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
-}
+};
 
 const postAddMembersToChannel = async (req, res) => {
+  const { ids } = req.body;
+  const { channelId, memberId } = req?.params;
 
-}
+  if (!channelId || !Array.isArray(ids)) {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+
+  const channels = await ChannelModel.find({
+    _id: channelId,
+  });
+
+  // not found channel
+  if (channels?.length < 1) {
+    if (!channelId || !memberId) {
+      return res?.status(httpCode.notFound).json(responseError.notFound);
+    }
+  }
+  let userIds = channels[0]?.userIds;
+
+  if(isArray(userIds)) {
+    ids.forEach(id => {
+      if(!userIds.includes(id)){
+        userIds = [...userIds, id]
+      }
+    })
+  }
+ 
+  const channelUpdated = { ...channels[0]?._doc, userIds };
+
+  try {
+    await ChannelModel.updateOne(
+      { _id: channelId },
+      {
+        $set: channelUpdated,
+        $currentDate: { lastUpdated: true },
+      }
+    );
+
+    return res.status(httpCode.ok).json(formatResponse(channelUpdated));
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+};
 
 module.exports = [
   {
