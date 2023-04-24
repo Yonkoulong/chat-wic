@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const messageChannelSchema = new Schema(
+const messageThreadChannelSchema = new Schema(
   {
     messageFrom: { type: Schema.Types.ObjectId, ref: "User" },
     content: {
@@ -31,14 +31,6 @@ const messageChannelSchema = new Schema(
       type: Array,
       required: false,
     },
-    totalMessageInThread: {
-      type: Number,
-      required: false,
-    },
-    totalMemberJoinThread: {
-      type: Number,
-      required: false,
-    },
     url: {
       type: String,
       required: false,
@@ -61,4 +53,4 @@ const messageChannelSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("Message_channel", messageChannelSchema);
+module.exports = mongoose.model("Message_thread_channel", messageThreadChannelSchema);
