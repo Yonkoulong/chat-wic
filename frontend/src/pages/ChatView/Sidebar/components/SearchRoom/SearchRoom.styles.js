@@ -45,16 +45,28 @@ export const SearchRoomBodyWrapper = styled(Box)`
 
 export const ImageSearchStyled = styled('img')`
   width: 100%;
-  object-fit: contain;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 export const SearchRoomStatus = styled(Box)`
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1px solid;
+  position: absolute;
+  right: 0;
+  bottom: 0;
 `;
 
 export const SearchRoomName = styled(Typography)`
-  color: ${whiteColor};
+
+  ${() => css`
+    &&& {
+      color: ${whiteColor};
+      font-size: 14px;
+      margin-left: 4px;
+    }
+  `}
+
 `;

@@ -2,3 +2,4 @@ export { ModalCreateChannel } from '@/pages/ChatView/Components/Modal/CreateChan
 export { ModalCreateDirect } from '@/pages/ChatView/Components/Modal/CreateDirectModal';
 export { ModalUploadFilePreview } from '@/pages/ChatView/Components/Modal/UploadFilePreviewModal';
 export { ModalCreateTask } from '@/pages/ChatView/Components/Modal/CreateTaskModal';
+export { ModalAddUser } from '@/pages/ChatView/Components/Modal/AddUserModal';

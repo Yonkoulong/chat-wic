@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import {
@@ -32,6 +33,7 @@ import {
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
 } from './CreateTaskModal.styles';
+import { useRoomStore } from '@/stores/RoomStore';
 import { useSocketStore } from '@/stores/SocketStore';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -79,20 +81,25 @@ const defaultValues = {
   startDate: '',
   endDate: '',
   creatorId: '',
+  channelId: '',
+  organizeId: '',
   status: taskStatus.NOT_DONE,
 };
 
 export const ModalCreateTask = ({ open, onClose }) => {
-  const { fetchMembers, members } = useMemberStore((state) => state);
   const client = useSocketStore((state) => state.client);
   const { userInfo } = useAppStore((state) => state);
+  const { roomInfo } = useRoomStore((state) => state);
 
+  const [membersFilterd, setMembersFiltered] = useState([]);
   const [membersSelected, setMembersSelected] = useState([]);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
   const inputFocusRef = useRef();
+
+  const { id } = useParams();
 
   const {
     control,
@@ -119,6 +126,8 @@ export const ModalCreateTask = ({ open, onClose }) => {
         ...data,
         assignee: membersSelected.length > 0 ? membersSelected[0]._id : '',
         creatorId: userInfo?._id,
+        channelId: id && id,
+        organizeId: userInfo?.organizeId,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       };
@@ -128,6 +137,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
 
       if (respData) {
         setLoading(true);
+        toast.success(`New task have assigned for ${membersSelected[0].username}`)
         handleClose();
       }
     } catch (error) {
@@ -144,6 +154,8 @@ export const ModalCreateTask = ({ open, onClose }) => {
       startDate: '',
       endDate: '',
       creatorId: '',
+      organizeId: '',
+      channelId: '',
       status: taskStatus.NOT_DONE,
     });
     
@@ -153,22 +165,11 @@ export const ModalCreateTask = ({ open, onClose }) => {
     onClose(false);
   };
 
-  const handleGetUsers = async () => {
-    setLoading(true);
-    try {
-      await fetchMembers({
-        organizeId: userInfo?.organizeId,
-        id: '',
-        email: '',
-      });
-    } catch (error) {
-      const errorMessage = error?.response?.data?.content;
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+  const handleGetUsers = () => {
+    setTimeout(() => {
       handleFocusInputAfterClick();
-    }
-  };
+    }, 100)
+  }
 
   const handleSelectedMember = (member) => {
     if (!member) return;
@@ -192,23 +193,17 @@ export const ModalCreateTask = ({ open, onClose }) => {
       (memberSelected) => memberSelected?.id !== member?.id
     );
     setMembersSelected(newMembersUnSelected);
-    handleFocusInputAfterClick();
   };
 
   const handleSearchMember = async (e) => {
     setLoading(true);
-    try {
-      await fetchMembers({
-        organizeId: userInfo?.organizeId,
-        id: '',
-        email: e.target.value,
-        paging: { page: 1, size: 10 },
-      });
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    const membersFiltered = roomInfo?.membersInChannel.filter((member) => {
+      return member?.username.toLowerCase().includes(e.target.value.toLowerCase());
+    })
+    if(membersFiltered.length > 0) {
+      setMembersFiltered(membersFiltered);
+    } 
+    setLoading(false);
   };
 
   const handleFocusInputAfterClick = () => {
@@ -221,10 +216,6 @@ export const ModalCreateTask = ({ open, onClose }) => {
     setStartDate(start);
     setEndDate(end);
   };
-
-  useEffect(() => {
-    
-  }, [])
 
   return (
     <BootstrapDialog
@@ -302,7 +293,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
                     onOpenDropdown={handleGetUsers}
                     handleSelectedMember={handleSelectedMember}
                     handleUnSelectedMember={handleUnSelectedMember}
-                    dataList={members}
+                    dataList={membersFilterd?.length > 0 ? membersFilterd : roomInfo?.membersInChannel}
                     dataSelected={membersSelected}
                     loading={loading}
                     placeholder="Assignee"

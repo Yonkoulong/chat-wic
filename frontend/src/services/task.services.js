@@ -5,13 +5,13 @@ export async function postCreateTask (payload)  {
 }
 
 export async function getTaskDetail (taskId) {
-    return requestAxios.post(`/tasks/${taskId}`)
+    return requestAxios.post(`/task/${taskId}`)
 }
 
 export async function putUpdateTask (taskId, payload) {
     return requestAxios.put(`/task/${taskId}/update`, payload)
 }
 
-export async function getTaskByOrganize (organizeId) {
-    return requestAxios.post(`/tasks/${organizeId}`, payload)
+export async function getTasksByChannelId (channelId, payload) {
+    return requestAxios.post(`/tasks/${channelId}/list`, payload)
 }

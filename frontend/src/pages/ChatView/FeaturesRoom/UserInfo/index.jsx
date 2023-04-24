@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
 
 import InfoIcon from "@mui/icons-material/Info";
 import CloseIcon from "@mui/icons-material/Close";
-import LogoutIcon from "@mui/icons-material/Logout";
+import BlockIcon from '@mui/icons-material/Block';
 import PersonIcon from "@mui/icons-material/Person";
 
 import {
@@ -20,11 +21,12 @@ import {
   hoverBackgroundColor,
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
+import { redirectTo } from "@/shared/utils/history";
+import { handleReturnInfoDirectRoom, chatTimestamp } from "@/shared/utils/utils";
+import { enumTypeRooms } from "@/shared/utils/constant";
 
 import { useRoomStore } from "@/stores/RoomStore";
 import { useAppStore } from "@/stores/AppStore";
-import { redirectTo } from "@/shared/utils/history";
-import { handleReturnInfoDirectRoom, chatTimestamp } from "@/shared/utils/utils";
 
 const flexCenter = {
   display: "flex",
@@ -35,7 +37,9 @@ export const UserInfo = () => {
   const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
   const userInfo = useAppStore((state) => state.userInfo);
 
-  const [userInfoDirect, setUserInfoDirect] = useState({});
+  const [userInfoPopup, setUserInfoPopup] = useState({});
+
+  const { userId } = useParams();
 
   const handleCloseAnchorMoreFeatures = () => {
     setAnchorMoreFeatures(null);
@@ -45,17 +49,24 @@ export const UserInfo = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
-
+  
   useEffect(() => {
     if(!userInfo && !roomInfo) { return; }
-    console.log(userInfo);
-    console.log(roomInfo);
-    const filterUserInfoDirect = handleReturnInfoDirectRoom(userInfo, roomInfo);
-    if(filterUserInfoDirect) {
-      setUserInfoDirect(filterUserInfoDirect);
+
+    if(typeRoom === enumTypeRooms.DIRECT) {
+      const filterUserInfoDirect = handleReturnInfoDirectRoom(userInfo, roomInfo);
+      if(filterUserInfoDirect) {
+        setUserInfoPopup(filterUserInfoDirect);
+      }
+    }
+
+    if(typeRoom === enumTypeRooms.CHANNEL) {
+      const filterUserInfoChannel = roomInfo?.membersInChannel?.find((user) => user?._id == userId)
+      setUserInfoPopup(filterUserInfoChannel)
     }
   }, []);
 
+  console.log(userInfoPopup);
   return (
     <Box>
       <Box
@@ -69,7 +80,7 @@ export const UserInfo = () => {
         <Box sx={flexCenter}>
           <InfoIcon />
           <Typography ml={0.5} fontWeight="bold">
-            User info
+            User Info
           </Typography>
         </Box>
         <IconButton
@@ -85,7 +96,7 @@ export const UserInfo = () => {
           <CloseIcon />
         </IconButton>
       </Box>
-      <Box sx={{ padding: 2 }}>
+      <Box sx={{ padding: 2,  maxHeight: `calc(100vh - 148px)`, overflowY: "auto"  }}>
         <Box
           sx={{ margin: "0 auto", display: "flex", flexDirection: "column" }}
         >
@@ -98,12 +109,12 @@ export const UserInfo = () => {
               borderRadius: '10px'
             }}
           >
-            <img src="" alt="" width="100%" />
+            <img src={userInfoPopup?.avatar || ''} alt="" style={{width:"100%", height:"100%", borderRadius: '10px', objectFit: 'cover'}} />
           </Box>
 
           <Button
             variant="outlined"
-            startIcon={<LogoutIcon />}
+            startIcon={<BlockIcon />}
             sx={{ margin: "16px auto 0", fontWeight: 'bold' }}
             
           >
@@ -113,15 +124,15 @@ export const UserInfo = () => {
 
         <Box sx={{ ...flexCenter, marginTop: 4 }}>
           <PersonIcon />
-          <Typography ml={1}>{userInfoDirect && userInfoDirect?.username}</Typography>
+          <Typography ml={1}>{userInfoPopup && userInfoPopup?.username}</Typography>
         </Box>
         <Box>
           <Typography mt={2} fontSize="15px">Email</Typography>
-          <Typography color={borderColor}>{userInfoDirect && userInfoDirect?.email}</Typography>
+          <Typography color={inActiveColor}>{userInfoPopup && userInfoPopup?.email}</Typography>
         </Box>
         <Box>
           <Typography mt={2} fontSize="15px">Created</Typography>
-          <Typography color={borderColor}>{roomInfo && chatTimestamp(roomInfo?.createdAt)}</Typography>
+          <Typography color={inActiveColor}>{userInfoPopup && chatTimestamp(userInfoPopup?.createdAt)}</Typography>
         </Box>
       </Box>
     </Box>

@@ -79,6 +79,10 @@ export const routes = [
         element: <RoomChat />
       },
       {
+        path: '/chat/channel/:id/user-info/:userId',
+        element: <RoomChat />
+      },
+      {
         path: '/chat/channel/:id/message',
         element: <RoomChat />
       },

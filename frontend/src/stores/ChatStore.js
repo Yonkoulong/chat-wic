@@ -3,7 +3,7 @@ import { getMessageChannelByChannelId } from "@/services/channel.services";
 import { getMessageByDirectId } from "@/services/direct.services";
 
 export const useChatStore = create((set) => ({
-  messages: [],
+  messages: null,
   quoteMessage: {},
   editMessage: {},
   heightQuoteMessageBox: 0,

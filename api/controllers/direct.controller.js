@@ -29,6 +29,7 @@ const templateRespUser = {
   firstName: 1,
   lastName: 1,
   avatar: 1,
+  userStatus: 1
 };
 
 const postCreateDirect = async (req, res) => {
@@ -137,11 +138,25 @@ const postCheckAlreadyExistDirect = async (req, res) => {
 
 const postGetDirectDetail = async (req, res) => {
   const { directId } = req?.params;
-
+  const { organizeId, userId } = req.body;
+ 
   try {
     const directs = await DirectModel.find({
       _id: directId,
+      organizeId
     });
+
+    const filterUserInDirect = directs[0].userIds.filter((id) => {
+      return id == userId;
+    })
+
+    if(filterUserInDirect.length <= 0) {
+      return res.status(httpCode.notFound).json(responseError.notFound);
+    }
+
+    if(directs[0].organizeId != organizeId) {
+      return res.status(httpCode.notFound).json(responseError.notFound);
+    }
 
     let directById = isArray(directs) ? directs[0]?._doc : {};
 

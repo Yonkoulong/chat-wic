@@ -5,17 +5,20 @@ import { toast } from "react-toastify";
 
 import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography, CircularProgress, Paper } from "@/shared/components";
+import { RoomNotFound } from "@/shared/components/RoomNotFound";
 import { LinkPreview } from "@dhaiwat10/react-link-preview";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DescriptionIcon from "@mui/icons-material/Description";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import {
   LucideQuoteIcon,
   SymbolsAddReactionOutlineIcon,
   UilCommentMessageIcon,
 } from "@/assets/icons";
+
 import {
   MessageList,
   MessageItem,
@@ -45,7 +48,7 @@ import {
   blackColor,
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
-import { chatTimestamp } from "@/shared/utils/utils"
+import { chatTimestamp } from "@/shared/utils/utils";
 import {
   putUpdateMessageChannel,
   deleteMessageChannel,
@@ -312,7 +315,8 @@ export const RoomContent = () => {
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
-      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   }, [roomInfo, typeRoom]);
 
@@ -328,21 +332,21 @@ export const RoomContent = () => {
     if (!client) {
       return;
     }
-  
-    const handler = (mess)=> pushMessage(mess)
-    
+
+    const handler = (mess) => pushMessage(mess);
+
     if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
       client.on("receive-message-channel", handler);
     }
 
     if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-      client.on("receive-message-direct", handler)
+      client.on("receive-message-direct", handler);
     }
 
-    return ()=>{
-      client?.off("receive-message-channel", handler)
-      client?.off("receive-message-direct", handler)
-    }
+    return () => {
+      client?.off("receive-message-channel", handler);
+      client?.off("receive-message-direct", handler);
+    };
   }, [client, messages]);
 
   //close anchor
@@ -378,7 +382,8 @@ export const RoomContent = () => {
           }}
         >
           <MessageList>
-            {messages &&
+            {!loading &&
+              messages &&
               messages?.map((message, index) => {
                 return (
                   <MessageItem
@@ -388,14 +393,18 @@ export const RoomContent = () => {
                     ref={scrollRef}
                     sx={{
                       backgroundColor:
-                        editMessage?._id === message?._id
-                          ? hoverTextColor
-                          : null,
+                        editMessage?._id === message?._id ? hoverTextColor : "",
                     }}
                   >
-                    <UserImageWrapper>
-                      <UserImage src={message?.avatar || ""} alt="image" />
-                    </UserImageWrapper>
+                    {message?.avatar ? (
+                      <UserImageWrapper>
+                        <UserImage src={message?.avatar || ""} alt="image" />
+                      </UserImageWrapper>
+                    ) : (
+                      <AccountCircleIcon
+                        sx={{ width: "40px", height: "40px" }}
+                      />
+                    )}
 
                     {idMessageHovering === message?._id ? (
                       <InteractMessageWrapper>
@@ -556,7 +565,9 @@ export const RoomContent = () => {
                     <MessageContentWrapper>
                       <MessageTitle>
                         <UserName>{message?.senderName}</UserName>
-                        <TimeMessage>{chatTimestamp(message?.createdAt)}</TimeMessage>
+                        <TimeMessage>
+                          {chatTimestamp(message?.createdAt)}
+                        </TimeMessage>
                       </MessageTitle>
 
                       <MessageContentBox>
@@ -614,7 +625,7 @@ export const RoomContent = () => {
                         );
                       }) || <></>}
 
-                      <MessageThreadBox>
+                      {/* <MessageThreadBox>
                         <Box
                           sx={{
                             padding: 0.5,
@@ -635,7 +646,7 @@ export const RoomContent = () => {
                             1
                           </Typography>
                         </Box>
-                      </MessageThreadBox>
+                      </MessageThreadBox> */}
                     </MessageContentWrapper>
                   </MessageItem>
                 );
@@ -647,6 +658,7 @@ export const RoomContent = () => {
             <CircularProgress color="inherit" size={30} />
           </Box>
         )}
+        {!loading && !messages ? <RoomNotFound /> : ""}
       </Box>
     </RoomContentContainer>
   );

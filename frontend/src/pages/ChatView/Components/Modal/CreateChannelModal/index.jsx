@@ -70,6 +70,7 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
+  organizeId: "",
   channelName: "",
   description: "",
   ownerId: 0,
@@ -109,6 +110,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
     try {
       const newPayloadChannel = {
         ...data,
+        organizeId: userInfo?.organizeId,
         userIds: membersSelected?.map(mem => mem?.id),
         ownerId: userInfo?._id,
       };
@@ -119,7 +121,6 @@ export const ModalCreateChannel = ({ open, onClose }) => {
         const idChannel = respData?.data?.content?._id;
         client.emit('create-channel-room', respData?.data?.content)
         setLoading(true);
-        toast.success("Create channel successfully.");
         handleClose();
         redirectTo(`/chat/channel/${idChannel}`);
       }

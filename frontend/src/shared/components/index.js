@@ -26,8 +26,9 @@ export {
   DialogContent,
   Chip,
   Menu,
-  Avatar,
   OutlinedInput,
+  FormGroup,
+  FormControlLabel, 
 } from "@mui/material";
 export { TextareaAutosize } from "@mui/base";
 export { ControllerInput } from "./ControllerInput";
@@ -37,3 +38,4 @@ export { ButtonCustomize } from "./Button";
 export { PopUpConfirm } from "./PopUp";
 export { SelectMultipleInput } from "./SelectMultipleInput";
 export { TruncateString } from "./Truncate";
+

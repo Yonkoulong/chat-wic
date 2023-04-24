@@ -27,9 +27,8 @@ import {
   CreateMemberForm,
   CreateMemberInputContainer,
   // CreateMemberFeatureWrapper,
-} from "./CreateDirectModal.styles";
+} from "./AddUserModal.styles";
 import { redirectTo } from "@/shared/utils/history";
-import { postCreateDirect, postCheckAlreadyExistDirect } from '@/services/direct.services';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -69,12 +68,11 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-
 const defaultValues = {
   userIds: [],
 };
 
-export const ModalCreateDirect = ({ open, onClose }) => {
+export const ModalAddUser = ({ open, onClose }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
   const client = useSocketStore((state) => state.client);
@@ -104,7 +102,6 @@ export const ModalCreateDirect = ({ open, onClose }) => {
   };
 
   const onSubmit = async (data) => {
-    let idsInDirect = membersSelected?.map((mem) => mem?.id);
     try {
       const newPayloadDirect = {
         ...data,
@@ -112,14 +109,14 @@ export const ModalCreateDirect = ({ open, onClose }) => {
         userIds: [...idsInDirect, userInfo?._id],
       };
 
-      const respData = await postCheckAlreadyExistDirect(newPayloadDirect);
+      // const respData = await postCheckAlreadyExistDirect(newPayloadDirect);
 
       if (respData) {
-        const idDirect = respData?.data?.content?._id;
-        client.emit('create-direct-room', respData?.data?.content)
+        const idChannel = respData?.data?.content?._id;
+        client.emit('create-channel-room', respData?.data?.content)
         setLoading(true);
         handleClose();
-        redirectTo(`/chat/direct/${idDirect}`);
+        redirectTo(`/chat/channel/${idChannel}`);
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -153,11 +150,18 @@ export const ModalCreateDirect = ({ open, onClose }) => {
 
   const handleSelectedMember = (member) => {
     if (!member) return;
-   
+    const memberId = member?.id;
+    const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
     const inputRef = inputFocusRef.current.querySelector("input");
 
     let newMembersSelected = [];
-    newMembersSelected = [member];
+    if (membersSelectedIds?.includes(memberId)) {
+      newMembersSelected = membersSelected?.filter(
+        (member) => member?.id !== memberId
+      );
+    } else {
+      newMembersSelected = [...membersSelected, member];
+    }
 
     if (inputRef.value != "") {
       inputRef.value = "";
@@ -165,6 +169,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
     }
 
     setMembersSelected(newMembersSelected);
+    handleFocusInputAfterClick();
   };
 
   const handleUnSelectedMember = (member) => {
@@ -173,6 +178,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
       (memberSelected) => memberSelected?.id !== member?.id
     );
     setMembersSelected(newMembersUnSelected);
+    handleFocusInputAfterClick();
   };
 
   const handleSearchMember = async (e) => {
@@ -204,7 +210,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create member
+        Add members
       </BootstrapDialogTitle>
       <CreateMemberFormWrapper>
         <CreateMemberForm onSubmit={handleSubmit(onSubmit)}>
@@ -250,7 +256,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
               type="submit"
               disabled={watchFieldsInModalCreateMember()}
             >
-              Create
+              Add
             </ButtonCustomize>
           </DialogActions>
         </CreateMemberForm>

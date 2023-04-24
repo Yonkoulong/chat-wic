@@ -2,7 +2,6 @@ import {
   Typography,
   Menu,
   Box,
-  Avatar,
   OutlinedInput,
 } from "@/shared/components";
 import styled, { css } from "styled-components";
@@ -38,14 +37,17 @@ export const StyledSelectMultipleContentItem = styled(Box)`
 export const StyledItemImageWrapper = styled(Box)`
   width: 32px;
   height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-export const StyledSelectItemImage = styled(Avatar)`
+export const StyledSelectItemImage = styled('img')`
   &&& {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    border-radius: 5px;
+    object-fit: cover;
+    border-radius: 50%;
   }
 `;
 

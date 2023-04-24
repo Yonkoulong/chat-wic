@@ -1,4 +1,6 @@
 import moment from "moment";
+import { enumMemberStatus, taskStatus } from "./constant";
+import { successColor, errorColor, whiteColor, borderColor, warningColor } from './colors.utils'; 
 
 export const handleEmailToName = (email) => {
     const newName = email?.split('@');
@@ -47,4 +49,29 @@ export function handleReturnInfoDirectRoom (userLogged, direct) {
     );
 
     return filterDirectRoom;
+}
+
+export function handleReturnColorStatus (userInfo) {
+    switch(userInfo?.userStatus) {
+        case enumMemberStatus.ONLINE: {
+            return { backgroundColor: successColor }
+        }
+        case enumMemberStatus.BUSY: {
+            return { backgroundColor: errorColor }
+        }
+        case enumMemberStatus.OFFLINE: {
+            return { backgroundColor: whiteColor, border: `1px solid ${borderColor}` }
+        }
+    }
+}
+
+export function hanldeReturnStatusTask (status) {
+    switch(status) {
+        case taskStatus.DONE: {
+            return <span style={{ color: successColor }}>Done</span>
+        }
+        case taskStatus.NOT_DONE: {
+            return <span style={{ color: warningColor }}>Not Done</span>
+        }
+    }
 }

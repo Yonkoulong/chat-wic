@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { Box, Typography, Avatar } from "@/shared/components";
+import { Box, Typography } from "@/shared/components";
 import {
   inActiveColor,
   whiteColor,
@@ -13,7 +13,7 @@ export const RoomContentContainer = styled(Box)``;
 export const MessageList = styled(Box)`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 `;
 
 export const MessageItem = styled(Box)`
@@ -27,12 +27,17 @@ export const MessageItem = styled(Box)`
   }
 `;
 
-export const UserImageWrapper = styled(Box)``;
-
-export const UserImage = styled(Avatar)`
-  width: 40px;
+export const UserImageWrapper = styled(Box)`
+  max-width: 40px;
   height: 40px;
-  object-fit: contain;
+  border-radius: 50%;
+`;
+
+export const UserImage = styled('img')`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 export const MessageContentWrapper = styled(Box)`

@@ -5,12 +5,12 @@ export async function postChannel(payload) {
   return requestAxios.post("/channel/create", payload);
 }
 
-export async function getChannelsByUser(payload) {
-  return requestAxios.post(`/channel/${payload?._id}/list`);
+export async function getChannelsByUser(userId, payload) {
+  return requestAxios.post(`/channel/${userId}/list`, payload);
 }
 
-export async function getChannelDetail(payload) {
-  return requestAxios.post(`/channel/${payload.channelId}`, {});
+export async function getChannelDetail(channelId, payload) {
+  return requestAxios.post(`/channel/${channelId}`, payload);
 }
 
 //Message

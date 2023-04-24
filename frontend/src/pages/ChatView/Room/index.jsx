@@ -2,7 +2,16 @@ import React, { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { Threads, Members, RoomInfo, UserInfo, Messages, Files, Tasks, TaskDetail } from "@/pages/ChatView/FeaturesRoom";
+import {
+  Threads,
+  Members,
+  RoomInfo,
+  UserInfo,
+  Messages,
+  Files,
+  Tasks,
+  TaskDetail,
+} from "@/pages/ChatView/FeaturesRoom";
 
 import { Box } from "@/shared/components";
 import { RoomChatContainer } from "./Room.styles";
@@ -13,18 +22,17 @@ import { getDirectDetail } from "@/services/direct.services";
 import { useRoomStore } from "@/stores/RoomStore";
 import { enumTypeRooms, enumPopupFeatures } from "@/shared/utils/constant";
 import { primaryColor, borderColor } from "@/shared/utils/colors.utils";
-import { useSocketStore } from "../../../stores/SocketStore";
+import { useAppStore } from "@/stores/AppStore";
+import { useSocketStore } from "@/stores/SocketStore";
 
 export const RoomChat = () => {
   const { id } = useParams();
   const location = useLocation();
 
   const client = useSocketStore((state) => state.client);
-  const setRoomInfo = useRoomStore((state) => state.setRoomInfo);
-  const setTypeRoom = useRoomStore((state) => state.setTypeRoom);
-  const typeRoom = useRoomStore((state) => state.typeRoom);
-  const typeFeatureRoom = useRoomStore((state) => state.typeFeatureRoom);
-  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
+  const { userInfo } = useAppStore((state) => state);
+  const { setRoomInfo, setTypeRoom, typeFeatureRoom, setTypeFeatureRoom } =
+    useRoomStore((state) => state);
 
   const handleShowPopupFeatures = () => {
     switch (typeFeatureRoom) {
@@ -43,7 +51,7 @@ export const RoomChat = () => {
       case enumPopupFeatures.TODO_LIST:
         return <Tasks />;
       case enumPopupFeatures.TODO_DETAIL:
-        return <TaskDetail />
+        return <TaskDetail />;
     }
   };
 
@@ -61,14 +69,20 @@ export const RoomChat = () => {
     (async () => {
       try {
         let resp;
-        
+
         if (location?.pathname?.indexOf(enumTypeRooms.CHANNEL) !== -1) {
-          resp = await getChannelDetail({ channelId: id });
+          resp = await getChannelDetail(id, {
+            organizeId: userInfo?.organizeId,
+            userId: userInfo?._id,
+          });
           setTypeRoom(enumTypeRooms.CHANNEL);
         }
 
         if (location?.pathname?.indexOf(enumTypeRooms.DIRECT) !== -1) {
-          resp = await getDirectDetail({ directId: id });
+          resp = await getDirectDetail(id, {
+            organizeId: userInfo?.organizeId,
+            userId: userInfo?._id,
+          });
           setTypeRoom(enumTypeRooms.DIRECT);
         }
         if (resp) {
@@ -77,16 +91,17 @@ export const RoomChat = () => {
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.content;
-        toast.error(errorMessage);
       }
     })();
   }, [location]);
 
   useEffect(() => {
-    if(!id || !client) { return; }
+    if (!id || !client) {
+      return;
+    }
 
-    client.emit('room', id);
-  }, [id, client])
+    client.emit("room", id);
+  }, [id, client]);
 
   return (
     <RoomChatContainer>

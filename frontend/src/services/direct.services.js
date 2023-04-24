@@ -5,12 +5,12 @@ export async function postCreateDirect (payload) {
     return await requestAxios.post("/direct/create", payload);
 }
 
-export async function getDirectsByUserId (payload) {
-    return await requestAxios.post(`/direct/${payload?._id}/list`, { organizeId: payload?.organizeId });
+export async function getDirectsByUserId (userId, payload) {
+    return await requestAxios.post(`/direct/${userId}/list`, payload);
 }
 
-export async function getDirectDetail(payload) {
-    return requestAxios.post(`/direct/${payload.directId}`, {});
+export async function getDirectDetail(directId, payload) {
+    return requestAxios.post(`/direct/${directId}`, payload);
 }
 
 export async function postCheckAlreadyExistDirect(payload) {

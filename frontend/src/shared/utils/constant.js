@@ -44,9 +44,9 @@ export const enumRoles = {
 }
 
 export const enumMemberStatus = {
-  ONLINE: "online",
-  OFFLINE: "offline",
-  BUSY: 'busy'
+  ONLINE: "ONLINE",
+  OFFLINE: "OFFLINE",
+  BUSY: 'BUSY'
 }
 
 export const enumPopupFeatures = {
@@ -76,4 +76,9 @@ export const typesMessage = {
 export const taskStatus = {
   DONE: 'done',
   NOT_DONE: 'not_done'
+}
+
+export const order = {
+  ASCENDING: 'ASC',
+  DESCENDING: 'DESC',
 }

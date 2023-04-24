@@ -6,14 +6,14 @@ const channelSchema = new Schema(
   {
     channelName: {
       type: String,
-      required: false,
+      required: true,
     },
-    userIds: [{ type: String, required: false }],
+    userIds: [{ type: String, required: true }],
     administratorsIds: [{ type: String, required: false }],
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     organizeId: {
       type: String,
-      required: false,
+      required: true,
     },
   },
   {

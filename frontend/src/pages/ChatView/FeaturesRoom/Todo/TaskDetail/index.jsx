@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import styled, { css } from 'styled-components';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import {
   Box,
   TextField,
@@ -8,12 +9,17 @@ import {
   Typography,
   IconButton,
   CircularProgress,
-} from '@/shared/components';
+  Button,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+} from "@/shared/components";
 
-import Checkbox from '@mui/material/Checkbox';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 
 import {
   primaryColor,
@@ -21,85 +27,109 @@ import {
   inActiveColor,
   hoverBackgroundColor,
   hoverTextColor,
-  activeColor
-} from '@/shared/utils/colors.utils';
-import { redirectTo } from '@/shared/utils/history';
-import { useRoomStore } from '@/stores/RoomStore';
-import { useDebounce } from '@/shared/hooks/useDebounce';
-import { postSearchMemberByChannel } from '@/services/channel.services';
+  activeColor,
+} from "@/shared/utils/colors.utils";
+import { redirectTo } from "@/shared/utils/history";
+import { formatDate, enumRoles, taskStatus } from "@/shared/utils/constant";
+import { hanldeReturnStatusTask } from "@/shared/utils/utils";
 
-const TableCellSearchInput = styled(TextField)`
-  ${({ theme: {} }) => css`
-    fieldSet {
-    }
-    &&& {
-      background-color: white;
-    }
-  `}
-`;
+import { useRoomStore } from "@/stores/RoomStore";
+import { useAppStore } from "@/stores/AppStore";
+
+import { getTaskDetail, putUpdateTask } from "@/services/task.services";
 
 const flexCenter = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
 };
 
 export const TaskDetail = () => {
   const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
     (state) => state
   );
+  const { userInfo } = useAppStore((state) => state);
+  const { id, taskId } = useParams();
 
-  const [members, setMembers] = useState([]);
-  const [openTaskDetail, setOpenTaskDetal] = useState([]);
+  const [taskDetail, setTaskDetail] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [keySearch, setKeySearch] = useState();
-  const debouncedValue = useDebounce(keySearch, 500);
+  const [remainingTime, setRemainingTime] = useState(0);
 
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
 
-  const handleSearch = (e) => {
-    setKeySearch(e.target.value);
-    setLoading(true);
+  const handleCalulateTime = () => {
+    const now = new Date();
+
+    if (taskDetail?.endDate) {
+      const endTime = new Date(taskDetail?.endDate);
+      const remainingTime = now - endTime;
+
+      if (remainingTime > 0) {
+        return (
+          <Typography ml={1} mt={1} fontSize="14px" color="error">
+            Overdue {Math.ceil(remainingTime / (1000 * 60 * 60 * 24))}{" "}
+            day(s)
+          </Typography>
+        );
+      } else {
+        return (
+          <Typography ml={1} mt={1} fontSize="14px" color="orange">
+            Remain days: {Math.ceil(Math.abs(remainingTime / (1000 * 60 * 60 * 24)))}{" "}
+            day(s)
+          </Typography>
+        );
+      }
+    }
   };
 
-  useEffect(() => {
-    setMembers(roomInfo?.membersInChannel);
-  }, []);
+  const handleUpdateStatusTask = async() => {
+    try {
+      const newPayload = {
+        status: taskDetail?.status === taskStatus.DONE ? taskStatus.NOT_DONE : taskStatus.DONE,
+      }
+
+      const resp = await putUpdateTask(taskId, newPayload);
+      if(resp) {
+        const fetchTaskDetail = await getTaskDetail(taskId);
+        setTaskDetail(fetchTaskDetail?.data?.content);
+      }
+    } catch (error) {
+      throw error
+    }
+  };
 
   useEffect(() => {
     (async () => {
       try {
-        const payload = {
-          username: debouncedValue,
-          paging: {},
-          userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId,
-        };
-        const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
+        const resp = await getTaskDetail(taskId);
         if (resp) {
-          setMembers(resp?.data?.content);
+          setTaskDetail(resp?.data?.content);
         }
       } catch (error) {
-      } finally {
-        setLoading(false);
+        throw error;
       }
     })();
-  }, [debouncedValue]);
+  }, []);
 
   return (
     <Box>
       <Box
         sx={{
           ...flexCenter,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           padding: 2,
           borderBottom: `1px solid ${borderColor}`,
         }}
       >
         <Box sx={flexCenter}>
-          <AssignmentIcon />
+          <IconButton
+            onClick={() => redirectTo(`/chat/channel/${id}/todo-list`)}
+            color="primary"
+          >
+            <KeyboardReturnIcon />
+          </IconButton>
           <Typography ml={0.5} fontWeight="bold">
             Task detail
           </Typography>
@@ -108,7 +138,7 @@ export const TaskDetail = () => {
           aria-label="close"
           component="label"
           sx={{
-            ':hover': {
+            ":hover": {
               color: primaryColor,
             },
           }}
@@ -118,71 +148,103 @@ export const TaskDetail = () => {
         </IconButton>
       </Box>
 
-      <Box sx={{ maxHeight: `calc(100vh - 148px)`, overflowY: 'auto' }}>
+      <Box sx={{ maxHeight: `calc(100vh - 148px)`, overflowY: "auto" }}>
         {loading && (
           <Box my={10} textAlign="center">
             <CircularProgress color="inherit" size={30} />
           </Box>
         )}
         {!loading && (
-          <Box sx={{ display: 'flex', width: '100%' }}>
-            <Box sx={{ flex: '0 0 50%', maxWidth: '50%', padding: '8px 16px' }}>
-              <Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>
-                Title
+          <Box sx={{ display: "flex", width: "100%" }}>
+            <Box sx={{ flex: "0 0 50%", maxWidth: "50%", padding: "8px 16px" }}>
+              <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
+                {taskDetail?.title || ""}
               </Typography>
-              <Box sx={{ margin: '16px 0 0 8px' }}>Content</Box>
+              <Box sx={{ margin: "16px 0 0 8px" }}>
+                {taskDetail?.content || ""}
+              </Box>
             </Box>
             <Box
               sx={{
-                padding: '8px 16px',
-                borderStyle: 'solid none solid solid',
-                borderWidth: '1px',
-                borderColor: '#fff',
-                boxShadow: "rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset",
-                flex: '0 0 50%',
-                maxWidth: '50%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                height: '100%',
+                padding: "8px 16px",
+                borderStyle: "solid none solid solid",
+                borderWidth: "1px",
+                borderColor: "#fff",
+                boxShadow:
+                  "rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset",
+                flex: "0 0 50%",
+                maxWidth: "50%",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                height: "100%",
               }}
             >
               <Box>
                 <Typography fontSize="15px" fontWeight="bold">
                   Status
                 </Typography>
-                <Typography ml={1} mt={1} fontSize="12px" color="orange">
-                  Not Done
-                </Typography>
+                {userInfo?._id === taskDetail?.assigneeInfo?._id ? (
+                  <FormGroup ml={1} mt={1}>
+                    <FormControlLabel
+                      control={<Checkbox size="small" checked={taskDetail?.status === taskStatus.DONE} onChange={() => handleUpdateStatusTask()}/>}
+                      label={
+                        <Typography fontSize="12px">
+                          {hanldeReturnStatusTask(taskDetail?.status)}
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                ) : (
+                  <Typography ml={1} mt={1} fontSize="12px">
+                    {hanldeReturnStatusTask(taskDetail?.status)}
+                  </Typography>
+                )}
               </Box>
               <Box>
                 <Typography fontSize="15px" fontWeight="bold">
                   Expired date
                 </Typography>
                 <Typography ml={1} mt={1} fontSize="14px">
-                  27/02/2023
+                  {formatDate(taskDetail?.endDate) || ""}
                 </Typography>
-                <Typography ml={1} mt={1} fontSize="14px" color="orange">
-                  Remain days: 2 day(s)
-                </Typography>
+                {handleCalulateTime()}
               </Box>
               <Box>
                 <Typography fontSize="15px" fontWeight="bold">
                   Assigned to
                 </Typography>
-                <Box ml={1} mt={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box  sx={{ width: '40px', height: '40px' }}>
-                    <img
-                      src=""
-                      alt=""
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
+                <Box
+                  ml={1}
+                  mt={1}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  {taskDetail?.assigneeInfo?.avatar ? (
+                    <Box
+                      sx={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
                       }}
-                    />
-                  </Box>
-                  <Typography sx={{ ml: 0.5 }} fontSize="12px">Nguyen Hai Long</Typography>
+                    >
+                      <img
+                        src={taskDetail?.assigneeInfo?.avatar}
+                        alt="image"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <AccountCircleIcon />
+                  )}
+
+                  <Typography sx={{ ml: 0.5 }} fontSize="12px">
+                    {taskDetail?.assigneeInfo?.username || ""}
+                  </Typography>
                 </Box>
               </Box>
 
@@ -190,43 +252,26 @@ export const TaskDetail = () => {
                 <Typography fontSize="15px" fontWeight="bold">
                   Actions
                 </Typography>
-                <Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '4px 8px',
-                      borderRadius: '5px',
-                      background: hoverBackgroundColor,
-                      marginTop: '8px',
-                      ':hover': {
-                        cursor: 'pointer',
-                        opacity: 0.8,
-                      },
-                    }}
-                  >
-                    <Checkbox />
-                    <Typography fontSize="12px">Done</Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '4px 8px',
-                      marginTop: '8px',
-                      background: hoverBackgroundColor,
-                      borderRadius: '5px',
-                      ':hover': {
-                        cursor: 'pointer',
-                        opacity: 0.8,
-                      },
-                    }}
-                  >
-                    <IconButton>
-                      <EditIcon />
-                    </IconButton>
-                    <Typography  fontSize="12px">Edit</Typography>
-                  </Box>
+                <Box sx={{ mt: 1 }}>
+                  {userInfo?.role === enumRoles?.PROJECT_MANAGER && (
+                    <>
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="contained"
+                        fullWidth
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        startIcon={<DeleteIcon />}
+                        variant="contained"
+                        fullWidth
+                        sx={{ mt: 1 }}
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </Box>
               </Box>
             </Box>

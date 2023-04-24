@@ -170,13 +170,14 @@ const putUpdateTask = async (req, res) => {
   }
 };
 
-const getTaskByOrganize = async (req, res) => {
-  const { organizeId, channelId, title } = req?.params;
-  const querySearch = {organizeId, channelId}
+const getTasksByChannelId = async (req, res) => {
+  const { channelId } = req?.params;
+  const { title } = req?.body;
+  const querySearch = { channelId}
   if (title) {
     querySearch.title = { $regex: title };
   }
-
+  
   try {
     // match task
     const taskInfo = await TaskSchema.find(querySearch);
@@ -221,6 +222,10 @@ const getTaskByOrganize = async (req, res) => {
   }
 };
 
+const deleteTaskInChannel = async(req, res) => {
+  
+}
+
 module.exports = [
   {
     method: "post",
@@ -239,7 +244,7 @@ module.exports = [
   },
   {
     method: "post",
-    controller: getTaskByOrganize,
-    routeName: "/tasks/:organizeId/list",
+    controller: getTasksByChannelId,
+    routeName: "/tasks/:channelId/list",
   },
 ];

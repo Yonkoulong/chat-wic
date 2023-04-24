@@ -16,6 +16,7 @@ const templateRespUser = {
   firstName: 1,
   lastName: 1,
   avatar: 1,
+  userStatus: 1
 };
 
 const postCreateChannel = async (req, res) => {
@@ -45,11 +46,12 @@ const postCreateChannel = async (req, res) => {
 
 const postGetChannelsByUserId = async (req, res) => {
   const { userId } = req?.params;
-  const { orders } = req?.body;
+  const { organizeId, orders } = req.body;
   const direction = orders?.updatedAt || "DESC";
   try {
     const channelsByUserId = await ChannelModel.find({
       userIds: { $in: [userId] },
+      organizeId,
     }).sort({ updatedAt: ORDER_DIRECTION[direction] });
     return res.status(httpCode.ok).json(formatResponse(channelsByUserId));
   } catch {
@@ -58,11 +60,29 @@ const postGetChannelsByUserId = async (req, res) => {
 };
 
 const postGetChannelDetail = async (req, res) => {
-  const { channelId } = req?.params;
+  const { channelId } = req.params;
+  const { organizeId, userId } = req.body;
+
   try {
     const channels = await ChannelModel.find({
       _id: channelId,
+      organizeId
     });
+    
+    const filterUserInChannel = channels[0].userIds.filter((id) => {
+      return id == userId;
+    })
+
+    if(filterUserInChannel.length <= 0) {
+      return res.status(httpCode.notFound).json(responseError.notFound);
+    }
+
+    //check belong to organization
+    if(channels[0].organizeId != organizeId) {
+      return res.status(httpCode.notFound).json(responseError.notFound);
+    }
+
+
 
     let channelById = isArray(channels) ? channels[0]?._doc : {};
     if (channelById?.ownerId) {

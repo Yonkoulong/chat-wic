@@ -47,7 +47,6 @@ export const RoomHeader = () => {
   };
 
   const handleOpenFeatureRoom = (feature) => {
-    console.log(roomInfo);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`);
     setTypeFeatureRoom(feature);
 
@@ -61,7 +60,7 @@ export const RoomHeader = () => {
       case enumTypeRooms.CHANNEL: {
         return (
           <>
-            <Box sx={{ width: "40px", height: "40px" }}>
+            <Box sx={{ width: "40px", height: "40px", borderRadius: '50%' }}>
               <RoomHeaderItemImage src="https://cdnimgen.vietnamplus.vn/uploaded/wbxx/2021_09_09/fourteen_foreign_tv_channels_to_end_broadcast_in_vietnam.jpg" />
             </Box>
             <RoomHeaderItemName>{roomInfo?.channelName}</RoomHeaderItemName>

@@ -4,6 +4,7 @@ import { blackColor, borderColor, whiteColor, hoverItemSidebarColor, textColorIt
 
 export const SidebarContainer = styled(Box)`
     width: 20%;
+    min-width: 300px;
     position: relative;
     overflow: hidden;
 `
@@ -49,9 +50,10 @@ export const AnchorUserInfoHeader = styled(Box)`
 `
 
 export const AnchorUserInfoHeaderImage = styled('img')`
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
 `
 
 export const AnchorUserInfoHeaderContent = styled(Box)`
@@ -62,16 +64,14 @@ export const AnchorUserInfoHeaderContent = styled(Box)`
 
 export const AnchorUserInfoTitleStatus = styled(Box)`
     border-radius: 50%;
-    width: 14px;
-    height: 14px;
-    border: 1px solid ${borderColor};
+    width: 10px;
+    height: 10px;
 `;
 
 export const AnchorUserInfoTitleName = styled(Typography)`
     ${() => css`
         &&& {
             margin-left: 8px;
-
         }
     `}
 `;
@@ -94,8 +94,8 @@ export const AnchorUserInfoBodyTitle = styled(Box)``
 
 export const AnchorUserInfoBodyStatus = styled(Box)`
     border-radius: 50%;
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     border: 1px solid ${borderColor};
 `
 
@@ -103,7 +103,7 @@ export const AnchorUserInfoBodyText = styled(Typography)`
     ${() => css`
         &&& {
             margin-left: 8px;
-            font-size: 14px;
+            font-size: 12px;
         }
     `}
 `
@@ -128,7 +128,7 @@ export const AnchorUserInfoBottomItemText = styled(Typography)`
 export const AnchorRoomTitle = styled(Typography)`
     ${() => css`
         &&& {
-            font-size: 14px;
+            font-size: 10px;
         }
     `}
 `
@@ -148,12 +148,20 @@ export const AnchorRoomText = styled(Typography)`
     `}
 `
 
-
 export const SidebarHeaderItemImage = styled('img')`
-    display: flex;
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+`
+
+export const SidebarHeaderItemStatus = styled(Box)`
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 `
 
 export const SidebarBody = styled(Box)`
@@ -183,7 +191,7 @@ export const SidebarBodyList = styled(Box)`
 `
 
 export const SidebarBodyItem = styled(Box)`
- 
+
 `
 
 export const SidebarBodyItemName = styled(Box)`
@@ -196,23 +204,27 @@ export const SidebarBodyItemNameText = styled(Typography)`
     ${({ theme: { } }) => css`
     &&& {
         color: ${textColorItemSidebar};
-        margin-left: 14px;
+        margin-left: 10px;
     }
   `}
 `
 
+export const SidebarBodyListRoom = styled(Box)`
+
+    & > :first-child {
+        margin-top: 8px;
+    }
+`
+
 export const SidebarBodyItemRooms = styled(Box)`
-    margin-top: 8px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
 `
 
 export const SidebarBodyItemRoomWrapper = styled(Box)`
     display: flex;
-    align-items: center;
-    padding: 4px 16px;
-    gap: 6px;
+    justify-content: space-between;    
+    padding: 16px 24px;
 
     &:hover {
         background-color: ${hoverItemSidebarColor};
@@ -222,18 +234,44 @@ export const SidebarBodyItemRoomWrapper = styled(Box)`
 
 export const SidebarBodyItemRoomImage = styled('img')`
     width: 100%;
+    border-radius: 50%;
     object-fit: cover;
 `
 
 export const SidebarBodyItemRoomStatus = styled(Box)`
     width: 10px;
     height: 10px;
-    border: 1px solid ${whiteColor};
     border-radius: 50%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 `;
 
 export const SidebarBodyItemRoomName = styled(Typography)`
-    color: ${textColorItemSidebar};
+    ${({ theme: { } }) => css`
+        &&& {
+            color: ${whiteColor};
+            font-size: 14px;
+        }
+    `}
+`
+
+export const SidebarBodyItemRoomMessage = styled(Typography)`
+    ${({ theme: { } }) => css`
+        &&& {
+            color: ${textColorItemSidebar};
+            font-size: 12px;
+        }
+    `}
+`
+
+export const SidebarBodyItemRoomTime = styled(Typography)`
+    ${({ theme: { } }) => css`
+        &&& {
+            color: ${textColorItemSidebar};
+            font-size: 12px;
+        }
+    `}
 `
 
 export const SidebarFooter = styled(Box)`
@@ -257,5 +295,4 @@ export const SidebarFooterContent = styled(Box)`
 
 export const SidebarFooterText = styled(Typography)`
     color: ${whiteColor};
-
 `

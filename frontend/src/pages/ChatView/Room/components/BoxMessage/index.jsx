@@ -2,7 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { ModalUploadFilePreview, ModalCreateTask } from "@/pages/ChatView/Components/Modal";
+import {
+  ModalUploadFilePreview,
+  ModalCreateTask,
+} from "@/pages/ChatView/Components/Modal";
 import {
   Box,
   TextareaAutosize,
@@ -33,7 +36,11 @@ import {
   inActiveColor,
   hoverBackgroundColor,
 } from "@/shared/utils/colors.utils";
-import { typesMessage, enumTypeRooms } from "@/shared/utils/constant";
+import {
+  typesMessage,
+  enumTypeRooms,
+  enumRoles,
+} from "@/shared/utils/constant";
 import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
 import {
   postMessageChannel,
@@ -229,7 +236,7 @@ export const BoxMessage = () => {
 
   const handleClickOpenModalCreateTask = () => {
     setOpenCreateTaskModal(true);
-  }
+  };
 
   useEffect(() => {
     if (!isObjectEmpty(quoteMessage)) {
@@ -310,7 +317,6 @@ export const BoxMessage = () => {
       ) : (
         <></>
       )}
-
       <Box
         sx={{
           ...flexCenter,
@@ -373,18 +379,23 @@ export const BoxMessage = () => {
           <SymbolsAttachFileIcon />
         </IconButton>
 
-        <IconButton
-          color="primary"
-          aria-label="todo list"
-          component="label"
-          sx={{
-            ...flexCenter,
-            mx: 1,
-          }}
-          onClick={handleClickOpenModalCreateTask}
-        >
-          <FluentTaskAddIcon />
-        </IconButton>
+        {userInfo.role == enumRoles.PROJECT_MANAGER &&
+          typeRoom == enumTypeRooms.CHANNEL ? (
+            <IconButton
+              color="primary"
+              aria-label="todo list"
+              component="label"
+              sx={{
+                ...flexCenter,
+                mx: 1,
+              }}
+              onClick={handleClickOpenModalCreateTask}
+            >
+              <FluentTaskAddIcon />
+            </IconButton>
+          ) : (
+            ""
+        )}
       </Box>
       <Box>
         <Box sx={{ position: "relative" }}>
@@ -434,7 +445,7 @@ export const BoxMessage = () => {
         formFile={uploadFile}
       />
 
-      <ModalCreateTask 
+      <ModalCreateTask
         open={openCreateTaskModal}
         onClose={setOpenCreateTaskModal}
       />

@@ -4,6 +4,7 @@ export const blackColor = "#000000";
 export const whiteColor = "#ffffff";
 export const successColor = "#008000";
 export const errorColor = "#FF0000";
+export const warningColor = "#ed6c02"
 export const borderColor = "#D8DDE2";
 export const inActiveColor = "#B4BAC0";
 export const hoverItemSidebarColor = "#1f2329";

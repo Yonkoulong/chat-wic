@@ -9,7 +9,6 @@ import {
   Typography,
   IconButton,
   CircularProgress,
-  TruncateString,
 } from "@/shared/components";
 
 import AssignmentIcon from "@mui/icons-material/Assignment";
@@ -24,7 +23,10 @@ import {
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { hanldeReturnStatusTask } from "@/shared/utils/utils"
+import { formatDate } from "@/shared/utils/constant";
 import { useRoomStore } from "@/stores/RoomStore";
+import { useTaskStore } from "@/stores/TaskStore";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { postSearchMemberByChannel } from "@/services/channel.services";
 
@@ -47,6 +49,7 @@ export const Tasks = () => {
   const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
     (state) => state
   );
+  const { fetchTasksByChannel, tasks } = useTaskStore((state) => state);
 
   const [members, setMembers] = useState([]);
   const [openTaskDetail, setOpenTaskDetal] = useState([]);
@@ -73,7 +76,15 @@ export const Tasks = () => {
   };
 
   useEffect(() => {
-    setMembers(roomInfo?.membersInChannel);
+    (async () => {
+      try {
+        const resp = await fetchTasksByChannel(roomInfo?._id, {});
+      } catch (error) {
+        throw error;
+      }
+
+    })();
+
   }, []);
 
   useEffect(() => {
@@ -151,7 +162,7 @@ export const Tasks = () => {
           </Box>
         )}
         {!loading &&
-          members?.map((member) => {
+          tasks?.map((task) => {
             return (
               <Box
                 sx={{
@@ -164,8 +175,8 @@ export const Tasks = () => {
                     cursor: "pointer",
                   },
                 }}
-                key={member?._id}
-                onClick={() => handleRedirectToTaskDetail()}
+                key={task?._id}
+                onClick={() => handleRedirectToTaskDetail(task?._id)}
               >
                 <Box
                   sx={{
@@ -176,20 +187,20 @@ export const Tasks = () => {
                 >
                   <Box sx={{ display: "flex", flexDirection: 'column', justifyContent: 'space-between' }}>
                     <Typography fontSize="15px" fontWeight="bold">
-                      task name
+                      {task?.title || ''}
                     </Typography>
-                    <Typography sx={{ fontSize: "12px", color: borderColor, width: "130px" }} noWrap={true}>
-                      Messageasd asd sad sa dasd as dasd asd asd asd as dasd sad sad sad asd asd sa
+                    <Typography sx={{ fontSize: "12px", color: inActiveColor, width: "130px" }} noWrap={true}>
+                      {task?.content || ''}
                     </Typography>
                   </Box>
                   <Box>
                     <Typography fontSize="15px" fontWeight="bold">
-                      Deadline: <span style={{ color: borderColor, fontWeight: "normal", fontSize: '12px' }}>time</span>
+                      Deadline: <span style={{ color: inActiveColor, fontWeight: "normal", fontSize: '12px' }}>{formatDate(task?.endDate)}</span>
                     </Typography>
                     <Typography fontSize="15px" fontWeight="bold">
                       Status:{" "}
-                      <span style={{ color: borderColor, fontWeight: "normal", fontSize: '12px'}}>
-                        Not done
+                      <span style={{ color: inActiveColor, fontWeight: "normal", fontSize: '12px'}}>
+                        {hanldeReturnStatusTask(task?.status)}
                       </span>
                     </Typography>
                   </Box>

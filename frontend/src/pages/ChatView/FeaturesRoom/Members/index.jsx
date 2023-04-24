@@ -8,11 +8,14 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Button,
 } from "@/shared/components";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 
 import GroupIcon from "@mui/icons-material/Group";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import {
   primaryColor,
@@ -22,9 +25,14 @@ import {
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { enumPopupFeatures, enumRoles } from "@/shared/utils/constant";
+
 import { useRoomStore } from "@/stores/RoomStore";
+import { useAppStore } from "@/stores/AppStore";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { postSearchMemberByChannel } from "@/services/channel.services";
+import { PopUpConfirm } from '@/shared/components/PopUp';
+import { ModalAddUser } from "@/pages/ChatView/Components/Modal";
 
 const TableCellSearchInput = styled(TextField)`
   ${({ theme: {} }) => css`
@@ -39,14 +47,23 @@ const TableCellSearchInput = styled(TextField)`
 const flexCenter = {
   display: "flex",
   alignItems: "center",
-}; 
+};
 
 export const Members = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+  const { userInfo } = useAppStore((state) => state);
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
+    (state) => state
+  );
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keySearch, setKeySearch] = useState();
+  const [idMemberDelete, setIsMemberDelete] = useState(null);
+  const [isHoverMember, setIsHoverMember] = useState(null);
+  const [heightMembers, setHeightMembers] = useState(220);
+  const [openPopupConfirm, setOpenPopupConfirm] = useState(false);
+  const [openAddUserModal, setOpenAddUserModal] = useState(false);
+
   const debouncedValue = useDebounce(keySearch, 500);
 
   const handleClickCloseMembersPopup = () => {
@@ -59,8 +76,50 @@ export const Members = () => {
     setLoading(true);
   };
 
+  const handleRedirecToMemberDetailPopup = (member) => {
+    redirectTo(
+      `/chat/channel/${roomInfo?._id}/${enumPopupFeatures.USER_INFO}/${member?._id}`
+    );
+  };
+
+  const handleMouseOver = (member) => {
+    setIsHoverMember(member);
+  };
+
+  const handleMouseOut = () => {
+    setIsHoverMember(null);
+  };
+
+  const handleRemoveMemberFromChannel = async () => {
+    if(idMemberDelete) {
+      try {
+        
+      } catch (error) {
+        throw error;
+      }
+    }
+  };
+
+  const handleClosePopupDeleteMember = () => {
+    setOpenPopupConfirm(false)
+  }
+
+  const handleClickOpenPopupDeleteMember = (e, member) => {
+    e.stopPropagation();
+    setOpenPopupConfirm(true);
+    setIsMemberDelete(member?._id);
+  }
+
+  const handleClickOpenModalAddMembers = () => {
+    setOpenAddUserModal(true);
+  }
+
   useEffect(() => {
-    setMembers(roomInfo?.membersInChannel)
+    setMembers(roomInfo?.membersInChannel);
+
+    if(userInfo?.role === enumRoles?.PROJECT_MANAGER) {
+      setHeightMembers(275);
+    }
   }, []);
 
   useEffect(() => {
@@ -70,7 +129,7 @@ export const Members = () => {
           username: debouncedValue,
           paging: {},
           userIds: roomInfo?.userIds,
-          ownerId: roomInfo?.ownerId
+          ownerId: roomInfo?.ownerId,
         };
         const resp = await postSearchMemberByChannel(roomInfo?._id, payload);
         if (resp) {
@@ -84,7 +143,7 @@ export const Members = () => {
   }, [debouncedValue]);
 
   return (
-    <Box>
+    <Box sx={{ position: "relative", height: "100%" }}>
       <Box
         sx={{
           ...flexCenter,
@@ -96,7 +155,7 @@ export const Members = () => {
         <Box sx={flexCenter}>
           <GroupIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Channel Information
+            Members
           </Typography>
         </Box>
         <IconButton
@@ -131,7 +190,7 @@ export const Members = () => {
         />
       </Box>
 
-      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
+      <Box sx={{ maxHeight: `calc(100vh - ${heightMembers}px)`, overflowY: "auto" }}>
         {loading && (
           <Box my={10} textAlign="center">
             <CircularProgress color="inherit" size={30} />
@@ -151,26 +210,82 @@ export const Members = () => {
                     cursor: "pointer",
                   },
                 }}
-                onClick={() => redirectTo(`/chat/channel/:id/threads/123`)}
+                key={member?._id}
+                onMouseOver={() => handleMouseOver(member)}
+                onMouseOut={handleMouseOut}
+                onClick={() => handleRedirecToMemberDetailPopup(member)}
               >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Box>
-                    <img
-                      src={member?.avatar}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain", borderRadius: "10px" }}
-                    />
-                  </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    position: "relative",
+                    width: "100%",
+                  }}
+                >
+                  {member?.avatar ? (
+                    <Box sx={{ width: "40px", height: "40px" }}>
+                      <img
+                        src={member?.avatar}
+                        alt="avatar"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <AccountCircleIcon fontSize="large" />
+                  )}
+
                   <Box ml={1}>
                     <Typography fontSize="15px">{member?.username}</Typography>
                   </Box>
+
+                  {isHoverMember?._id === member?._id &&
+                    userInfo?._id === roomInfo?.ownerId && (
+                      <IconButton
+                        sx={{ position: "absolute", right: 0 }}
+                        color="primary"
+                        onClick={(e) =>
+                          handleClickOpenPopupDeleteMember(e, member)
+                        }
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    )}
                 </Box>
               </Box>
             );
           })}
       </Box>
+
+      {userInfo?.role === enumRoles?.PROJECT_MANAGER && (
+        <Button
+          sx={{ position: "absolute", bottom: "10px", left: '50%', transform: 'translateX(-50%)' }}
+          variant="contained"
+          startIcon={<GroupAddIcon />}
+          onClick={() => handleClickOpenModalAddMembers()}
+        >
+          Add member
+        </Button>
+      )}
+
+      {/* Popup confirm when delete member */}
+      <PopUpConfirm 
+        open={openPopupConfirm}
+        onCancel={handleClosePopupDeleteMember}
+        onConfirm={() => handleRemoveMemberFromChannel()}
+        content="Are you sure to delete this member!"
+      />
+
+      {/* Add Members Modal */}
+      <ModalAddUser 
+        open={openAddUserModal}
+        onClose={setOpenAddUserModal}
+      />
     </Box>
   );
 };

@@ -56,7 +56,7 @@ export const RoomInfo = () => {
         <Box sx={flexCenter}>
           <InfoIcon />
           <Typography ml={0.5} fontWeight="bold">
-            Members
+            Channel Infomation
           </Typography>
         </Box>
         <IconButton
@@ -72,7 +72,7 @@ export const RoomInfo = () => {
           <CloseIcon />
         </IconButton>
       </Box>
-      <Box sx={{ padding: 2 }}>
+      <Box sx={{ padding: 2, maxHeight: `calc(100vh - 148pxpx)`, overflowY: "auto" }}>
         <Box
           sx={{ margin: "0 auto", display: "flex", flexDirection: "column" }}
         >

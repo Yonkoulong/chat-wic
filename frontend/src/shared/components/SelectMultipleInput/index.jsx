@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Chip from "@mui/material/Chip";
-import Avatar from "@mui/material/Avatar";
 
+import { Box } from "@/shared/components";
 import {
   StyledSelectMultipleContainer,
   StyledSelectMultipleMenu,
@@ -16,6 +16,7 @@ import {
 import { handleEmailToName } from "@/shared/utils/utils";
 import { selectedColor, whiteColor } from "@/shared/utils/colors.utils";
 import { CircularProgress } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export const SelectMultipleInput = ({
   width = 568,
@@ -30,11 +31,11 @@ export const SelectMultipleInput = ({
   loading = false,
   placeholder = "Enter",
   inputFocusRef,
-  field
+  field,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+  
   const isSelected = (item) =>
     dataSelected?.map((item) => item[keyId])?.includes(item[keyId]);
 
@@ -44,18 +45,19 @@ export const SelectMultipleInput = ({
   };
 
   const handleSearchMultipleItem = (e) => {
-    if(e.target.value != '') {
+    if (e.target.value != "") {
       handleSearch(e);
-      if(!open) {
-        setAnchorEl(e?.currentTarget)
+      if (!open) {
+        console.log(open);
+        setAnchorEl(e?.currentTarget);
       }
     }
-  }
+  };
 
   const handleCloseDropdown = () => {
     setAnchorEl(null);
   };
-  
+
   return (
     <>
       <StyledSelectMultipleContainer>
@@ -66,7 +68,7 @@ export const SelectMultipleInput = ({
           fullWidth
           sx={{
             "& input": {
-              width: 'unset'
+              width: "unset",
             },
           }}
           size="small"
@@ -82,7 +84,24 @@ export const SelectMultipleInput = ({
                     tabIndex={-1}
                     sx={{ mx: 1, my: 0.5 }}
                     label={item?.email}
-                    avatar={<Avatar alt="logo" src={item?.avatar || ""} />}
+                    avatar={
+                      item?.avatar ? (
+                        <Box sx={{ width: "30px", height: "30px" }}>
+                          <img
+                            alt="logo"
+                            src={item?.avatar}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        </Box>
+                      ) : (
+                        <AccountCircleIcon />
+                      )
+                    }
                     onDelete={() => handleUnSelectedMember(item)}
                   />
                 );
@@ -129,13 +148,17 @@ export const SelectMultipleInput = ({
                   }}
                 >
                   <StyledItemImageWrapper>
-                    <StyledSelectItemImage
-                      src={item?.avatar || ""}
-                      alt="avatar"
-                    />
+                    {item?.avatar ? (
+                      <StyledSelectItemImage
+                        src={item?.avatar}
+                        alt="avatar"
+                      />
+                    ) : (
+                      <AccountCircleIcon />
+                    )}
                   </StyledItemImageWrapper>
                   <StyledSelectItemText>
-                    {handleEmailToName(item?.email) || "unknown"}
+                    {item?.username || ""}
                   </StyledSelectItemText>
                 </StyledSelectMultipleContentItem>
               );

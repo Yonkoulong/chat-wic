@@ -7,6 +7,7 @@ import {
   CircularProgress,
 } from "@/shared/components";
 import CloseIcon from "@mui/icons-material/Close";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import {
   SearchRoomContainer,
@@ -25,7 +26,8 @@ import {
   hoverItemSidebarColor,
   textColorItemSidebar,
 } from "@/shared/utils/colors.utils";
-import { redirectTo } from '@/shared/utils/history';
+import { handleReturnColorStatus } from "@/shared/utils/utils";
+import { redirectTo } from "@/shared/utils/history";
 
 import { useAppStore } from "@/stores/AppStore";
 import { useMemberStore } from "@/stores/MemberStore";
@@ -55,12 +57,13 @@ export const SearchRoom = ({ closeSearchRoom }) => {
         userIds: [userInfo?._id, member?._id],
         organizeId: userInfo?.organizeId,
       };
-      
+
       const resp = await postCheckAlreadyExistDirect(payload);
-      
-      if(resp) {
-        client.emit('create-direct-room', resp?.data?.content)
+
+      if (resp) {
+        client.emit("create-direct-room", resp?.data?.content);
         redirectTo(`/chat/direct/${resp?.data?.content?._id}`);
+        closeSearchRoom()
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -132,7 +135,7 @@ export const SearchRoom = ({ closeSearchRoom }) => {
               <CircularProgress color="inherit" size={30} />
             </Box>
           )}
-
+          {console.log(members)}
           {!loading &&
             members?.map((member) => {
               return (
@@ -150,11 +153,28 @@ export const SearchRoom = ({ closeSearchRoom }) => {
                   onClick={() => handleClickRoomSearched(member)}
                 >
                   <Box
-                    sx={{ width: "32px", height: "32px", border: "1px solid" }}
+                    sx={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      position: "relative",
+                    }}
                   >
-                    <ImageSearchStyled src={member?.avatar} alt="img-user" />
+                    {member?.avatar ? (
+                      <ImageSearchStyled src={member?.avatar} alt="img-user" />
+                    ) : (
+                      <AccountCircleIcon
+                        sx={{ width: "40px", height: "40px" }}
+                      />
+                    )}
+                    <SearchRoomStatus
+                      sx={{
+                        ...handleReturnColorStatus(member),
+                        right: !member?.avatar ? "2px" : "",
+                        bottom: !member?.avatar ? "4px" : "",
+                      }}
+                    ></SearchRoomStatus>
                   </Box>
-                  <SearchRoomStatus></SearchRoomStatus>
                   <SearchRoomName>{member?.username}</SearchRoomName>
                 </Box>
               );

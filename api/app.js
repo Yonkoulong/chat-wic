@@ -124,6 +124,7 @@ const setupApp = async () => {
     });
 
     socket.on("send-message-direct", (data) => {
+      console.log(data);
       socket.to(data?.directId).emit("receive-message-direct", data);
     });
 
