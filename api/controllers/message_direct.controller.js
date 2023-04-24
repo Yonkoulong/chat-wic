@@ -23,6 +23,8 @@ const postCreateMessageDirect = async (req, res) => {
     secretUrl,
     fileName,
     size,
+    senderName,
+    senderAvatar
   } = req?.body;
 
   if (isObjectIdInMongodb(directId) && isObjectIdInMongodb(messageFrom)) {
@@ -52,7 +54,7 @@ const postCreateMessageDirect = async (req, res) => {
 
     try {
       await MessageDirect.create(newMessage);
-      return res?.status(httpCode.ok).json(newMessage);
+      return res?.status(httpCode.ok).json({...newMessage, senderName, senderAvatar});
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
     }
