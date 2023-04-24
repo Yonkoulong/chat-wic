@@ -21,20 +21,8 @@ const messageDirectSchema = new Schema(
       type: String,
       required: false,
     },
-    threadId: {
-      type: String,
-      required: false,
-    },
     reactions: {
       type: Array,
-      required: false,
-    },
-    threadIdContainMessage: {
-      type: String,
-      required: false,
-    },
-    totalMessageInThread: {
-      type: Number,
       required: false,
     },
     url: {
