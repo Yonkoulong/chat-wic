@@ -150,6 +150,47 @@ const postSearchMemberByChannel = async (req, res) => {
   }
 };
 
+const deleteMemberInChannel = async (req, res) => {
+  const {channelId, memberId} = req?.params;
+
+  if(!channelId || !memberId) {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+
+  const channels = await ChannelModel.find({
+    _id: channelId,
+  });
+  // not found channel
+  if(channels?.length < 1){
+    if(!channelId || !memberId) {
+      return res?.status(httpCode.notFound).json(responseError.notFound);
+    }
+  }
+
+  const userIds = channels[0]?.userIds;
+  const newUserIds = userIds?.filter(id => id !== memberId);
+
+  const channelUpdated = {...channels[0]?._doc, userIds : newUserIds};
+
+  try {
+    await ChannelModel.updateOne(
+      { _id: channelId },
+      {
+        $set: channelUpdated,
+        $currentDate: { lastUpdated: true },
+      }
+    );
+
+    return res.status(httpCode.ok).json(formatResponse(channelUpdated));
+  } catch {
+    return res.status(httpCode.badRequest).json(responseError.badRequest);
+  }
+}
+
+const postAddMembersToChannel = async (req, res) => {
+
+}
+
 module.exports = [
   {
     method: "post",
@@ -171,5 +212,15 @@ module.exports = [
     method: "post",
     controller: postSearchMemberByChannel,
     routeName: "/channel/:channelId/users",
+  },
+  {
+    method: "delete",
+    controller: deleteMemberInChannel,
+    routeName: "/channel/:channelId/delete-members/:memberId",
+  },
+  {
+    method: "post",
+    controller: postAddMembersToChannel,
+    routeName: "/channel/:channelId/add-members",
   },
 ];
