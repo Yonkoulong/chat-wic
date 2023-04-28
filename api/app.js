@@ -44,6 +44,7 @@ const setupApp = async () => {
 
     //list channel
     const connecteds = io.sockets.sockets;
+    
     try {
       const channelsByUserId = await ChannelModel.find({
         userIds: { $in: [socket.handshake.headers?.userid] },
