@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { getMessageChannelByChannelId } from "@/services/channel.services";
 import { getMessageByDirectId } from "@/services/direct.services";
 
-export const useChatStore = create((set) => ({
+export const useChatStore = create((set, get) => ({
   messages: null,
   quoteMessage: {},
   editMessage: {},
@@ -23,6 +23,19 @@ export const useChatStore = create((set) => ({
   },
   pushMessage: (payload) => {
     set((state) => ({ messages: [...state.messages, payload] }));
+  },
+  deleteMessage: (payload) => {
+    set((state) => ({ messages: state.messages?.filter((msg) => msg?._id !== payload) }));
+  },
+  editMessageStore: (payload) => {
+    const newListMessage = get().messages.map(msg => {
+      if(msg?._id == payload?._id) {
+        return {...msg, content: payload?.content}
+      } else {
+        return msg;
+      }
+    });
+    set({ messages: newListMessage })
   },
   setLoading: (payload) => set({ loading: payload }),
 

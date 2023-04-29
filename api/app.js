@@ -104,13 +104,13 @@ const setupApp = async () => {
       socket.to(data.channelId).emit("receive-message-channel", data);
     });
 
-    // socket.on('delete-message-channel', (data) => {
-    //   socket.to(data.channelId).emit('receive-message-channel', data);
-    // })
+    socket.on('delete-message-channel', (data) => {
+      socket.to(data.channelId).emit('receive-message-channel-delete', data?.messageId);
+    })
 
-    // socket.on('edit-message-channel', (data) => {
-    //   socket.to(data.channelId).emit('receive-message-channel', data);
-    // })
+    socket.on('edit-message-channel', (data) => {
+      socket.to(data.channelId).emit('receive-message-channel-edit', data);
+    })
 
     //direct
     socket.on("create-direct-room", async (data) => {
@@ -125,17 +125,16 @@ const setupApp = async () => {
     });
 
     socket.on("send-message-direct", (data) => {
-      console.log(data);
       socket.to(data?.directId).emit("receive-message-direct", data);
     });
 
-    // socket.on('delete-message-direct', (data) => {
-    //   socket.to(data.directId).emit('receive-message-direct', data);
-    // })
+    socket.on('delete-message-direct', (data) => {
+      socket.to(data.directId).emit('receive-message-direct-delete', data?.messageId);
+    })
 
-    // socket.on('edit-message-direct', (data) => {
-    //   socket.to(data.directId).emit('receive-message-direct', data);
-    // })
+    socket.on('edit-message-direct', (data) => {
+      socket.to(data.directId).emit('receive-message-direct-edit', data);
+    })
 
     //behavior
     socket.on("typing", (data) => {

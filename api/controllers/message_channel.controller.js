@@ -48,8 +48,6 @@ const postMessageChannel = async (req, res) => {
       type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
       reactions: [],
-      threadIdContainMessage: "",
-      threadId: ""
     };
 
     if (type === MESSAGE_TYPES.IMAGE) {
@@ -112,6 +110,7 @@ const getMessageChannelByChannelId = async (req, res) => {
     messageByReplyIds = await MessageChannel.find({ _id: { $in: replyIds } });
   } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
+  const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
   const convertMessageInChannel = messageInChannel?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
@@ -123,11 +122,13 @@ const getMessageChannelByChannelId = async (req, res) => {
         avatar = sender?.avatar;
       }
     });
+
     // get message reply
     if (message?.replyId && messageByReplyIds?.length > 0) {
       messageByReplyIds?.forEach((item) => {
         if (item?._id?.toString() == message?.replyId) {
-          replyMessage = item;
+          const newItem = {...item?._doc, senderName: senderByReplyIds[0]?.username}
+          replyMessage = newItem;
         }
       });
     }

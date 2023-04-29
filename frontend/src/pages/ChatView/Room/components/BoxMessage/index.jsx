@@ -62,7 +62,7 @@ export const BoxMessage = () => {
 
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const userInfo = useAppStore((state) => state.userInfo);
-  const { messages, pushMessage } = useChatStore((state) => state);
+  const { messages, pushMessage, editMessageStore } = useChatStore((state) => state);
   const quoteMessage = useChatStore((state) => state.quoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -175,7 +175,9 @@ export const BoxMessage = () => {
           );
 
           if (resp) {
-            fetchMessagesChannel({ channelId: id });
+            client.emit("edit-message-channel", resp?.data?.content);
+            editMessageStore(resp?.data?.content);
+            // fetchMessagesChannel({ channelId: id });
           }
         } else {
           const newPayloadMessageChannel = {
