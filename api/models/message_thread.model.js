@@ -1,16 +1,16 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
 const messageThreadSchema = new Schema(
   {
-    messageFrom: { type: Schema.Types.ObjectId, ref: "User" },
+    messageFrom: { type: Schema.Types.ObjectId, ref: 'User' },
     content: {
       type: String,
       required: false,
       trim: true,
     },
-    threadId: { type: Schema.Types.ObjectId, ref: "Thread" },
+    threadId: { type: String, required: true },
     type: {
       type: String,
       required: false,
@@ -50,4 +50,4 @@ const messageThreadSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("Message_thread", messageThreadSchema);
+module.exports = mongoose.model('Message_thread', messageThreadSchema);
