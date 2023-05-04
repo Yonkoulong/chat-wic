@@ -22,7 +22,6 @@ export const MessageItem = styled(Box)`
   position: relative;
 
   &:hover {
-    cursor: pointer;
     background-color: ${hoverTextColor};
   }
 `;

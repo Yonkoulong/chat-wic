@@ -4,6 +4,13 @@ const { Server } = require("socket.io");
 const http = require("http");
 const ChannelModel = require("./models/channel.model");
 const DirectModel = require("./models/direct.model");
+const User = require("./models/user.model");
+const { IUserStatus, ObjectIdMongodb } = require("./utils/constant");
+
+const {
+  isObjectIdInMongodb,
+  isArray,
+} = require("./utils/validation");
 
 mongoose.set("strictQuery", true);
 
@@ -40,11 +47,35 @@ const setupApp = async () => {
       "We have a new connection!!!!",
       socket.handshake.headers?.userid
     );
+    const userId = socket.handshake.headers?.userid;
     socket.data.userId = socket.handshake.headers?.userid;
 
-    //list channel
+
+    //update status when connection
+    if (isObjectIdInMongodb(userId)) {
+      const convertId = ObjectIdMongodb(userId);
+
+      try {
+        const userInfo = await User.find({ _id: convertId })
+
+        if (userInfo?.length > 0 && userInfo[0].userStatus === IUserStatus?.offline) {  
+          const newUserInfo = { ...userInfo[0]?._doc, userStatus: IUserStatus?.online }
+
+          await User.updateOne(
+            { _id: convertId }, {
+            $set: newUserInfo,
+            $currentDate: { lastUpdated: true },
+          }
+          )
+        }
+      } catch (error) {
+        throw error;
+      }
+    }
+
     const connecteds = io.sockets.sockets;
-    
+
+    //list channel
     try {
       const channelsByUserId = await ChannelModel.find({
         userIds: { $in: [socket.handshake.headers?.userid] },
@@ -101,15 +132,19 @@ const setupApp = async () => {
     });
 
     socket.on("send-message-channel", (data) => {
-      socket.to(data.channelId).emit("receive-message-channel", data);
+      socket.to(data?.channelId).emit("receive-message-channel", data);
     });
 
     socket.on('delete-message-channel', (data) => {
-      socket.to(data.channelId).emit('receive-message-channel-delete', data?.messageId);
+      socket.to(data?.channelId).emit('receive-message-channel-delete', data?.messageId);
     })
 
     socket.on('edit-message-channel', (data) => {
-      socket.to(data.channelId).emit('receive-message-channel-edit', data);
+      socket.to(data?.channelId).emit('receive-message-channel-edit', data);
+    })
+
+    socket.on('reaction-message-channel', (data) => {
+      socket.to(data?.channelId).emit('receive-message-channel-reaction', data);
     })
 
     //direct
@@ -129,11 +164,15 @@ const setupApp = async () => {
     });
 
     socket.on('delete-message-direct', (data) => {
-      socket.to(data.directId).emit('receive-message-direct-delete', data?.messageId);
+      socket.to(data?.directId).emit('receive-message-direct-delete', data?.messageId);
     })
 
     socket.on('edit-message-direct', (data) => {
-      socket.to(data.directId).emit('receive-message-direct-edit', data);
+      socket.to(data?.directId).emit('receive-message-direct-edit', data);
+    })
+
+    socket.on('reaction-message-channel', (data) => {
+      socket.to(data?.directId).emit('receive-message-direct-reaction', data);
     })
 
     //behavior
@@ -141,8 +180,29 @@ const setupApp = async () => {
       socket.to(data.room).emit("typing");
     });
 
-    socket.on("disconnect", () => {
-      console.log("user is offline");
+    socket.on("disconnect", async () => {
+      console.log("user is offline", socket.handshake.headers?.userid);
+
+      // if (isObjectIdInMongodb(userId)) {
+      //   const convertId = ObjectIdMongodb(userId);
+        
+      //   try {
+      //     const userInfo = await User.find({ _id: convertId })
+  
+      //     if (userInfo?.length > 0 && userInfo[0].userStatus === IUserStatus?.online) {  
+      //       const newUserInfo = { ...userInfo[0]?._doc, userStatus: IUserStatus?.offline }
+  
+      //       await User.updateOne(
+      //         { _id: convertId }, {
+      //         $set: newUserInfo,
+      //         $currentDate: { lastUpdated: true },
+      //       }
+      //       )
+      //     }
+      //   } catch (error) {
+      //     throw error;
+      //   }
+      // }
     });
   });
 };

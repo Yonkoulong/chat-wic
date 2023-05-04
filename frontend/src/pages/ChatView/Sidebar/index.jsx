@@ -134,16 +134,21 @@ const Sidebar = () => {
   };
 
   const handleLogout = async () => {
-    if (client && userInfo) {
-      const resp = putUpdateUserStatus(userInfo?._id, {
-        userStatus: enumMemberStatus.OFFLINE,
-      });
+    // if (client && userInfo) {
+    //   const resp = putUpdateUserStatus(userInfo?._id, {
+    //     userStatus: enumMemberStatus.OFFLINE,
+    //   });
 
-      if (resp) {
-        client.emit("update-user-status", resp);
-        localStorage.removeItem("token");
-        redirectTo("/");
-      }
+    //   if (resp) {
+    //     client.emit("update-user-status", resp);
+    //     localStorage.removeItem("token");
+    //     redirectTo("/");
+    //   }
+    // }
+
+    if(userInfo) {
+      localStorage.removeItem("token");
+      redirectTo("/");
     }
   };
 
@@ -205,7 +210,7 @@ const Sidebar = () => {
                 <AccountCircleIcon sx={{ width: "40px", height: "40px" }} />
               )}
               <SidebarBodyItemRoomStatus
-                sx={{ ...handleReturnColorStatus(userInfo), right: !filterDirectRoom?.avatar ? '2px' : '', bottom: !filterDirectRoom?.avatar ? '4px' : '' }}
+                sx={{ ...handleReturnColorStatus(filterDirectRoom), right: !filterDirectRoom?.avatar ? '2px' : '', bottom: !filterDirectRoom?.avatar ? '4px' : '' }}
               />
             </Box>
             <Box sx={{ ml: 2 }}>

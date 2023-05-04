@@ -4,8 +4,8 @@ import { getMessageByDirectId } from "@/services/direct.services";
 
 export const useChatStore = create((set, get) => ({
   messages: null,
-  quoteMessage: {},
-  editMessage: {},
+  quoteMessage: null,
+  editMessage:  null,
   heightQuoteMessageBox: 0,
   loading: false,
 
@@ -31,6 +31,23 @@ export const useChatStore = create((set, get) => ({
     const newListMessage = get().messages.map(msg => {
       if(msg?._id == payload?._id) {
         return {...msg, content: payload?.content}
+      } else {
+        return msg;
+      }
+    });
+    set({ messages: newListMessage })
+  },
+  reactionMessage: (payload) => {
+    const newListMessage = get().messages.map(msg => {
+      if(msg?._id == payload?._id) {
+        console.log(payload);
+        if(msg?.reactions?.length > 0 || msg?.reactions[0]) {
+          msg.reactions.map((react) => {
+
+          })
+        } else {
+          return {...msg, reactions: [payload?.reactions]}
+        }
       } else {
         return msg;
       }

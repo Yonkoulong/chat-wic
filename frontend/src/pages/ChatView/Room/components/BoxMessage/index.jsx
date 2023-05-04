@@ -62,7 +62,9 @@ export const BoxMessage = () => {
 
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const userInfo = useAppStore((state) => state.userInfo);
-  const { messages, pushMessage, editMessageStore } = useChatStore((state) => state);
+  const { messages, pushMessage, editMessageStore } = useChatStore(
+    (state) => state
+  );
   const quoteMessage = useChatStore((state) => state.quoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -84,7 +86,6 @@ export const BoxMessage = () => {
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
 
-
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -100,12 +101,12 @@ export const BoxMessage = () => {
         setIsDisplayIconChat(false);
 
         //has quoute message
-        if (!isObjectEmpty(quoteMessage)) {
+        if (quoteMessage) {
           handleCancelQuoteMessage();
         }
 
-        if (!isObjectEmpty(editMessage)) {
-          setEditMessage({});
+        if (editMessage) {
+          setEditMessage(null);
         }
       }
     }
@@ -160,11 +161,10 @@ export const BoxMessage = () => {
   const handleClickSendIcon = () => {};
 
   const postMessageOnServer = async (value, type) => {
-    
     try {
       //Channel
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        if (!isObjectEmpty(editMessage)) {
+        if (editMessage) {
           const newPayLoadEditMessageChannel = {
             content: value,
           };
@@ -182,6 +182,7 @@ export const BoxMessage = () => {
         } else {
           const newPayloadMessageChannel = {
             messageFrom: userInfo?._id,
+            senderAvatar: userInfo?.avatar,
             senderName: userInfo?.username,
             content: value,
             channelId: id,
@@ -199,20 +200,27 @@ export const BoxMessage = () => {
 
       //Direct
       if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-        if (!isObjectEmpty(editMessage)) {
+        if (editMessage) {
           const newPayLoadEditMessageDirect = {
             content: value,
             reaction: {},
           };
 
-          const resp = await putMessageDirect(editMessage?._id, newPayLoadEditMessageDirect);
+          const resp = await putMessageDirect(
+            editMessage?._id,
+            newPayLoadEditMessageDirect
+          );
 
           if (resp) {
-            fetchMessagesDirect({ directId: id });
+            client.emit("edit-message-direct", resp?.data?.content);
+            editMessageStore(resp?.data?.content);
+            // fetchMessagesDirect({ directId: id });
           }
         } else {
           const newPayloadMessageDirect = {
             messageFrom: userInfo?._id,
+            senderAvatar: userInfo?.avatar,
+            senderName: userInfo?.username,
             content: value,
             type: type,
             replyId: quoteMessage?._id || null,
@@ -233,7 +241,7 @@ export const BoxMessage = () => {
   };
 
   const handleCancelQuoteMessage = () => {
-    setQuoteMessage({});
+    setQuoteMessage(null);
     setHeightQuoteMessageBox(0);
   };
 
@@ -242,7 +250,7 @@ export const BoxMessage = () => {
   };
 
   useEffect(() => {
-    if (!isObjectEmpty(quoteMessage)) {
+    if (quoteMessage) {
       const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
       setHeightQuoteMessageBox(heightQuoteMessage);
 
@@ -251,7 +259,7 @@ export const BoxMessage = () => {
       }, 100);
     }
 
-    if (!isObjectEmpty(editMessage)) {
+    if (editMessage) {
       switch (editMessage?.type) {
         case typesMessage.PLAIN_TEXT:
           {
@@ -282,7 +290,7 @@ export const BoxMessage = () => {
 
   return (
     <BoxMessageContainer>
-      {!isObjectEmpty(quoteMessage) ? (
+      {quoteMessage && (
         <Box
           ref={quoteMessageRef}
           sx={{
@@ -317,8 +325,6 @@ export const BoxMessage = () => {
             </Typography>
           </Box>
         </Box>
-      ) : (
-        <></>
       )}
       <Box
         sx={{
@@ -383,21 +389,21 @@ export const BoxMessage = () => {
         </IconButton>
 
         {userInfo.role == enumRoles.PROJECT_MANAGER &&
-          typeRoom == enumTypeRooms.CHANNEL ? (
-            <IconButton
-              color="primary"
-              aria-label="todo list"
-              component="label"
-              sx={{
-                ...flexCenter,
-                mx: 1,
-              }}
-              onClick={handleClickOpenModalCreateTask}
-            >
-              <FluentTaskAddIcon />
-            </IconButton>
-          ) : (
-            ""
+        typeRoom == enumTypeRooms.CHANNEL ? (
+          <IconButton
+            color="primary"
+            aria-label="todo list"
+            component="label"
+            sx={{
+              ...flexCenter,
+              mx: 1,
+            }}
+            onClick={handleClickOpenModalCreateTask}
+          >
+            <FluentTaskAddIcon />
+          </IconButton>
+        ) : (
+          ""
         )}
       </Box>
       <Box>

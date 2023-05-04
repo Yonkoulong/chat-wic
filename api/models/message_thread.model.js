@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const messageThreadChannelSchema = new Schema(
+const messageThreadSchema = new Schema(
   {
     messageFrom: { type: Schema.Types.ObjectId, ref: "User" },
     content: {
@@ -10,7 +10,7 @@ const messageThreadChannelSchema = new Schema(
       required: false,
       trim: true,
     },
-    channelId: { type: Schema.Types.ObjectId, ref: "Channel" },
+    threadId: { type: Schema.Types.ObjectId, ref: "Thread" },
     type: {
       type: String,
       required: false,
@@ -23,9 +23,6 @@ const messageThreadChannelSchema = new Schema(
     replyId: {
       type: String,
       required: false,
-    },
-    threadId: {
-      type: Schema.Types.ObjectId, ref: "Thread"
     },
     reactions: {
       type: Array,
@@ -53,4 +50,4 @@ const messageThreadChannelSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("Message_thread_channel", messageThreadChannelSchema);
+module.exports = mongoose.model("Message_thread", messageThreadSchema);

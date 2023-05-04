@@ -9,6 +9,7 @@ const {
   isArray,
   MESSAGE_TYPES,
   responseConstant,
+  isObjectEmpty
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -38,6 +39,7 @@ const postCreateMessageDirect = async (req, res) => {
       directId: convertDirectIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
+      replyMessage: {},
       reactions: [],
     };
 
@@ -48,13 +50,32 @@ const postCreateMessageDirect = async (req, res) => {
     if (type === MESSAGE_TYPES.RAW) {
       if (!!url) newMessage.url = url;
       if (!!secretUrl) newMessage.secretUrl = secretUrl;
-      if (!!fileName) newMessage.secretUrl = fileName;
-      if (!!size) newMessage.secretUrl = size;
+      if (!!fileName) newMessage.fileName = fileName;
+      if (!!size) newMessage.size = size;
+    }
+
+    let messageByReplyIds = {};
+    let senderInReply = {};
+
+    if (!isObjectEmpty(replyId)) {
+      messageByReplyIds = await MessageDirect.find({ _id: { $in: replyId } })
+      if(messageByReplyIds?.length > 0) {
+         senderInReply = await User.find({ _id: { $in: messageByReplyIds[0].messageFrom } });
+
+         if(senderInReply?.length > 0) {
+          messageByReplyIds = {...messageByReplyIds['0']?._doc, senderName: senderInReply[0].username };
+         }
+      }
     }
 
     try {
       await MessageDirect.create(newMessage);
-      return res?.status(httpCode.ok).json({...newMessage, senderName, senderAvatar});
+
+      if(messageByReplyIds) {
+        return res?.status(httpCode.ok).json({...newMessage, senderName, avatar: senderAvatar, replyMessage: messageByReplyIds });
+      } else {
+        return res?.status(httpCode.ok).json({...newMessage, senderName, avatar: senderAvatar});
+      }
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
     }
@@ -100,6 +121,7 @@ const postGetMessageDirectByDirectId = async (req, res) => {
     messageByReplyIds = await MessageDirect.find({ _id: { $in: replyIds } });
   } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
+  const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
   const convertMessageInDirect = messageInDirect?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
@@ -111,11 +133,13 @@ const postGetMessageDirectByDirectId = async (req, res) => {
         avatar = sender?.avatar;
       }
     });
+
     // get message reply
     if (message?.replyId && messageByReplyIds?.length > 0) {
       messageByReplyIds?.forEach((item) => {
         if (item?._id?.toString() == message?.replyId) {
-          replyMessage = item;
+          const newItem = { ...item?._doc, senderName: senderByReplyIds[0]?.username }
+          replyMessage = newItem;
         }
       });
     }

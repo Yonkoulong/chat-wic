@@ -108,9 +108,17 @@ const getItemById = async (Model, _id) => {
     if (isArray(items) && items?.length > 0) {
       return (data = items[0]);
     }
-  } catch {}
+  } catch { }
   return data;
 };
+
+
+function isObjectEmpty(value) {
+  return (
+    Object.prototype.toString.call(value) === '[object Object]' &&
+    JSON.stringify(value) === '{}'
+  );
+}
 
 module.exports = {
   httpCode,
@@ -130,4 +138,5 @@ module.exports = {
   MESSAGE_TYPES,
   formatResponse,
   getItemById,
+  isObjectEmpty
 };

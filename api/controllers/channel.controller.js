@@ -187,7 +187,8 @@ const deleteMemberInChannel = async (req, res) => {
 
 const postAddMembersToChannel = async (req, res) => {
   const { ids } = req.body;
-  const { channelId, memberId } = req?.params;
+  console.log(ids);
+  const { channelId } = req?.params;
 
   if (!channelId || !Array.isArray(ids)) {
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -199,7 +200,7 @@ const postAddMembersToChannel = async (req, res) => {
 
   // not found channel
   if (channels?.length < 1) {
-    if (!channelId || !memberId) {
+    if (!channelId) {
       return res?.status(httpCode.notFound).json(responseError.notFound);
     }
   }

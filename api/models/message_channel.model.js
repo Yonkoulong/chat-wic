@@ -24,21 +24,14 @@ const messageChannelSchema = new Schema(
       type: String,
       required: false,
     },
-    threadId: {
-      type: Schema.Types.ObjectId, ref: "Thread"
-    },
     reactions: {
       type: Array,
       required: false,
     },
-    totalMessageInThread: {
-      type: Number,
+    threadId: {
+      type: String,
       required: false,
-    },
-    totalMemberJoinThread: {
-      type: Number,
-      required: false,
-    },
+    }, 
     url: {
       type: String,
       required: false,

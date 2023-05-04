@@ -91,6 +91,7 @@ export const RoomChat = () => {
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.content;
+        throw error;
       }
     })();
   }, [location]);

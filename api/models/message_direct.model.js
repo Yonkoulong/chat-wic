@@ -11,11 +11,15 @@ const messageDirectSchema = new Schema(
       required: false,
       trim: true,
     },
-    directId: { type: String, ref: "Direct" },
+    directId: { type: Schema.Types.ObjectId, ref: "Direct" },
     type: {
       type: String,
       required: false,
       trim: true,
+    },
+    srcImage: {
+      type: Buffer,
+      required: false,
     },
     replyId: {
       type: String,

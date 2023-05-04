@@ -135,7 +135,7 @@ export const SearchRoom = ({ closeSearchRoom }) => {
               <CircularProgress color="inherit" size={30} />
             </Box>
           )}
-          {console.log(members)}
+          
           {!loading &&
             members?.map((member) => {
               return (

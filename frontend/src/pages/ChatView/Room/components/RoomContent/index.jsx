@@ -73,9 +73,13 @@ export const RoomContent = () => {
   const userInfo = useAppStore((state) => state.userInfo);
   const roomInfo = useRoomStore((state) => state.roomInfo);
   const typeRoom = useRoomStore((state) => state.typeRoom);
-  const { messages, pushMessage, deleteMessage, editMessageStore } = useChatStore(
-    (state) => state
-  );
+  const {
+    messages,
+    pushMessage,
+    deleteMessage,
+    editMessageStore,
+    reactionMessage,
+  } = useChatStore((state) => state);
   const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
@@ -128,7 +132,9 @@ export const RoomContent = () => {
         const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
 
         if (resp) {
-          fetchMessagesChannel({ channelId: roomInfo?._id });
+          // fetchMessagesChannel({ channelId: roomInfo?._id });
+          client?.emit("reaction-message-channel", resp?.data?.content);
+          reactionMessage(resp?.data?.content);
         }
       }
 
@@ -136,7 +142,9 @@ export const RoomContent = () => {
         const resp = await putMessageDirect(idEditMessage, newPayload);
 
         if (resp) {
-          fetchMessagesDirect({ directId: roomInfo?._id });
+          // fetchMessagesDirect({ directId: roomInfo?._id });
+          client?.emit("reaction-message-direct", resp?.data?.content);
+          reactionMessage(resp?.data?.content);
         }
       }
     } catch (error) {
@@ -172,8 +180,11 @@ export const RoomContent = () => {
         const resp = await deleteMessageChannel(messageId);
 
         if (resp) {
-          client.emit("delete-message-channel", { channelId: roomInfo?._id, messageId });
-          deleteMessage(messageId)
+          client.emit("delete-message-channel", {
+            channelId: roomInfo?._id,
+            messageId,
+          });
+          deleteMessage(messageId);
         }
       }
 
@@ -182,7 +193,11 @@ export const RoomContent = () => {
 
         if (resp) {
           // fetchMessagesDirect({ directId: roomInfo?._id });
-          client.emit("delete-message-direct", messageId);
+          client.emit("delete-message-direct", {
+            directId: roomInfo?._id,
+            messageId,
+          });
+          deleteMessage(messageId);
         }
       }
     } catch (error) {
@@ -276,8 +291,18 @@ export const RoomContent = () => {
         >
           <DescriptionIcon sx={{ color: whiteColor }} />
         </Box>
-        <Typography ml={1} sx={{ color: blackColor }}>
-          filename.path
+        <Typography
+          ml={1}
+          sx={{
+            color: blackColor,
+            fontSize: "14px",
+            ":hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          {message?.fileName} - {Math.round((message?.size / 1024) * 100) / 100}{" "}
+          KB
         </Typography>
       </Box>
     );
@@ -299,29 +324,31 @@ export const RoomContent = () => {
   };
 
   const handleDetectUrl = (content) => {
-    var urlRegex = /(https?:\/\/[^\s]+)/g;
+    var urlRegex = /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
     if (urlRegex.test(content)) {
       const newUrl = content.replace(urlRegex, function (url) {
-        return url;
+        return '<a href="' + url + '" target="_blank">' + url + "</a>";
       });
-
-      return (
-        <Box component="a" href={newUrl} target="_blank">
-          {newUrl}
-        </Box>
-      );
+      return <div dangerouslySetInnerHTML={{ __html: newUrl }}></div>;
     } else {
       return <Typography fontSize="small">{content}</Typography>;
     }
   };
 
   const handleRenderNameForReply = (message) => {
-    console.log(userInfo?._id == message?.replyMessage?.messageFrom);
-    if(userInfo?._id == message?.replyMessage?.messageFrom) {
-      return "yourself";
+    if (userInfo?._id === message?.replyMessage?.messageFrom) {
+      if (userInfo?._id === message?.messageFrom) {
+        return "yourself";
+      } else {
+        return "you";
+      }
     } else {
-      return message?.replyMessage?.senderName || 'Unknown';
+      return message?.replyMessage?.senderName || "Unknown";
     }
+  };
+
+  const handleCreateThread = (message) => {
+    
   }
 
   useEffect(() => {
@@ -361,11 +388,9 @@ export const RoomContent = () => {
     client?.on("receive-message-channel", handler);
     client?.on("receive-message-direct", handler);
 
-
     return () => {
       client?.off("receive-message-channel", handler);
       client?.off("receive-message-direct", handler);
-
     };
   }, [client]);
 
@@ -383,7 +408,6 @@ export const RoomContent = () => {
     return () => {
       client?.off("receive-message-channel-delete", handler);
       client?.off("receive-message-direct-delete", handler);
-
     };
   }, [client]);
 
@@ -401,7 +425,23 @@ export const RoomContent = () => {
     return () => {
       client?.off("receive-message-channel-edit", handler);
       client?.off("receive-message-direct-edit", handler);
+    };
+  }, [client]);
 
+  //reaction message realtime
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    const handler = (mess) => reactionMessage(mess);
+
+    client?.on("receive-message-channel-reaction", handler);
+    client?.on("receive-message-direct-reaction", handler);
+
+    return () => {
+      client?.off("receive-message-channel-reaction", handler);
+      client?.off("receive-message-direct-reaction", handler);
     };
   }, [client]);
 
@@ -527,6 +567,9 @@ export const RoomContent = () => {
                             sx={{
                               m: "0 8px",
                               ...flexCenter,
+                              '&:hover': {
+                                cursor: 'pointer'
+                              }
                             }}
                           >
                             <UilCommentMessageIcon
@@ -588,22 +631,25 @@ export const RoomContent = () => {
                                     >
                                       Delete
                                     </Typography>
-                                    <Typography
-                                      sx={{
-                                        padding: "8px",
-                                        fontSize: "14px",
-                                        ":hover": {
-                                          color: primaryColor,
-                                          opacity: 0.8,
-                                          cursor: "pointer",
-                                        },
-                                      }}
-                                      onClick={() =>
-                                        handleClickUpdateMessage(message)
-                                      }
-                                    >
-                                      Edit
-                                    </Typography>
+                                    {message?.type ===
+                                      typesMessage.PLAIN_TEXT && (
+                                      <Typography
+                                        sx={{
+                                          padding: "8px",
+                                          fontSize: "14px",
+                                          ":hover": {
+                                            color: primaryColor,
+                                            opacity: 0.8,
+                                            cursor: "pointer",
+                                          },
+                                        }}
+                                        onClick={() =>
+                                          handleClickUpdateMessage(message)
+                                        }
+                                      >
+                                        Edit
+                                      </Typography>
+                                    )}
                                   </>
                                 )}
                                 <Typography
@@ -637,7 +683,6 @@ export const RoomContent = () => {
                       <MessageContentBox>
                         {handleRenderMessageWithType(message)}
                       </MessageContentBox>
-
                       {message?.replyId && (
                         <MessageQuoteBox>
                           <Box sx={{ ...flexCenter }}>
@@ -647,8 +692,13 @@ export const RoomContent = () => {
                             />
                             <Typography fontSize="small" color={inActiveColor}>
                               {userInfo?._id == message?.messageFrom
-                                ? `You have answered ${handleRenderNameForReply(message)}` 
-                                : message?.senderName + ` have answered ${handleRenderNameForReply(message)}` }
+                                ? `You have answered ${handleRenderNameForReply(
+                                    message
+                                  )}`
+                                : message?.senderName +
+                                  ` have answered ${handleRenderNameForReply(
+                                    message
+                                  )}`}
                             </Typography>
                           </Box>
                           <MessageReplyContent mt={1}>
@@ -657,38 +707,39 @@ export const RoomContent = () => {
                           </MessageReplyContent>
                         </MessageQuoteBox>
                       )}
-                      
-                      {message?.reactions[0] && message?.reactions?.map((reaction, index) => {
-                        return (
-                          <MessageReactionBox key={index}>
-                            <Box
-                              sx={{
-                                ...flexCenter,
-                                padding: 0.5,
-                                borderRadius: "5px",
-                                border: `1px solid ${borderColor}`,
-                                backgroundColor: hoverTextColor,
-                                ":hover": {
-                                  opacity: 0.8,
-                                },
-                              }}
-                            >
-                              {reaction?.unified && (
-                                <>
-                                  <Typography fontSize="small">
-                                    {String.fromCodePoint(reaction?.unified)}
-                                  </Typography>
-                                  <Typography fontSize="small" ml={0.5}>
-                                    1
-                                  </Typography>
-                                </>
-                              )}
-                            </Box>
-                          </MessageReactionBox>
-                        );
-                      }) || <></>}
 
-                      {/* <MessageThreadBox>
+                      {(message?.reactions[0] &&
+                        message?.reactions?.map((reaction, index) => {
+                          return (
+                            <MessageReactionBox key={index}>
+                              <Box
+                                sx={{
+                                  ...flexCenter,
+                                  padding: 0.5,
+                                  borderRadius: "5px",
+                                  border: `1px solid ${borderColor}`,
+                                  backgroundColor: hoverTextColor,
+                                  ":hover": {
+                                    opacity: 0.8,
+                                  },
+                                }}
+                              >
+                                {reaction?.unified && (
+                                  <>
+                                    <Typography fontSize="small">
+                                      {String.fromCodePoint(reaction?.unified)}
+                                    </Typography>
+                                    <Typography fontSize="small" ml={0.5}>
+                                      1
+                                    </Typography>
+                                  </>
+                                )}
+                              </Box>
+                            </MessageReactionBox>
+                          );
+                        })) || <></>}
+
+                      <MessageThreadBox>
                         <Box
                           sx={{
                             padding: 0.5,
@@ -698,6 +749,7 @@ export const RoomContent = () => {
 
                             ":hover": {
                               opacity: 0.8,
+                              cursor: "pointer"
                             },
                           }}
                         >
@@ -709,7 +761,7 @@ export const RoomContent = () => {
                             1
                           </Typography>
                         </Box>
-                      </MessageThreadBox> */}
+                      </MessageThreadBox>
                     </MessageContentWrapper>
                   </MessageItem>
                 );

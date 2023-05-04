@@ -4,27 +4,14 @@ const Schema = mongoose.Schema;
 
 const threadSchema = new Schema(
     {
-        title: {
+        messageChannelId : {
+            type: Schema.Types.ObjectId, ref: "Message_channel"
+        },
+        threadName: {
             type: String,
             required: true,
         },
-        messageChannelId: {
-            type: Schema.Types.ObjectId, ref: "Message_channel"
-        },
-        //may be thread create from message image or file...
-        url: {
-            type: String,
-            required: false,
-        },
-        secretUrl: {
-            type: String,
-            required: false,
-        },
-        fileName: {
-            type: String,
-            required: false,
-        },
-        size: {
+        totalMemberJoinThread: {
             type: Number,
             required: false,
         },

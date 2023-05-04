@@ -44,11 +44,14 @@ export function chatTimestamp(date) {
 
 export function handleReturnInfoDirectRoom (userLogged, direct) {
     
-    const filterDirectRoom = direct?.usersInfo?.find(
-        (userId) => userId?._id !== userLogged?._id
-    );
-
-    return filterDirectRoom;
+    if(direct?.usersInfo?.length < 2 && direct?.usersInfo[0]._id === userLogged?._id) {
+        return direct?.usersInfo[0];
+    } else {
+        const filterDirectRoom = direct?.usersInfo?.find(
+            (userId) => userId?._id !== userLogged?._id
+        );
+        return filterDirectRoom;
+    }
 }
 
 export function handleReturnColorStatus (userInfo) {

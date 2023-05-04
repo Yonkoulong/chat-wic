@@ -106,12 +106,12 @@ export const ModalAddUser = ({ open, onClose }) => {
   };
 
   const onSubmit = async (data) => {
+    const newListMemberIds = membersSelected?.map((mem) => mem?._id);
     try {
-      const newPayloadDirect = {       
-        ids: [...data.ids, ...membersSelected],
+      const newPayloadMembers = {       
+        ids: [...data.ids, ...newListMemberIds]
       };
-      
-      const respData = await postAddMembersToChannel(id, newPayloadDirect);
+      const respData = await postAddMembersToChannel(id, newPayloadMembers);
 
       if (respData) {
         const idChannel = respData?.data?.content?._id;

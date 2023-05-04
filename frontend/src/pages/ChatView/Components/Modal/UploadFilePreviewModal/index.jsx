@@ -24,11 +24,13 @@ import {
   putUpdateMessageChannel,
 } from "@/services/channel.services";
 
+import { postMessageDirect } from "@/services/direct.services";
+
 import { uploadFile } from "@/services/attachment.services";
 
-import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
 import { useChatStore } from "@/stores/ChatStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import { typesMessage, enumTypeRooms } from "@/shared/utils/constant";
 
 import {
@@ -85,11 +87,10 @@ const defaultValues = {
 export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
   const { id } = useParams();
 
-  const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
-  const fetchMessagesChannel = useChatStore(
-    (state) => state.fetchMessagesChannel
-  );
+  const { pushMessage, quoteMessage } = useChatStore((state) => state);
+
+  const { client } = useSocketStore((state) => state);
 
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -126,37 +127,76 @@ export const ModalUploadFilePreview = ({ open, onClose, data, formFile }) => {
       );
 
       const respLinkImage = await uploadFile(selectedFile["type"], formData);
-        
+
       if (!respLinkImage || !formFile?.typeRoom) {
         return;
       }
 
       if (formFile?.typeRoom === enumTypeRooms.CHANNEL) {
-        const newPayloadMessageChannel = {
+        let newPayloadMessageChannel = {
           messageFrom: userInfo?._id,
-          content: respLinkImage?.data?.url,
+          content: respLinkImage?.data?.url || '',
           channelId: id,
           type: respLinkImage?.data?.resource_type,
-          replyId: null,
+          replyId: quoteMessage || null,
+          senderName: userInfo?.username,
+          senderAvatar: userInfo?.avatar
         };
+
+        if (respLinkImage?.data?.resource_type == typesMessage.RAW) {
+          newPayloadMessageChannel = {
+            ...newPayloadMessageChannel,
+            url: respLinkImage?.data?.url,
+            secretUrl: respLinkImage?.data?.secure_url,
+            fileName: respLinkImage?.data?.original_filename,
+            size: respLinkImage?.data?.bytes,
+          };
+        }
+
         const respPostMessage = await postMessageChannel(
           newPayloadMessageChannel
         );
 
         if (respPostMessage) {
-          fetchMessagesChannel({ channelId: id });
+          client?.emit("send-message-channel", respPostMessage?.data);
+          pushMessage(respPostMessage?.data);
+          // fetchMessagesChannel({ channelId: id });
           handleClose();
         }
       }
 
       if (formFile?.typeRoom === enumTypeRooms.DIRECT) {
-        const newPayloadMessageDirect = {
-          messageFrom: userInfo?._id,
-          content: respLinkImage?.url,
+        let newPayloadMessageDirect = {
+          messageFrom: userInfo?._id || '',
+          content: respLinkImage?.data?.url || '',
           directId: id,
-          type: formFile?.type,
-          replyId: null,
+          type: respLinkImage?.data?.resource_type,
+          replyId: quoteMessage || null,
+          senderName: userInfo?.username,
+          senderAvatar: userInfo?.avatar
         };
+
+        if (respLinkImage?.data?.resource_type == typesMessage.RAW) {
+          newPayloadMessageDirect = {
+            ...newPayloadMessageDirect,
+            url: respLinkImage?.data?.url,
+            secretUrl: respLinkImage?.data?.secure_url,
+            fileName: respLinkImage?.data?.original_filename,
+            size: respLinkImage?.data?.bytes,
+          };
+        }
+
+        const respPostMessage = await postMessageDirect(
+          id,
+          newPayloadMessageDirect
+        );
+
+        if (respPostMessage) {
+          client?.emit("send-message-direct", respPostMessage?.data);
+          pushMessage(respPostMessage?.data);
+          // fetchMessagesDirect{});
+          handleClose();
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content || error?.message;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import InfoIcon from "@mui/icons-material/Info";
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,6 +11,7 @@ import {
   IconButton,
   CircularProgress,
   Button,
+  PopUpConfirm
 } from "@/shared/components";
 
 import {
@@ -20,6 +21,9 @@ import {
   hoverBackgroundColor,
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
+import { order } from '@/shared/utils/constant';
+
+import { deleteMemberInChannel, getChannelsByUser } from "@/services/channel.services";
 
 import { useRoomStore } from "@/stores/RoomStore";
 import { useAppStore } from "@/stores/AppStore";
@@ -31,12 +35,41 @@ const flexCenter = {
 };
 
 export const RoomInfo = () => {
-  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
+  const { roomInfo, typeRoom, setTypeFeatureRoom, setChannelRooms } = useRoomStore((state) => state);
   const userInfo = useAppStore((state) => state.userInfo);
 
-  const handleCloseAnchorMoreFeatures = () => {
-    setAnchorMoreFeatures(null);
-  };
+  const [openPopupConfirm, setOpenPopupConfirm] = useState(false)
+
+  const handleOpenPopupLeaveRoom = () => {
+    setOpenPopupConfirm(true);
+  }
+
+  const handleLeaveRoom = async () => {
+    if(userInfo?._id) {
+      try {
+        const resp = await deleteMemberInChannel(roomInfo?._id, userInfo?._id);
+        const payload = {
+          organizeId: userInfo?.organizeId,
+          orders: {
+            updatedAt: order.DESCENDING,
+          },
+        };
+
+        if(resp) {
+          const respChannels = await getChannelsByUser(userInfo?._id, payload);
+          if (Array.isArray(respChannels?.data?.content)) {
+            setChannelRooms(respChannels?.data?.content);
+          }
+        }
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
+
+  const handleClosePopupLeaveRoom = () => {
+    setOpenPopupConfirm(false);
+  }
 
   const handleClickCloseMembersPopup = () => {
     setTypeFeatureRoom(null);
@@ -92,7 +125,8 @@ export const RoomInfo = () => {
             variant="outlined"
             startIcon={<LogoutIcon />}
             sx={{ margin: "16px auto 0" }}
-            disabled={userInfo?.id === roomInfo?.ownerId ? "true" : "false"}
+            disabled={userInfo?.id === roomInfo?.ownerId}
+            onClick={() => handleOpenPopupLeaveRoom()}
           >
             Leave
           </Button>
@@ -103,6 +137,13 @@ export const RoomInfo = () => {
           <Typography ml={1} >{roomInfo?.channelName}</Typography>
         </Box>
       </Box>
+
+      <PopUpConfirm 
+        open={openPopupConfirm}
+        onCancel={handleClosePopupLeaveRoom}
+        onConfirm={() => handleLeaveRoom()}
+        content="Are you sure leave this room?"
+      />
     </Box>
   );
 };

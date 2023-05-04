@@ -9,6 +9,7 @@ const {
   isArray,
   MESSAGE_TYPES,
   responseConstant,
+  isObjectEmpty
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -28,25 +29,29 @@ const postMessageChannel = async (req, res) => {
     messageFrom,
     type,
     replyId,
+    threadId,
     url,
     secretUrl,
     fileName,
     size,
-    senderName
-  } = req.body;
+    senderName,
+    senderAvatar
+  } = req?.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const convertChannelIdToObjectIdMongo = ObjectIdMongodb(channelId);
     const messageId = new ObjectIdMongodb();
+
     const newMessage = {
       _id: messageId,
       messageFrom: convertMessageFromToObjectIdMongo,
-      senderName: senderName,
       content,
       channelId: convertChannelIdToObjectIdMongo,
       type: type || MESSAGE_TYPES.PLAIN_TEXT,
       replyId: replyId || "",
+      threadId: threadId || "",
+      replyMessage: {},
       reactions: [],
     };
 
@@ -57,14 +62,31 @@ const postMessageChannel = async (req, res) => {
     if (type === MESSAGE_TYPES.RAW) {
       if (!!url) newMessage.url = url;
       if (!!secretUrl) newMessage.secretUrl = secretUrl;
-      if (!!fileName) newMessage.secretUrl = fileName;
-      if (!!size) newMessage.secretUrl = size;
+      if (!!fileName) newMessage.fileName = fileName;
+      if (!!size) newMessage.size = size;
+    }
+    let messageByReplyIds = {};
+    let senderInReply = {};
+
+    if (!isObjectEmpty(replyId)) {
+      messageByReplyIds = await MessageChannel.find({ _id: { $in: replyId } })
+      if (messageByReplyIds.length > 0) {
+        senderInReply = await User.find({ _id: { $in: messageByReplyIds[0].messageFrom } });
+
+        if (senderInReply.length > 0) {
+          messageByReplyIds = { ...messageByReplyIds['0']?._doc, senderName: senderInReply[0].username };
+        }
+      }
     }
 
     try {
       await MessageChannel.create(newMessage);
-      
-      return res?.status(httpCode.ok).json(newMessage);
+
+      if (messageByReplyIds) {
+        return res?.status(httpCode.ok).json({ ...newMessage, replyMessage: messageByReplyIds, senderName: senderName, avatar: senderAvatar });
+      } else {
+        return res?.status(httpCode.ok).json({ ...newMessage, senderName: senderName, avatar: senderAvatar });
+      }
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
     }
@@ -108,7 +130,7 @@ const getMessageChannelByChannelId = async (req, res) => {
   try {
     // get messages by ids
     messageByReplyIds = await MessageChannel.find({ _id: { $in: replyIds } });
-  } catch {}
+  } catch { }
   const senders = await User.find({ _id: { $in: senderIds } });
   const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
   const convertMessageInChannel = messageInChannel?.map((message) => {
@@ -127,7 +149,7 @@ const getMessageChannelByChannelId = async (req, res) => {
     if (message?.replyId && messageByReplyIds?.length > 0) {
       messageByReplyIds?.forEach((item) => {
         if (item?._id?.toString() == message?.replyId) {
-          const newItem = {...item?._doc, senderName: senderByReplyIds[0]?.username}
+          const newItem = { ...item?._doc, senderName: senderByReplyIds[0]?.username }
           replyMessage = newItem;
         }
       });
@@ -235,11 +257,19 @@ const deleteMessageInChannel = async (req, res) => {
 };
 
 const postCreateThreadAndAddMessageToThread = async (req, res) => {
-  const { threadId } = req?.params;
-  const { content, messageFrom, type } = req.body;
+  const { messageId } = req?.params;
+  const { content, messageFrom, type, threadId,
+    url,
+    secretUrl,
+    fileName,
+    size,
+    senderName,
+    senderAvatar } = req.body;
+
   let isThreadMessageExisted = false;
   let messageRoot = {};
   let totalMessageInThread = 0;
+  let totalMemberJoinThread = 0;
   let threadMessageExisted = [];
 
   try {
@@ -248,7 +278,9 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
       threadIdContainMessage: threadId,
     });
     isThreadMessageExisted = threadMessageExisted?._doc?.length > 0;
-  } catch {}
+  } catch (error) {
+    throw error;
+  }
 
   if (isThreadMessageExisted) {
     // add message in thread and update total message in thread;
@@ -284,7 +316,7 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
         $currentDate: { lastUpdated: true },
       }
     );
-  } catch {}
+  } catch { }
 
   // add new message in thread
   const newMessage = {
@@ -304,7 +336,7 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
 };
 
 // search member and channel by organizeId
-const postSearchMemberAndChannelByOrganizeId = async (req, res) => {};
+const postSearchMemberAndChannelByOrganizeId = async (req, res) => { };
 
 module.exports = [
   {
