@@ -183,26 +183,26 @@ const setupApp = async () => {
     socket.on("disconnect", async () => {
       console.log("user is offline", socket.handshake.headers?.userid);
 
-      // if (isObjectIdInMongodb(userId)) {
-      //   const convertId = ObjectIdMongodb(userId);
+      if (isObjectIdInMongodb(userId)) {
+        const convertId = ObjectIdMongodb(userId);
         
-      //   try {
-      //     const userInfo = await User.find({ _id: convertId })
+        try {
+          const userInfo = await User.find({ _id: convertId })
   
-      //     if (userInfo?.length > 0 && userInfo[0].userStatus === IUserStatus?.online) {  
-      //       const newUserInfo = { ...userInfo[0]?._doc, userStatus: IUserStatus?.offline }
+          if (userInfo?.length > 0 && userInfo[0].userStatus === IUserStatus?.online) {  
+            const newUserInfo = { ...userInfo[0]?._doc, userStatus: IUserStatus?.offline }
   
-      //       await User.updateOne(
-      //         { _id: convertId }, {
-      //         $set: newUserInfo,
-      //         $currentDate: { lastUpdated: true },
-      //       }
-      //       )
-      //     }
-      //   } catch (error) {
-      //     throw error;
-      //   }
-      // }
+            await User.updateOne(
+              { _id: convertId }, {
+              $set: newUserInfo,
+              $currentDate: { lastUpdated: true },
+            }
+            )
+          }
+        } catch (error) {
+          throw error;
+        }
+      }
     });
   });
 };

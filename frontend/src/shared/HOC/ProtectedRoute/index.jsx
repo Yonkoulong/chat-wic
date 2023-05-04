@@ -4,6 +4,7 @@ import { Navigate, redirect } from 'react-router-dom';
 import {  toast } from 'react-toastify';
 import { getRefreshToken } from '@/services/auth.services';
 import { useAppStore } from '@/stores/AppStore';
+import { enumMemberStatus } from '@/shared/utils/constant';
 
 const ProtectedRoute = ({ children }) => {
     const [isLogged, setIsLogged] = useState();
@@ -14,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
             try {
                 const resp = await getRefreshToken();
                 if(resp) {
-                    setUserInfo(resp?.data?.content);
+                    setUserInfo({...resp?.data?.content, userStatus: enumMemberStatus?.ONLINE });
                     setIsLogged(!!resp);
                 }
             } catch (error) {
