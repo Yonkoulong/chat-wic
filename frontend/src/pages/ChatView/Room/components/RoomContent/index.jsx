@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, createElement } from "react";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import EmojiPicker from "emoji-picker-react";
 // import data from '@emoji-mart/data';
 // import Picker from '@emoji-mart/react';
@@ -54,7 +54,7 @@ import {
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
 import { chatTimestamp } from "@/shared/utils/utils";
-import { redirectTo } from '@/shared/utils/history';
+import { redirectTo } from "@/shared/utils/history";
 
 import {
   putUpdateMessageChannel,
@@ -137,9 +137,9 @@ export const RoomContent = () => {
         const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
 
         if (resp) {
-          // fetchMessagesChannel({ channelId: roomInfo?._id });
-          client?.emit("reaction-message-channel", resp?.data?.content);
-          reactionMessage(resp?.data?.content);
+          fetchMessagesChannel({ channelId: roomInfo?._id });
+          // client?.emit("reaction-message-channel", resp?.data?.content);
+          // reactionMessage(resp?.data?.content);
         }
       }
 
@@ -329,7 +329,8 @@ export const RoomContent = () => {
   };
 
   const handleDetectUrl = (content) => {
-    var urlRegex = /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
+    var urlRegex =
+      /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
     if (urlRegex.test(content)) {
       const newUrl = content.replace(urlRegex, function (url) {
         return '<a href="' + url + '" target="_blank">' + url + "</a>";
@@ -354,7 +355,7 @@ export const RoomContent = () => {
 
   const handleCreateThread = (message) => {
     redirectTo(`/chat/channel/${id}/threads/${message?._id}`);
-  }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -519,6 +520,9 @@ export const RoomContent = () => {
                             sx={{
                               m: "0 8px",
                               ...flexCenter,
+                              "&:hover": {
+                                cursor: "pointer",
+                              },
                             }}
                           >
                             <LucideQuoteIcon
@@ -529,6 +533,9 @@ export const RoomContent = () => {
                             sx={{
                               m: "0 8px",
                               ...flexCenter,
+                              "&:hover": {
+                                cursor: "pointer",
+                              },
                             }}
                           >
                             <SymbolsAddReactionOutlineIcon
@@ -572,9 +579,9 @@ export const RoomContent = () => {
                             sx={{
                               m: "0 8px",
                               ...flexCenter,
-                              '&:hover': {
-                                cursor: 'pointer'
-                              }
+                              "&:hover": {
+                                cursor: "pointer",
+                              },
                             }}
                             onClick={() => handleCreateThread(message)}
                           >
@@ -755,11 +762,14 @@ export const RoomContent = () => {
 
                             ":hover": {
                               opacity: 0.8,
-                              cursor: "pointer"
+                              cursor: "pointer",
                             },
                           }}
-
-                          onClick={() => redirectTo(`/chat/channel/${id}/threads/${message?.threadId}`)}
+                          onClick={() =>
+                            redirectTo(
+                              `/chat/channel/${id}/threads/${message?.threadId}`
+                            )
+                          }
                         >
                           <Typography fontSize="small">Thread</Typography>
                         </Box>

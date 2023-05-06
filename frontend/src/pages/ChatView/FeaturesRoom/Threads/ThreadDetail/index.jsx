@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-
+import { toast } from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
 
 import {
@@ -10,6 +10,7 @@ import {
   TruncateString,
   TextareaAutosize,
   Paper,
+  CircularProgress
 } from "@/shared/components";
 import { RoomNotFound } from "@/shared/components/RoomNotFound";
 
@@ -86,10 +87,7 @@ import {
   getMessageChannelDetail,
 } from "@/services/channel.services";
 
-import {
-  putMessageDirect,
-  postMessageDirect,
-} from "@/services/direct.services";
+import { postMessageThread } from "@/services/thread.services";
 
 const flexCenter = {
   display: "flex",
@@ -97,7 +95,9 @@ const flexCenter = {
 };
 
 export const ThreadDetail = () => {
-  const typeRoom = useRoomStore((state) => state.typeRoom);
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
+    (state) => state
+  );
   const userInfo = useAppStore((state) => state.userInfo);
   const {
     messagesThread,
@@ -122,7 +122,6 @@ export const ThreadDetail = () => {
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
-  const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
   const [anchorReaction, setAnchorReaction] = useState(null);
@@ -147,11 +146,11 @@ export const ThreadDetail = () => {
         setIsDisplayIconChat(false);
 
         //has quoute message
-        if (!quoteThreadMessage) {
+        if (quoteThreadMessage) {
           handleCancelQuoteMessage();
         }
 
-        if (!editThreadMessage) {
+        if (editThreadMessage) {
           setEditThreadMessage(null);
         }
       }
@@ -210,30 +209,32 @@ export const ThreadDetail = () => {
     try {
       //Channel
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        if (!isObjectEmpty(editMessage)) {
+        if (editThreadMessage) {
           const newPayLoadEditMessageChannel = {
             content: value,
           };
 
           const resp = await putUpdateMessageChannel(
-            editMessage?._id,
+            editThreadMessage?._id,
             newPayLoadEditMessageChannel
           );
 
           if (resp) {
-            fetchMessagesThreadChannel({ channelId: id });
+            // fetchMessagesThreadChannel({ channelId: id });
           }
         } else {
           const newPayloadMessageChannel = {
             messageFrom: userInfo?._id,
+            senderAvatar: userInfo?.avatar,
             senderName: userInfo?.username,
             content: value,
             channelId: id,
             type: type,
             replyId: quoteThreadMessage?._id || null,
+            threadId: selectedThreadMessage?._id
           };
 
-          const resp = await postMessageChannel(newPayloadMessageChannel);
+          const resp = await postMessageThread(selectedThreadMessage?._id, newPayloadMessageChannel);
           if (resp) {
             client.emit("send-message-thread", resp?.data);
             pushThreadMessage(resp?.data);
@@ -277,20 +278,11 @@ export const ThreadDetail = () => {
       if (!idEditMessage) return;
 
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
 
         if (resp) {
-          fetchMessagesChannel({ channelId: roomInfo?._id });
         }
       }
 
-      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-        const resp = await putMessageDirect(idEditMessage, newPayload);
-
-        if (resp) {
-          fetchMessagesDirect({ directId: roomInfo?._id });
-        }
-      }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
@@ -305,6 +297,12 @@ export const ThreadDetail = () => {
   const handleClickReplyMessage = (message) => {
     if (message) {
       setQuoteThreadMessage(message);
+      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
+      setHeightQuoteThreadMessageBox(heightQuoteMessage);
+
+      setTimeout(() => {
+        textAreaRef.current.focus();
+      }, 100)
     }
   };
 
@@ -329,7 +327,7 @@ export const ThreadDetail = () => {
             messageId,
           });
           deleteThreadMessage(messageId);
-          fetchMessagesThreadChannel({ channelId: roomInfo?._id });
+          // fetchMessagesThreadChannel({ channelId: roomInfo?._id });
         }
       }
     } catch (error) {
@@ -386,7 +384,7 @@ export const ThreadDetail = () => {
 
   const renderMessageWithTypeImage = (message) => {
     return (
-      <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
+      <Paper sx={{ width: "160px", height: "160px", marginTop: 1 }}>
         <img
           src={message?.content}
           alt="image-message"
@@ -425,8 +423,13 @@ export const ThreadDetail = () => {
         >
           <DescriptionIcon sx={{ color: whiteColor }} />
         </Box>
-        <Typography ml={1} sx={{ color: blackColor }}>
-          filename.path
+        <Typography
+          ml={1}
+          fontSize="small"
+          sx={{ color: blackColor, fontWeight: "bold" }}
+        >
+          {message?.fileName} - {Math.round((message?.size / 1024) * 100) / 100}{" "}
+          KB
         </Typography>
       </Box>
     );
@@ -436,7 +439,7 @@ export const ThreadDetail = () => {
     return (
       <Paper sx={{ width: "fit-content", marginTop: 1 }}>
         <video
-          width="320"
+          width="160"
           height="100%"
           style={{ borderRadius: "4px" }}
           controls
@@ -448,14 +451,30 @@ export const ThreadDetail = () => {
   };
 
   const handleDetectUrl = (content) => {
-    var urlRegex = /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
+    var urlRegex =
+      /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
     if (urlRegex.test(content)) {
       const newUrl = content.replace(urlRegex, function (url) {
         return '<a href="' + url + '" target="_blank">' + url + "</a>";
       });
-      return <div dangerouslySetInnerHTML={{ __html: newUrl }}></div>;
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: newUrl }}
+          style={{
+            fontSize: "12px",
+            fontWeight: "bold",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        ></div>
+      );
     } else {
-      return <Typography fontSize="small">{content}</Typography>;
+      return (
+        <Typography fontSize="small" fontWeight="bold" noWrap>
+          {content}
+        </Typography>
+      );
     }
   };
 
@@ -471,19 +490,31 @@ export const ThreadDetail = () => {
     }
   };
 
-  useEffect(() => {
-    if (threadId) {
-      try {
-        const respMessageChannel = getMessageChannelDetail({ messageId: threadId });
-        const respMessageThreadChannel = fetchMessagesThreadChannel(threadId);
-        if (!respMessageChannel || !respMessageThreadChannel) { return; }
+  const handleClickCloseThread = () => {
+    setTypeFeatureRoom(null);
+    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
+  };
 
-        setSelectedThreadMessage(respMessageChannel?.response?.content);
-        
-      } catch (error) {
-        throw error;
+  useEffect(() => {
+    setLoading(true);
+
+    (async () => {
+      if (threadId) {
+        try {
+          const respMessageChannel = await getMessageChannelDetail({
+            messageId: threadId,
+          });
+          const respMessageThreadChannel = fetchMessagesThreadChannel(threadId);
+          if (!respMessageChannel && !respMessageThreadChannel) {
+            return;
+          }
+
+          setSelectedThreadMessage(respMessageChannel?.data?.content);
+        } catch (error) {
+          throw error;
+        }
       }
-    }
+    })();
   }, [threadId]);
 
   useEffect(() => {
@@ -564,6 +595,7 @@ export const ThreadDetail = () => {
 
   return (
     <Box sx={{ position: "relative", height: "100%" }}>
+      {/* Box header */}
       <Box
         sx={{
           ...flexCenter,
@@ -579,10 +611,10 @@ export const ThreadDetail = () => {
           >
             <KeyboardReturnIcon />
           </IconButton>
-          <Typography ml={0.5} fontWeight="bold" noWrap sx={{ width: "200px" }}>
+          <Box ml={0.5} sx={{ width: "200px" }}>
             {selectedThreadMessage &&
               handleRenderMessageWithType(selectedThreadMessage)}
-          </Typography>
+          </Box>
         </Box>
         <IconButton
           aria-label="close"
@@ -606,7 +638,9 @@ export const ThreadDetail = () => {
               padding: "24px 0px",
               overflowY: "auto",
               overflowX: "hidden",
-              maxHeight: `calc(100vh - 262.8px - ${heightQuoteThreadMessageBox || 0}px)`,
+              maxHeight: `calc(100vh - 262.8px - ${
+                heightQuoteThreadMessageBox || 0
+              }px)`,
             }}
           >
             <MessageList>
@@ -621,7 +655,7 @@ export const ThreadDetail = () => {
                       ref={scrollRef}
                       sx={{
                         backgroundColor:
-                          editMessage?._id === message?._id
+                        editThreadMessage?._id === message?._id
                             ? hoverTextColor
                             : "",
                       }}
@@ -823,10 +857,14 @@ export const ThreadDetail = () => {
                                 fontSize="small"
                                 color={inActiveColor}
                               >
-                                You have answered{" "}
-                                {userInfo?.username == message?.senderName
-                                  ? "yourself"
-                                  : message?.senderName}
+                                {userInfo?._id == message?.messageFrom
+                                  ? `You have answered ${handleRenderNameForReply(
+                                      message
+                                    )}`
+                                  : message?.senderName +
+                                    ` have answered ${handleRenderNameForReply(
+                                      message
+                                    )}`}
                               </Typography>
                             </Box>
                             <MessageReplyContent mt={1}>
@@ -905,7 +943,7 @@ export const ThreadDetail = () => {
 
       {/* Box message */}
       <BoxMessageContainer>
-        {!quoteThreadMessage ? (
+        {quoteThreadMessage ? (
           <Box
             ref={quoteMessageRef}
             sx={{

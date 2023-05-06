@@ -9,6 +9,8 @@ const {
   httpCode,
   responseError,
   responseConstant,
+  formatResponse,
+  isObjectEmpty
 } = require('../utils/constant');
 
 const postMessageThread = async (req, res) => {
@@ -28,7 +30,7 @@ const postMessageThread = async (req, res) => {
   } = req?.body;
 
   if (isObjectIdInMongodb(messageFrom)) {
-    const convertMessageFromToObjectIdMongo = isObjectIdInMongodb(messageFrom);
+    const convertMessageFromToObjectIdMongo = ObjectIdMongodb(messageFrom);
     const messageThreadId = new ObjectIdMongodb();
 
     const newMessageThread = {
@@ -43,12 +45,11 @@ const postMessageThread = async (req, res) => {
     };
 
     try {
-
       const messageChannelDetail = await MessageChannel.find({
         _id: messageChannelId,
       });
 
-      if (!threadId && !messageChannelDetail[0]?.threadId) {
+      if (!messageChannelDetail[0]?.threadId) {
         //update message channel
         const newMessageChannel = { ...messageChannelDetail[0]?._doc, threadId: messageChannelId }
 
@@ -74,8 +75,10 @@ const postMessageThread = async (req, res) => {
       let messageByReplyIds = {};
       let senderInReply = {};
 
-      if (!isObjectEmpty(replyId)) {
-        messageByReplyIds = await MessageChannel.find({ _id: { $in: replyId } })
+
+      if (replyId) {
+        console.log("cay vl");
+        messageByReplyIds = await MessageThread.find({ _id: { $in: replyId } })
         if (messageByReplyIds.length > 0) {
           senderInReply = await User.find({ _id: { $in: messageByReplyIds[0].messageFrom } });
 
@@ -86,9 +89,10 @@ const postMessageThread = async (req, res) => {
       }
 
       //create Message thread
-      await MessageThread.create(newMessageThread);
-
-      if (messageByReplyIds.length > 0) {
+      console.log(MessageThread.create(newMessageThread));
+      const resp = await MessageThread.create(newMessageThread);
+      
+      if (!isObjectEmpty(messageByReplyIds)) {
         return res?.status(httpCode.oke).json({ ...newMessageThread, replyIdMessage: messageByReplyIds, senderName: senderName, avatar: senderAvatar });
       } else {
         return res?.status(httpCode.oke).json({ ...newMessageThread, senderName: senderName, avatar: senderAvatar });
@@ -115,46 +119,46 @@ const deleteMessageThread = async (req, res) => {
 }
 
 const getMessageThreadByThreadId = async (req, res) => {
-  const { channelId } = req?.params;
-  if (!channelId)
+  const { threadId } = req?.params;
+  if (!threadId)
     return res?.status(httpCode.badRequest).json(responseError.badRequest);
 
   const { paging } = req?.body;
   const orderCreatedAt = paging?.orders?.createdAt;
 
-  let messageInChannel = [];
+  let messageInThread = [];
 
-  if (isObjectIdInMongodb(channelId)) {
+  if (isObjectIdInMongodb(threadId)) {
     if (!!paging) {
       const { page, size } = paging;
       const numberToSkip = (page - 1) * size;
-      messageInChannel = await MessageChannel.find({ channelId })
+      messageInThread = await MessageThread.find({ threadId })
         .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
         .skip(numberToSkip)
         .limit(paging?.size || 10);
     } else {
-      messageInChannel = await MessageChannel.find({ channelId });
+      messageInThread = await MessageThread.find({ threadId });
     }
   }
 
-  const senderIds = messageInChannel?.map((message) => {
+  const senderIds = messageInThread?.map((message) => {
     if (isObjectIdInMongodb(message?.messageFrom)) {
       return ObjectIdMongodb(message.messageFrom);
     }
   });
   // filter reply ids
-  const replyIds = messageInChannel
+  const replyIds = messageInThread
     ?.filter((item) => item?.replyId)
     ?.map((item) => item.replyId);
 
   let messageByReplyIds = [];
   try {
     // get messages by ids
-    messageByReplyIds = await MessageChannel.find({ _id: { $in: replyIds } });
+    messageByReplyIds = await MessageThread.find({ _id: { $in: replyIds } });
   } catch { }
   const senders = await User.find({ _id: { $in: senderIds } });
   const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
-  const convertMessageInChannel = messageInChannel?.map((message) => {
+  const convertMessageInThread = messageInThread?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
     let avatar = "";
@@ -179,7 +183,7 @@ const getMessageThreadByThreadId = async (req, res) => {
     return { ...message?._doc, senderName, avatar, replyMessage };
   });
 
-  return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
+  return res.status(httpCode.ok).json(formatResponse(convertMessageInThread));
 };
 
 module.exports = [

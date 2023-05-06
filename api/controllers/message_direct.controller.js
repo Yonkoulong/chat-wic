@@ -57,7 +57,7 @@ const postCreateMessageDirect = async (req, res) => {
     let messageByReplyIds = {};
     let senderInReply = {};
 
-    if (!isObjectEmpty(replyId)) {
+    if (replyId) {
       messageByReplyIds = await MessageDirect.find({ _id: { $in: replyId } });
       if (messageByReplyIds?.length > 0) {
         senderInReply = await User.find({
@@ -76,7 +76,7 @@ const postCreateMessageDirect = async (req, res) => {
     try {
       await MessageDirect.create(newMessage);
 
-      if (messageByReplyIds) {
+      if (!isObjectEmpty(messageByReplyIds)) {
         return res
           ?.status(httpCode.ok)
           .json({

@@ -68,7 +68,7 @@ const postMessageChannel = async (req, res) => {
     let messageByReplyIds = {};
     let senderInReply = {};
 
-    if (!isObjectEmpty(replyId)) {
+    if (replyId) {
       messageByReplyIds = await MessageChannel.find({ _id: { $in: replyId } });
       if (messageByReplyIds.length > 0) {
         senderInReply = await User.find({
@@ -86,8 +86,7 @@ const postMessageChannel = async (req, res) => {
 
     try {
       await MessageChannel.create(newMessage);
-
-      if (messageByReplyIds) {
+      if (!isObjectEmpty(messageByReplyIds)) {
         return res?.status(httpCode.ok).json({
           ...newMessage,
           replyMessage: messageByReplyIds,
