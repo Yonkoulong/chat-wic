@@ -147,12 +147,12 @@ export const ThreadDetail = () => {
         setIsDisplayIconChat(false);
 
         //has quoute message
-        if (!isObjectEmpty(quoteMessage)) {
+        if (!quoteThreadMessage) {
           handleCancelQuoteMessage();
         }
 
-        if (!isObjectEmpty(editMessage)) {
-          setEditMessage({});
+        if (!editThreadMessage) {
+          setEditThreadMessage(null);
         }
       }
     }
@@ -221,7 +221,7 @@ export const ThreadDetail = () => {
           );
 
           if (resp) {
-            fetchMessagesChannel({ channelId: id });
+            fetchMessagesThreadChannel({ channelId: id });
           }
         } else {
           const newPayloadMessageChannel = {
@@ -230,46 +230,13 @@ export const ThreadDetail = () => {
             content: value,
             channelId: id,
             type: type,
-            replyId: quoteMessage?._id || null,
+            replyId: quoteThreadMessage?._id || null,
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
           if (resp) {
-            client.emit("send-message-channel", resp?.data);
-            pushMessage(resp?.data);
-          }
-        }
-      }
-
-      //Direct
-      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-        if (!isObjectEmpty(editMessage)) {
-          const newPayLoadEditMessageDirect = {
-            content: value,
-            reaction: {},
-          };
-
-          const resp = await putMessageDirect(
-            editMessage?._id,
-            newPayLoadEditMessageDirect
-          );
-
-          if (resp) {
-            fetchMessagesDirect({ directId: id });
-          }
-        } else {
-          const newPayloadMessageDirect = {
-            messageFrom: userInfo?._id,
-            content: value,
-            type: type,
-            replyId: quoteMessage?._id || null,
-          };
-
-          const resp = await postMessageDirect(id, newPayloadMessageDirect);
-
-          if (resp) {
-            client.emit("send-message-direct", resp?.data);
-            pushMessage(resp?.data);
+            client.emit("send-message-thread", resp?.data);
+            pushThreadMessage(resp?.data);
           }
         }
       }
@@ -280,8 +247,8 @@ export const ThreadDetail = () => {
   };
 
   const handleCancelQuoteMessage = () => {
-    setQuoteMessage({});
-    setHeightQuoteMessage(0);
+    setQuoteThreadMessage(null);
+    setHeightQuoteThreadMessageBox(0);
   };
 
   const handleMouseOver = (message) => {
@@ -337,7 +304,7 @@ export const ThreadDetail = () => {
   //reply
   const handleClickReplyMessage = (message) => {
     if (message) {
-      setQuoteMessage(message);
+      setQuoteThreadMessage(message);
     }
   };
 
@@ -354,18 +321,15 @@ export const ThreadDetail = () => {
   const handleDeleteMessage = async (messageId) => {
     try {
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        const resp = await deleteMessageChannel(messageId);
+        // const resp = await deleteMessageChannel(messageId);
 
         if (resp) {
-          fetchMessagesChannel({ channelId: roomInfo?._id });
-        }
-      }
-
-      if (typeRoom && typeRoom === enumTypeRooms.DIRECT) {
-        const resp = await deleteMessageDirect(messageId);
-
-        if (resp) {
-          fetchMessagesDirect({ directId: roomInfo?._id });
+          client.emit("delete-message-channel", {
+            channelId: roomInfo?._id,
+            messageId,
+          });
+          deleteThreadMessage(messageId);
+          fetchMessagesThreadChannel({ channelId: roomInfo?._id });
         }
       }
     } catch (error) {
@@ -379,9 +343,9 @@ export const ThreadDetail = () => {
   const handleClickUpdateMessage = (message) => {
     if (message) {
       if (message?.replyId) {
-        setQuoteMessage(message?.replyMessage);
+        setQuoteThreadMessage(message?.replyMessage);
       }
-      setEditMessage(message);
+      setEditThreadMessage(message);
       setAnchorMoreFeatureMessage(null);
     }
   };
@@ -484,19 +448,26 @@ export const ThreadDetail = () => {
   };
 
   const handleDetectUrl = (content) => {
-    var urlRegex = /(https?:\/\/[^\s]+)/g;
+    var urlRegex = /((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi;
     if (urlRegex.test(content)) {
       const newUrl = content.replace(urlRegex, function (url) {
-        return url;
+        return '<a href="' + url + '" target="_blank">' + url + "</a>";
       });
-
-      return (
-        <Box component="a" href={newUrl} target="_blank">
-          {newUrl}
-        </Box>
-      );
+      return <div dangerouslySetInnerHTML={{ __html: newUrl }}></div>;
     } else {
       return <Typography fontSize="small">{content}</Typography>;
+    }
+  };
+
+  const handleRenderNameForReply = (message) => {
+    if (userInfo?._id === message?.replyMessage?.messageFrom) {
+      if (userInfo?._id === message?.messageFrom) {
+        return "yourself";
+      } else {
+        return "you";
+      }
+    } else {
+      return message?.replyMessage?.senderName || "Unknown";
     }
   };
 
@@ -514,6 +485,70 @@ export const ThreadDetail = () => {
       }
     }
   }, [threadId]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({
+      behaviour: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
+  }, [messagesThread]);
+
+  //post message realtime
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    const handler = (mess) => pushThreadMessage(mess);
+    client?.on("receive-message-thread", handler);
+
+    return () => {
+      client?.off("receive-message-thread", handler);
+    };
+  }, [client]);
+
+  //delete message realtime
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    const handler = (msgId) => deleteThreadMessage(msgId);
+    client?.on("receive-message-thread-delete", handler);
+
+    return () => {
+      client?.off("receive-message-thread-delete", handler);
+    };
+  }, [client]);
+
+  //edit message realtime
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    const handler = (mess) => editThreadMessageStore(mess);
+    client?.on("receive-message-thread-edit", handler);
+
+    return () => {
+      client?.off("receive-message-thread-edit", handler);
+    };
+  }, [client]);
+
+  //reaction message realtime
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    const handler = (mess) => reactionThreadMessage(mess);
+    client?.on("receive-message-thread-reaction", handler);
+
+    return () => {
+      client?.off("receive-message-thread-reaction", handler);
+    };
+  }, [client]);
 
   //open anchor
   const openAnchorReaction = Boolean(anchorReaction);
@@ -571,13 +606,13 @@ export const ThreadDetail = () => {
               padding: "24px 0px",
               overflowY: "auto",
               overflowX: "hidden",
-              maxHeight: `calc(100vh - 262.8px - ${heightQuoteMessage || 0}px)`,
+              maxHeight: `calc(100vh - 262.8px - ${heightQuoteThreadMessageBox || 0}px)`,
             }}
           >
             <MessageList>
               {!loading &&
-                messages &&
-                messages?.map((message, index) => {
+                messagesThread &&
+                messagesThread?.map((message, index) => {
                   return (
                     <MessageItem
                       onMouseOver={() => handleMouseOver(message)}
@@ -864,13 +899,13 @@ export const ThreadDetail = () => {
               <CircularProgress color="inherit" size={30} />
             </Box>
           )}
-          {!loading && !messages ? <RoomNotFound /> : ""}
+          {/* {!loading && !messagesThread ? <RoomNotFound /> : ""} */}
         </Box>
       </RoomContentContainer>
 
       {/* Box message */}
       <BoxMessageContainer>
-        {!isObjectEmpty(quoteMessage) ? (
+        {!quoteThreadMessage ? (
           <Box
             ref={quoteMessageRef}
             sx={{
@@ -881,9 +916,9 @@ export const ThreadDetail = () => {
             <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
               <Typography variant="subtitle2">
                 You are answering{" "}
-                {userInfo?.username == quoteMessage?.senderName
+                {userInfo?.username == quoteThreadMessage?.senderName
                   ? "yourself"
-                  : quoteMessage?.senderName}
+                  : quoteThreadMessage?.senderName}
               </Typography>
               <CloseIcon
                 sx={{
@@ -901,7 +936,7 @@ export const ThreadDetail = () => {
             </Box>
             <Box mt={1}>
               <Typography component="p" sx={{ color: inActiveColor }}>
-                {quoteMessage?.content}
+                {quoteThreadMessage?.content}
               </Typography>
             </Box>
           </Box>
