@@ -335,6 +335,28 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
   }
 };
 
+const getMessageChannelDetail = async (req, res) => {
+  const { messageId } = req?.params;
+  if(isObjectIdInMongodb(messageId)) {
+    const convertId = ObjectIdMongodb(messageId);
+
+    try {
+      //match message
+      const messageInfo = await MessageChannel.find({ _id: convertId });
+      // let messageResponse = { ...messageInfo[0]?._doc };
+      //info message
+      if(messageInfo?.length > 0) {
+        return res.status(httpCode.ok).json(formatResponse(messageInfo[0]?._doc));
+      } else {
+        return res.status(httpCode.notFound).json(responseError.notFound);
+      }
+    } catch (err) {
+      return res.status(httpCode.badRequest).json(responseError.badRequest);
+    }
+  }
+
+}
+
 // search member and channel by organizeId
 const postSearchMemberAndChannelByOrganizeId = async (req, res) => { };
 
@@ -379,5 +401,10 @@ module.exports = [
     method: "post",
     controller: postSearchMemberAndChannelByOrganizeId,
     routeName: "/member-and-channel/:organizeId/search",
+  },
+  {
+    method: "get",
+    controller: getMessageChannelDetail,
+    routeName: "/message-channel/:messageId/detail",
   },
 ];

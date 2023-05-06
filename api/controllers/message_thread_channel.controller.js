@@ -29,7 +29,6 @@ const postMessageThread = async (req, res) => {
 
   if (isObjectIdInMongodb(messageFrom)) {
     const convertMessageFromToObjectIdMongo = isObjectIdInMongodb(messageFrom);
-
     const messageThreadId = new ObjectIdMongodb();
 
     const newMessageThread = {
@@ -100,7 +99,6 @@ const postMessageThread = async (req, res) => {
 };
 
 const putUpdateMessageThread = async (req, res) => {
-
 }
 
 const deleteMessageThread = async (req, res) => {
@@ -115,6 +113,74 @@ const deleteMessageThread = async (req, res) => {
     return res.status(httpCode.badRequest).json(responseError.badRequest);
   }
 }
+
+const getMessageThreadByThreadId = async (req, res) => {
+  const { channelId } = req?.params;
+  if (!channelId)
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+
+  const { paging } = req?.body;
+  const orderCreatedAt = paging?.orders?.createdAt;
+
+  let messageInChannel = [];
+
+  if (isObjectIdInMongodb(channelId)) {
+    if (!!paging) {
+      const { page, size } = paging;
+      const numberToSkip = (page - 1) * size;
+      messageInChannel = await MessageChannel.find({ channelId })
+        .sort({ createdAt: ORDER_DIRECTION[orderCreatedAt || "DESC"] })
+        .skip(numberToSkip)
+        .limit(paging?.size || 10);
+    } else {
+      messageInChannel = await MessageChannel.find({ channelId });
+    }
+  }
+
+  const senderIds = messageInChannel?.map((message) => {
+    if (isObjectIdInMongodb(message?.messageFrom)) {
+      return ObjectIdMongodb(message.messageFrom);
+    }
+  });
+  // filter reply ids
+  const replyIds = messageInChannel
+    ?.filter((item) => item?.replyId)
+    ?.map((item) => item.replyId);
+
+  let messageByReplyIds = [];
+  try {
+    // get messages by ids
+    messageByReplyIds = await MessageChannel.find({ _id: { $in: replyIds } });
+  } catch { }
+  const senders = await User.find({ _id: { $in: senderIds } });
+  const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
+  const convertMessageInChannel = messageInChannel?.map((message) => {
+    const senderIdToString = message?.messageFrom?.toString();
+    let senderName = "";
+    let avatar = "";
+    let replyMessage = {};
+    senders?.forEach((sender) => {
+      if (senderIdToString === sender?._id?.toString()) {
+        senderName = sender?.username || "";
+        avatar = sender?.avatar;
+      }
+    });
+
+    // get message reply
+    if (message?.replyId && messageByReplyIds?.length > 0) {
+      messageByReplyIds?.forEach((item) => {
+        if (item?._id?.toString() == message?.replyId) {
+          const newItem = { ...item?._doc, senderName: senderByReplyIds[0]?.username }
+          replyMessage = newItem;
+        }
+      });
+    }
+
+    return { ...message?._doc, senderName, avatar, replyMessage };
+  });
+
+  return res.status(httpCode.ok).json(formatResponse(convertMessageInChannel));
+};
 
 module.exports = [
   {
@@ -132,4 +198,9 @@ module.exports = [
     controller: deleteMessageThread,
     routeName: '/message-thread/:messageThreadId/delete',
   },
+  {
+    method: 'get',
+    controller: getMessageThreadByThreadId,
+    routeName: '/message-thread/:threadId'
+  }
 ];

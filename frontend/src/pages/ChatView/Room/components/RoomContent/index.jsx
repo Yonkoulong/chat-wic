@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, createElement } from "react";
+import { useParams } from 'react-router-dom';
 import EmojiPicker from "emoji-picker-react";
 // import data from '@emoji-mart/data';
 // import Picker from '@emoji-mart/react';
@@ -41,6 +42,8 @@ import {
 import { useAppStore } from "@/stores/AppStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useChatStore } from "@/stores/ChatStore";
+import { useSocketStore } from "@/stores/SocketStore";
+
 import {
   primaryColor,
   borderColor,
@@ -51,6 +54,8 @@ import {
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
 import { chatTimestamp } from "@/shared/utils/utils";
+import { redirectTo } from '@/shared/utils/history';
+
 import {
   putUpdateMessageChannel,
   deleteMessageChannel,
@@ -60,7 +65,6 @@ import {
   putMessageDirect,
   deleteMessageDirect,
 } from "@/services/direct.services";
-import { useSocketStore } from "@/stores/SocketStore";
 
 const flexCenter = {
   display: "flex",
@@ -68,6 +72,7 @@ const flexCenter = {
 };
 
 export const RoomContent = () => {
+  const { id } = useParams();
   const { client } = useSocketStore((state) => state);
 
   const userInfo = useAppStore((state) => state.userInfo);
@@ -348,7 +353,7 @@ export const RoomContent = () => {
   };
 
   const handleCreateThread = (message) => {
-    
+    redirectTo(`/chat/channel/${id}/threads/${message?._id}`);
   }
 
   useEffect(() => {
@@ -571,6 +576,7 @@ export const RoomContent = () => {
                                 cursor: 'pointer'
                               }
                             }}
+                            onClick={() => handleCreateThread(message)}
                           >
                             <UilCommentMessageIcon
                               width="0.7em"
@@ -752,6 +758,8 @@ export const RoomContent = () => {
                               cursor: "pointer"
                             },
                           }}
+
+                          onClick={() => redirectTo(`/chat/channel/${id}/threads/${message?.threadId}`)}
                         >
                           <Typography fontSize="small">Thread</Typography>
                         </Box>

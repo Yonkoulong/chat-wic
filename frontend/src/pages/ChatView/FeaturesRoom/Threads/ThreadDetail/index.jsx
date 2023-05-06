@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker from "emoji-picker-react";
 
 import {
   Box,
@@ -10,18 +10,18 @@ import {
   TruncateString,
   TextareaAutosize,
   Paper,
-} from '@/shared/components';
-import { RoomNotFound } from '@/shared/components/RoomNotFound';
+} from "@/shared/components";
+import { RoomNotFound } from "@/shared/components/RoomNotFound";
 
-import Popover from '@mui/material/Popover';
-import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ReplyIcon from '@mui/icons-material/Reply';
-import DescriptionIcon from '@mui/icons-material/Description';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Popover from "@mui/material/Popover";
+import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ReplyIcon from "@mui/icons-material/Reply";
+import DescriptionIcon from "@mui/icons-material/Description";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import {
   SymbolsAttachFileIcon,
@@ -30,7 +30,7 @@ import {
   SymbolsAddReactionOutlineIcon,
   StickerEmojiIcon,
   UilCommentMessageIcon,
-} from '@/assets/icons';
+} from "@/assets/icons";
 
 import {
   RoomContentContainer,
@@ -49,12 +49,12 @@ import {
   MessageQuoteBox,
   MessageReactionBox,
   MessageThreadBox,
-} from './ThreadDetail.styles';
+} from "./ThreadDetail.styles";
 
 import {
   ModalUploadFilePreview,
   ModalCreateTask,
-} from '@/pages/ChatView/Components/Modal';
+} from "@/pages/ChatView/Components/Modal";
 
 import {
   blackColor,
@@ -64,50 +64,59 @@ import {
   inActiveColor,
   hoverBackgroundColor,
   hoverTextColor,
-} from '@/shared/utils/colors.utils';
+} from "@/shared/utils/colors.utils";
 
-import { redirectTo } from '@/shared/utils/history';
-import { chatTimestamp } from '@/shared/utils/utils';
-import { useRoomStore } from '@/stores/RoomStore';
-import { useAppStore } from '@/stores/AppStore';
-import { useChatStore } from '@/stores/ChatStore';
-import { useSocketStore } from '@/stores/SocketStore';
+import { redirectTo } from "@/shared/utils/history";
+import { chatTimestamp } from "@/shared/utils/utils";
+import { useRoomStore } from "@/stores/RoomStore";
+import { useAppStore } from "@/stores/AppStore";
+import { useChatStore } from "@/stores/ChatStore";
+import { useSocketStore } from "@/stores/SocketStore";
+import { useThreadStore } from "@/stores/ThreadStore";
 
 import {
   typesMessage,
   enumTypeRooms,
   enumRoles,
-} from '@/shared/utils/constant';
-import { hasWhiteSpace, isObjectEmpty } from '@/shared/utils/utils';
+} from "@/shared/utils/constant";
+import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
 import {
   postMessageChannel,
   putUpdateMessageChannel,
-} from '@/services/channel.services';
+  getMessageChannelDetail,
+} from "@/services/channel.services";
 
 import {
   putMessageDirect,
   postMessageDirect,
-} from '@/services/direct.services';
+} from "@/services/direct.services";
 
 const flexCenter = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
 };
 
 export const ThreadDetail = () => {
   const typeRoom = useRoomStore((state) => state.typeRoom);
   const userInfo = useAppStore((state) => state.userInfo);
   const {
-    messages,
-    pushMessage,
-    quoteMessage,
-    editMessage,
-    setQuoteMessage,
-    heightQuoteMessage,
-    setHeightQuoteMessage,
+    messagesThread,
+    pushThreadMessage,
+    deleteThreadMessage,
+    editThreadMessageStore,
+    reactionThreadMessage,
+    fetchMessagesThreadChannel,
+    quoteThreadMessage,
+    editThreadMessage,
+    setQuoteThreadMessage,
+    heightQuoteThreadMessageBox,
+    setHeightQuoteThreadMessageBox,
+    setEditThreadMessage,
     loading,
     setLoading,
-  } = useChatStore((state) => state);
+    selectedThreadMessage,
+    setSelectedThreadMessage,
+  } = useThreadStore((state) => state);
   const { client } = useSocketStore((state) => state);
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
@@ -126,15 +135,15 @@ export const ThreadDetail = () => {
   const quoteMessageRef = useRef(null);
   const scrollRef = useRef(null);
 
-  const { id } = useParams();
+  const { id, threadId } = useParams();
 
   const handleChat = (e) => {
     const textArea = textAreaRef.current;
 
-    if (e.target.value != '' && !hasWhiteSpace(e.target.value)) {
-      if (!e.shiftKey && (e.key === 'Enter' || e.keyCode === 13)) {
+    if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
+      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {
         postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
-        textArea.value = '';
+        textArea.value = "";
         setIsDisplayIconChat(false);
 
         //has quoute message
@@ -149,15 +158,15 @@ export const ThreadDetail = () => {
     }
 
     //remove line break
-    if (!e.shiftKey && (e.key === 'Enter' || e.charCode === 13)) {
+    if (!e.shiftKey && (e.key === "Enter" || e.charCode === 13)) {
       e.preventDefault();
-      textArea.value.replace('\n', '');
+      textArea.value.replace("\n", "");
     }
   };
 
   const handleChatChange = (e) => {
     //Check show/hide send icon
-    if (e.target.value != '' && !hasWhiteSpace(e.target.value)) {
+    if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
       setIsDisplayIconChat(true);
     } else {
       setIsDisplayIconChat(false);
@@ -192,7 +201,7 @@ export const ThreadDetail = () => {
   };
 
   const handleClickResetValue = (e) => {
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleClickSendIcon = () => {};
@@ -226,7 +235,7 @@ export const ThreadDetail = () => {
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
           if (resp) {
-            client.emit('send-message-channel', resp?.data);
+            client.emit("send-message-channel", resp?.data);
             pushMessage(resp?.data);
           }
         }
@@ -259,7 +268,7 @@ export const ThreadDetail = () => {
           const resp = await postMessageDirect(id, newPayloadMessageDirect);
 
           if (resp) {
-            client.emit('send-message-direct', resp?.data);
+            client.emit("send-message-direct", resp?.data);
             pushMessage(resp?.data);
           }
         }
@@ -275,7 +284,6 @@ export const ThreadDetail = () => {
     setHeightQuoteMessage(0);
   };
 
-
   const handleMouseOver = (message) => {
     setIdMessageHovering(message?._id);
   };
@@ -289,7 +297,7 @@ export const ThreadDetail = () => {
 
     try {
       const newPayload = {
-        content: '',
+        content: "",
         reaction: {
           emojiName: names[0],
           unified: `0x${unified}`,
@@ -378,8 +386,8 @@ export const ThreadDetail = () => {
     }
   };
 
-   //close anchor
-   const handleCloseAnchorReaction = () => {
+  //close anchor
+  const handleCloseAnchorReaction = () => {
     setAnchorReaction(null);
   };
 
@@ -414,11 +422,11 @@ export const ThreadDetail = () => {
 
   const renderMessageWithTypeImage = (message) => {
     return (
-      <Paper sx={{ width: '360px', height: '360px', marginTop: 1 }}>
+      <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
         <img
           src={message?.content}
           alt="image-message"
-          style={{ width: '100%', objectFit: 'contain' }}
+          style={{ width: "100%", objectFit: "contain" }}
         />
       </Paper>
     );
@@ -431,24 +439,24 @@ export const ThreadDetail = () => {
         href={message?.content}
         download
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          borderRadius: '10px',
+          display: "flex",
+          alignItems: "center",
+          borderRadius: "10px",
           backgroundColor: hoverTextColor,
-          width: 'max-content',
-          padding: '4px 8px',
+          width: "max-content",
+          padding: "4px 8px",
           marginTop: 1,
         }}
       >
         <Box
           sx={{
-            width: '34px',
-            height: '34px',
+            width: "34px",
+            height: "34px",
             backgroundColor: primaryColor,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <DescriptionIcon sx={{ color: whiteColor }} />
@@ -462,11 +470,11 @@ export const ThreadDetail = () => {
 
   const renderMessageWithTypeVideo = (message) => {
     return (
-      <Paper sx={{ width: 'fit-content', marginTop: 1 }}>
+      <Paper sx={{ width: "fit-content", marginTop: 1 }}>
         <video
           width="320"
           height="100%"
-          style={{ borderRadius: '4px' }}
+          style={{ borderRadius: "4px" }}
           controls
         >
           <source src={message?.content} type="video/mp4" />
@@ -492,24 +500,39 @@ export const ThreadDetail = () => {
     }
   };
 
+  useEffect(() => {
+    if (threadId) {
+      try {
+        const respMessageChannel = getMessageChannelDetail({ messageId: threadId });
+        const respMessageThreadChannel = fetchMessagesThreadChannel(threadId);
+        if (!respMessageChannel || !respMessageThreadChannel) { return; }
+
+        setSelectedThreadMessage(respMessageChannel?.response?.content);
+        
+      } catch (error) {
+        throw error;
+      }
+    }
+  }, [threadId]);
+
   //open anchor
   const openAnchorReaction = Boolean(anchorReaction);
   const openAnchorMoreFeatureMessage = Boolean(anchorMoreFeatureMessage);
 
   //id anchor
   const idAnchorReaction = openAnchorReaction
-    ? 'anchor-reaction-popover'
+    ? "anchor-reaction-popover"
     : undefined;
   const idAnchorMoreFeatureMessage = openAnchorMoreFeatureMessage
-    ? 'anchor-more-feature-message'
+    ? "anchor-more-feature-message"
     : undefined;
 
   return (
-    <Box sx={{ position: 'relative', height: '100%' }}>
+    <Box sx={{ position: "relative", height: "100%" }}>
       <Box
         sx={{
           ...flexCenter,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           padding: 2,
           borderBottom: `1px solid ${borderColor}`,
         }}
@@ -521,15 +544,16 @@ export const ThreadDetail = () => {
           >
             <KeyboardReturnIcon />
           </IconButton>
-          <Typography ml={0.5} fontWeight="bold" noWrap sx={{ width: '200px' }}>
-            hello something happend
+          <Typography ml={0.5} fontWeight="bold" noWrap sx={{ width: "200px" }}>
+            {selectedThreadMessage &&
+              handleRenderMessageWithType(selectedThreadMessage)}
           </Typography>
         </Box>
         <IconButton
           aria-label="close"
           component="label"
           sx={{
-            ':hover': {
+            ":hover": {
               color: primaryColor,
             },
           }}
@@ -544,9 +568,9 @@ export const ThreadDetail = () => {
         <Box>
           <Box
             sx={{
-              padding: '24px 0px',
-              overflowY: 'auto',
-              overflowX: 'hidden',
+              padding: "24px 0px",
+              overflowY: "auto",
+              overflowX: "hidden",
               maxHeight: `calc(100vh - 262.8px - ${heightQuoteMessage || 0}px)`,
             }}
           >
@@ -564,16 +588,16 @@ export const ThreadDetail = () => {
                         backgroundColor:
                           editMessage?._id === message?._id
                             ? hoverTextColor
-                            : '',
+                            : "",
                       }}
                     >
                       {message?.avatar ? (
                         <UserImageWrapper>
-                          <UserImage src={message?.avatar || ''} alt="image" />
+                          <UserImage src={message?.avatar || ""} alt="image" />
                         </UserImageWrapper>
                       ) : (
                         <AccountCircleIcon
-                          sx={{ width: '40px', height: '40px' }}
+                          sx={{ width: "40px", height: "40px" }}
                         />
                       )}
 
@@ -582,12 +606,12 @@ export const ThreadDetail = () => {
                           <Box
                             sx={{
                               ...flexCenter,
-                              padding: '8px 4px',
+                              padding: "8px 4px",
                             }}
                           >
                             <Box
                               sx={{
-                                m: '0 8px',
+                                m: "0 8px",
                                 ...flexCenter,
                               }}
                             >
@@ -597,7 +621,7 @@ export const ThreadDetail = () => {
                             </Box>
                             <Box
                               sx={{
-                                m: '0 8px',
+                                m: "0 8px",
                                 ...flexCenter,
                               }}
                             >
@@ -612,16 +636,16 @@ export const ThreadDetail = () => {
                                 open={openAnchorReaction}
                                 onClose={handleCloseAnchorReaction}
                                 anchorOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'right',
+                                  vertical: "top",
+                                  horizontal: "right",
                                 }}
                                 transformOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: 'left',
+                                  vertical: "bottom",
+                                  horizontal: "left",
                                 }}
                                 sx={{
-                                  '& .MuiPaper-root': {
-                                    borderRadius: '10px',
+                                  "& .MuiPaper-root": {
+                                    borderRadius: "10px",
                                   },
                                 }}
                               >
@@ -640,7 +664,7 @@ export const ThreadDetail = () => {
                             </Box>
                             <Box
                               sx={{
-                                m: '0 8px',
+                                m: "0 8px",
                                 ...flexCenter,
                               }}
                             >
@@ -651,16 +675,16 @@ export const ThreadDetail = () => {
                             </Box>
                             <Box
                               sx={{
-                                m: '0 8px 0 0',
+                                m: "0 8px 0 0",
                                 ...flexCenter,
-                                ':hover': {
+                                ":hover": {
                                   color: primaryColor,
-                                  cursor: 'pointer',
+                                  cursor: "pointer",
                                 },
                               }}
                             >
                               <MoreVertIcon
-                                sx={{ fontSize: '20px' }}
+                                sx={{ fontSize: "20px" }}
                                 onClick={handClickOpenAnchorMoreFeatureMessage}
                               />
                               <Popover
@@ -669,18 +693,18 @@ export const ThreadDetail = () => {
                                 open={openAnchorMoreFeatureMessage}
                                 onClose={handleCloseAnchorMoreFeatureMessage}
                                 anchorOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: 'right',
+                                  vertical: "bottom",
+                                  horizontal: "right",
                                 }}
                                 transformOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'right',
+                                  vertical: "top",
+                                  horizontal: "right",
                                 }}
                                 sx={{
-                                  '& .MuiPaper-root': {
-                                    borderRadius: '10px',
-                                    margin: '11px 0px 0 0',
-                                    width: '120px',
+                                  "& .MuiPaper-root": {
+                                    borderRadius: "10px",
+                                    margin: "11px 0px 0 0",
+                                    width: "120px",
                                   },
                                 }}
                               >
@@ -689,12 +713,12 @@ export const ThreadDetail = () => {
                                     <>
                                       <Typography
                                         sx={{
-                                          padding: '8px',
-                                          fontSize: '14px',
-                                          ':hover': {
+                                          padding: "8px",
+                                          fontSize: "14px",
+                                          ":hover": {
                                             color: primaryColor,
                                             opacity: 0.8,
-                                            cursor: 'pointer',
+                                            cursor: "pointer",
                                           },
                                         }}
                                         onClick={() =>
@@ -705,12 +729,12 @@ export const ThreadDetail = () => {
                                       </Typography>
                                       <Typography
                                         sx={{
-                                          padding: '8px',
-                                          fontSize: '14px',
-                                          ':hover': {
+                                          padding: "8px",
+                                          fontSize: "14px",
+                                          ":hover": {
                                             color: primaryColor,
                                             opacity: 0.8,
-                                            cursor: 'pointer',
+                                            cursor: "pointer",
                                           },
                                         }}
                                         onClick={() =>
@@ -723,12 +747,12 @@ export const ThreadDetail = () => {
                                   )}
                                   <Typography
                                     sx={{
-                                      padding: '8px',
-                                      fontSize: '14px',
-                                      ':hover': {
+                                      padding: "8px",
+                                      fontSize: "14px",
+                                      ":hover": {
                                         color: primaryColor,
                                         opacity: 0.8,
-                                        cursor: 'pointer',
+                                        cursor: "pointer",
                                       },
                                     }}
                                   >
@@ -764,15 +788,15 @@ export const ThreadDetail = () => {
                                 fontSize="small"
                                 color={inActiveColor}
                               >
-                                You have answered{' '}
+                                You have answered{" "}
                                 {userInfo?.username == message?.senderName
-                                  ? 'yourself'
+                                  ? "yourself"
                                   : message?.senderName}
                               </Typography>
                             </Box>
                             <MessageReplyContent mt={1}>
                               {message?.replyMessage?.content ||
-                                'The message have deleted'}
+                                "The message have deleted"}
                             </MessageReplyContent>
                           </MessageQuoteBox>
                         )}
@@ -784,10 +808,10 @@ export const ThreadDetail = () => {
                                 sx={{
                                   ...flexCenter,
                                   padding: 0.5,
-                                  borderRadius: '5px',
+                                  borderRadius: "5px",
                                   border: `1px solid ${borderColor}`,
                                   backgroundColor: hoverTextColor,
-                                  ':hover': {
+                                  ":hover": {
                                     opacity: 0.8,
                                   },
                                 }}
@@ -840,7 +864,7 @@ export const ThreadDetail = () => {
               <CircularProgress color="inherit" size={30} />
             </Box>
           )}
-          {!loading && !messages ? <RoomNotFound /> : ''}
+          {!loading && !messages ? <RoomNotFound /> : ""}
         </Box>
       </RoomContentContainer>
 
@@ -851,23 +875,23 @@ export const ThreadDetail = () => {
             ref={quoteMessageRef}
             sx={{
               backgroundColor: hoverTextColor,
-              padding: '8px 24px',
+              padding: "8px 24px",
             }}
           >
-            <Box sx={{ ...flexCenter, justifyContent: 'space-between' }}>
+            <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
               <Typography variant="subtitle2">
-                You are answering{' '}
+                You are answering{" "}
                 {userInfo?.username == quoteMessage?.senderName
-                  ? 'yourself'
+                  ? "yourself"
                   : quoteMessage?.senderName}
               </Typography>
               <CloseIcon
                 sx={{
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  borderRadius: '50px',
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  borderRadius: "50px",
 
-                  ':hover': {
+                  ":hover": {
                     backgroundColor: hoverBackgroundColor,
                     color: primaryColor,
                   },
@@ -887,9 +911,9 @@ export const ThreadDetail = () => {
         <Box
           sx={{
             ...flexCenter,
-            padding: '8px 24px',
-            borderWidth: '2px',
-            borderStyle: 'solid none',
+            padding: "8px 24px",
+            borderWidth: "2px",
+            borderStyle: "solid none",
             borderColor: borderColor,
             backgroundColor: whiteColor,
           }}
@@ -947,34 +971,34 @@ export const ThreadDetail = () => {
           </IconButton>
         </Box>
         <Box>
-          <Box sx={{ position: 'relative' }}>
+          <Box sx={{ position: "relative" }}>
             <TextareaAutosize
               ref={textAreaRef}
               placeholder="Message"
               style={{
-                width: '100%',
-                maxHeight: '250px',
-                padding: '16px 58px 16px 24px',
-                display: 'block',
-                border: 'none',
-                outline: 'none',
-                fontSize: '15px',
-                resize: 'none',
+                width: "100%",
+                maxHeight: "250px",
+                padding: "16px 58px 16px 24px",
+                display: "block",
+                border: "none",
+                outline: "none",
+                fontSize: "15px",
+                resize: "none",
               }}
               onChange={(e) => handleChatChange(e)}
               onKeyPress={(e) => handleChat(e)}
             />
             <Box
               sx={{
-                position: 'absolute',
-                right: '24px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                display: 'flex',
-                alignItems: 'center',
-                ':hover': {
+                position: "absolute",
+                right: "24px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                display: "flex",
+                alignItems: "center",
+                ":hover": {
                   color: primaryColor,
-                  cursor: 'pointer',
+                  cursor: "pointer",
                 },
               }}
             >
