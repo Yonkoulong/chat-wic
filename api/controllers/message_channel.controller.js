@@ -9,7 +9,7 @@ const {
   isArray,
   MESSAGE_TYPES,
   responseConstant,
-  isObjectEmpty
+  isObjectEmpty,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -35,7 +35,7 @@ const postMessageChannel = async (req, res) => {
     fileName,
     size,
     senderName,
-    senderAvatar
+    senderAvatar,
   } = req?.body;
 
   if (isObjectIdInMongodb(channelId) && isObjectIdInMongodb(messageFrom)) {
@@ -69,12 +69,17 @@ const postMessageChannel = async (req, res) => {
     let senderInReply = {};
 
     if (!isObjectEmpty(replyId)) {
-      messageByReplyIds = await MessageChannel.find({ _id: { $in: replyId } })
+      messageByReplyIds = await MessageChannel.find({ _id: { $in: replyId } });
       if (messageByReplyIds.length > 0) {
-        senderInReply = await User.find({ _id: { $in: messageByReplyIds[0].messageFrom } });
+        senderInReply = await User.find({
+          _id: { $in: messageByReplyIds[0].messageFrom },
+        });
 
         if (senderInReply.length > 0) {
-          messageByReplyIds = { ...messageByReplyIds['0']?._doc, senderName: senderInReply[0].username };
+          messageByReplyIds = {
+            ...messageByReplyIds["0"]?._doc,
+            senderName: senderInReply[0].username,
+          };
         }
       }
     }
@@ -83,9 +88,18 @@ const postMessageChannel = async (req, res) => {
       await MessageChannel.create(newMessage);
 
       if (messageByReplyIds) {
-        return res?.status(httpCode.ok).json({ ...newMessage, replyMessage: messageByReplyIds, senderName: senderName, avatar: senderAvatar });
+        return res?.status(httpCode.ok).json({
+          ...newMessage,
+          replyMessage: messageByReplyIds,
+          senderName: senderName,
+          avatar: senderAvatar,
+        });
       } else {
-        return res?.status(httpCode.ok).json({ ...newMessage, senderName: senderName, avatar: senderAvatar });
+        return res?.status(httpCode.ok).json({
+          ...newMessage,
+          senderName: senderName,
+          avatar: senderAvatar,
+        });
       }
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -130,9 +144,11 @@ const getMessageChannelByChannelId = async (req, res) => {
   try {
     // get messages by ids
     messageByReplyIds = await MessageChannel.find({ _id: { $in: replyIds } });
-  } catch { }
+  } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
-  const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
+  const senderByReplyIds = await User.find({
+    _id: { $in: messageByReplyIds[0]?.messageFrom },
+  });
   const convertMessageInChannel = messageInChannel?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
@@ -149,7 +165,10 @@ const getMessageChannelByChannelId = async (req, res) => {
     if (message?.replyId && messageByReplyIds?.length > 0) {
       messageByReplyIds?.forEach((item) => {
         if (item?._id?.toString() == message?.replyId) {
-          const newItem = { ...item?._doc, senderName: senderByReplyIds[0]?.username }
+          const newItem = {
+            ...item?._doc,
+            senderName: senderByReplyIds[0]?.username,
+          };
           replyMessage = newItem;
         }
       });
@@ -198,7 +217,7 @@ const putUpdateMessageChannel = async (req, res) => {
       messageReactions?.filter((item) => {
         return (
           item?.unified?.toString() === reaction?.unified?.toString() &&
-          reaction?.reactorId === reaction?.reactorId
+          item?.reactorId === reaction?.reactorId
         );
       })?.length > 0;
 
@@ -258,13 +277,18 @@ const deleteMessageInChannel = async (req, res) => {
 
 const postCreateThreadAndAddMessageToThread = async (req, res) => {
   const { messageId } = req?.params;
-  const { content, messageFrom, type, threadId,
+  const {
+    content,
+    messageFrom,
+    type,
+    threadId,
     url,
     secretUrl,
     fileName,
     size,
     senderName,
-    senderAvatar } = req.body;
+    senderAvatar,
+  } = req.body;
 
   let isThreadMessageExisted = false;
   let messageRoot = {};
@@ -316,7 +340,7 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
         $currentDate: { lastUpdated: true },
       }
     );
-  } catch { }
+  } catch {}
 
   // add new message in thread
   const newMessage = {
@@ -336,7 +360,7 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
 };
 
 // search member and channel by organizeId
-const postSearchMemberAndChannelByOrganizeId = async (req, res) => { };
+const postSearchMemberAndChannelByOrganizeId = async (req, res) => {};
 
 module.exports = [
   {
