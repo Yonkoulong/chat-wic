@@ -9,7 +9,7 @@ const {
   isArray,
   MESSAGE_TYPES,
   responseConstant,
-  isObjectEmpty
+  isObjectEmpty,
 } = require("../utils/constant");
 const { isObjectIdInMongodb } = require("../utils/validation");
 
@@ -25,7 +25,7 @@ const postCreateMessageDirect = async (req, res) => {
     fileName,
     size,
     senderName,
-    senderAvatar
+    senderAvatar,
   } = req?.body;
 
   if (isObjectIdInMongodb(directId) && isObjectIdInMongodb(messageFrom)) {
@@ -58,23 +58,37 @@ const postCreateMessageDirect = async (req, res) => {
     let senderInReply = {};
 
     if (!isObjectEmpty(replyId)) {
-      messageByReplyIds = await MessageDirect.find({ _id: { $in: replyId } })
-      if(messageByReplyIds?.length > 0) {
-         senderInReply = await User.find({ _id: { $in: messageByReplyIds[0].messageFrom } });
+      messageByReplyIds = await MessageDirect.find({ _id: { $in: replyId } });
+      if (messageByReplyIds?.length > 0) {
+        senderInReply = await User.find({
+          _id: { $in: messageByReplyIds[0].messageFrom },
+        });
 
-         if(senderInReply?.length > 0) {
-          messageByReplyIds = {...messageByReplyIds['0']?._doc, senderName: senderInReply[0].username };
-         }
+        if (senderInReply?.length > 0) {
+          messageByReplyIds = {
+            ...messageByReplyIds["0"]?._doc,
+            senderName: senderInReply[0].username,
+          };
+        }
       }
     }
 
     try {
       await MessageDirect.create(newMessage);
 
-      if(messageByReplyIds) {
-        return res?.status(httpCode.ok).json({...newMessage, senderName, avatar: senderAvatar, replyMessage: messageByReplyIds });
+      if (messageByReplyIds) {
+        return res
+          ?.status(httpCode.ok)
+          .json({
+            ...newMessage,
+            senderName,
+            avatar: senderAvatar,
+            replyMessage: messageByReplyIds,
+          });
       } else {
-        return res?.status(httpCode.ok).json({...newMessage, senderName, avatar: senderAvatar});
+        return res
+          ?.status(httpCode.ok)
+          .json({ ...newMessage, senderName, avatar: senderAvatar });
       }
     } catch {
       return res?.status(httpCode.badRequest).json(responseError.badRequest);
@@ -121,7 +135,9 @@ const postGetMessageDirectByDirectId = async (req, res) => {
     messageByReplyIds = await MessageDirect.find({ _id: { $in: replyIds } });
   } catch {}
   const senders = await User.find({ _id: { $in: senderIds } });
-  const senderByReplyIds = await User.find({ _id: { $in: messageByReplyIds[0]?.messageFrom } })
+  const senderByReplyIds = await User.find({
+    _id: { $in: messageByReplyIds[0]?.messageFrom },
+  });
   const convertMessageInDirect = messageInDirect?.map((message) => {
     const senderIdToString = message?.messageFrom?.toString();
     let senderName = "";
@@ -138,7 +154,10 @@ const postGetMessageDirectByDirectId = async (req, res) => {
     if (message?.replyId && messageByReplyIds?.length > 0) {
       messageByReplyIds?.forEach((item) => {
         if (item?._id?.toString() == message?.replyId) {
-          const newItem = { ...item?._doc, senderName: senderByReplyIds[0]?.username }
+          const newItem = {
+            ...item?._doc,
+            senderName: senderByReplyIds[0]?.username,
+          };
           replyMessage = newItem;
         }
       });
@@ -172,12 +191,17 @@ const putUpdateMessageDirect = async (req, res) => {
       messageReactions?.filter((item) => {
         return (
           item?.unified?.toString() === reaction?.unified?.toString() &&
-          reaction?.reactorId === reaction?.reactorId
+          item?.reactorId === reaction?.reactorId
         );
       })?.length > 0;
 
+    const isMessageAlreadyExist =
+      messageReactions?.filter((item) => {
+        return item?.reactorId === reaction?.reactorId;
+      })?.length < 1;
+
     const isNewReaction =
-      Array.isArray(messageReactions) && messageReactions?.length < 1;
+      messageReactions?.length < 1 || !isMessageAlreadyExist;
 
     console.log(isWillRemoveReaction, "isWillRemoveReaction");
 

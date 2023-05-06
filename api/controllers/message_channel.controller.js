@@ -221,8 +221,13 @@ const putUpdateMessageChannel = async (req, res) => {
         );
       })?.length > 0;
 
+    const isMessageAlreadyExist =
+      messageReactions?.filter((item) => {
+        return item?.reactorId === reaction?.reactorId;
+      })?.length < 1;
+
     const isNewReaction =
-      Array.isArray(messageReactions) && messageReactions?.length < 1;
+      messageReactions?.length < 1 || !isMessageAlreadyExist;
 
     console.log(isWillRemoveReaction, "isWillRemoveReaction");
 
