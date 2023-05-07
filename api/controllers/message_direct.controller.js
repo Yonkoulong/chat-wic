@@ -77,14 +77,12 @@ const postCreateMessageDirect = async (req, res) => {
       await MessageDirect.create(newMessage);
 
       if (!isObjectEmpty(messageByReplyIds)) {
-        return res
-          ?.status(httpCode.ok)
-          .json({
-            ...newMessage,
-            senderName,
-            avatar: senderAvatar,
-            replyMessage: messageByReplyIds,
-          });
+        return res?.status(httpCode.ok).json({
+          ...newMessage,
+          senderName,
+          avatar: senderAvatar,
+          replyMessage: messageByReplyIds,
+        });
       } else {
         return res
           ?.status(httpCode.ok)
@@ -195,6 +193,8 @@ const putUpdateMessageDirect = async (req, res) => {
         );
       })?.length > 0;
 
+    const isUpdateReaction = !isWillRemoveReaction;
+
     const isMessageAlreadyExist =
       messageReactions?.filter((item) => {
         return item?.reactorId === reaction?.reactorId;
@@ -208,15 +208,17 @@ const putUpdateMessageDirect = async (req, res) => {
     if (isNewReaction) {
       // add new reaction
       messageReactions?.push(reaction);
-    } else if (isWillRemoveReaction) {
-      // remove reaction has existed
+    }
+
+    // remove reaction has existed
+    if (isWillRemoveReaction) {
       messageReactions = messageReactions?.filter(
-        (item) =>
-          item?.unified !== reaction?.unified &&
-          reaction?.reactorId !== reaction?.reactorId
+        (item) => item?.reactorId !== reaction?.reactorId
       );
-    } else {
-      // update new reaction
+    }
+
+    // update new reaction
+    if (isUpdateReaction) {
       messageReactions = messageReactions?.map((item) => {
         const reactorId = reaction?.reactorId;
         let newItem = item;
