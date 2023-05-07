@@ -10,7 +10,7 @@ import {
   TruncateString,
   TextareaAutosize,
   Paper,
-  CircularProgress
+  CircularProgress,
 } from "@/shared/components";
 import { RoomNotFound } from "@/shared/components/RoomNotFound";
 
@@ -52,10 +52,7 @@ import {
   MessageThreadBox,
 } from "./ThreadDetail.styles";
 
-import {
-  ModalUploadFilePreview,
-  ModalCreateTask,
-} from "@/pages/ChatView/Components/Modal";
+import { ModalUploadFileThreadPreview } from "@/pages/ChatView/Components/Modal";
 
 import {
   blackColor,
@@ -80,14 +77,18 @@ import {
   enumTypeRooms,
   enumRoles,
 } from "@/shared/utils/constant";
-import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
 import {
-  postMessageChannel,
+  hasWhiteSpace,
+  isObjectEmpty,
+  handleRenderMessageCustomWithType,
+} from "@/shared/utils/utils";
+
+import {
   putUpdateMessageChannel,
   getMessageChannelDetail,
 } from "@/services/channel.services";
 
-import { postMessageThread } from "@/services/thread.services";
+import { postMessageThread, deleteMessageThread } from "@/services/thread.services";
 
 const flexCenter = {
   display: "flex",
@@ -106,11 +107,7 @@ export const ThreadDetail = () => {
     editThreadMessageStore,
     reactionThreadMessage,
     fetchMessagesThreadChannel,
-    quoteThreadMessage,
     editThreadMessage,
-    setQuoteThreadMessage,
-    heightQuoteThreadMessageBox,
-    setHeightQuoteThreadMessageBox,
     setEditThreadMessage,
     loading,
     setLoading,
@@ -124,6 +121,8 @@ export const ThreadDetail = () => {
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
+  const [quoteThreadMessage, setQuoteThreadMessage] = useState(null);
+  const [heightQuoteThreadMessageBox, setHeightQuoteThreadMessageBox] = useState(0);
   const [anchorReaction, setAnchorReaction] = useState(null);
   const [anchorMoreFeatureMessage, setAnchorMoreFeatureMessage] =
     useState(null);
@@ -231,10 +230,13 @@ export const ThreadDetail = () => {
             channelId: id,
             type: type,
             replyId: quoteThreadMessage?._id || null,
-            threadId: selectedThreadMessage?._id
+            threadId: selectedThreadMessage?._id,
           };
 
-          const resp = await postMessageThread(selectedThreadMessage?._id, newPayloadMessageChannel);
+          const resp = await postMessageThread(
+            selectedThreadMessage?._id,
+            newPayloadMessageChannel
+          );
           if (resp) {
             client.emit("send-message-thread", resp?.data);
             pushThreadMessage(resp?.data);
@@ -278,11 +280,9 @@ export const ThreadDetail = () => {
       if (!idEditMessage) return;
 
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-
         if (resp) {
         }
       }
-
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
@@ -297,12 +297,10 @@ export const ThreadDetail = () => {
   const handleClickReplyMessage = (message) => {
     if (message) {
       setQuoteThreadMessage(message);
-      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
-      setHeightQuoteThreadMessageBox(heightQuoteMessage);
 
       setTimeout(() => {
         textAreaRef.current.focus();
-      }, 100)
+      }, 100);
     }
   };
 
@@ -317,13 +315,14 @@ export const ThreadDetail = () => {
   };
 
   const handleDeleteMessage = async (messageId) => {
+
     try {
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
-        // const resp = await deleteMessageChannel(messageId);
+        const resp = await deleteMessageThread(messageId);
 
         if (resp) {
-          client.emit("delete-message-channel", {
-            channelId: roomInfo?._id,
+          client.emit("delete-message-thread", {
+            threadId: selectedThreadMessage?.threadId,
             messageId,
           });
           deleteThreadMessage(messageId);
@@ -384,11 +383,11 @@ export const ThreadDetail = () => {
 
   const renderMessageWithTypeImage = (message) => {
     return (
-      <Paper sx={{ width: "160px", height: "160px", marginTop: 1 }}>
+      <Paper sx={{ width: "260px", height: "260px", marginTop: 1 }}>
         <img
           src={message?.content}
           alt="image-message"
-          style={{ width: "100%", objectFit: "contain" }}
+          style={{ width: "100%", objectFit: "cover", height: "100%" }}
         />
       </Paper>
     );
@@ -425,8 +424,10 @@ export const ThreadDetail = () => {
         </Box>
         <Typography
           ml={1}
-          fontSize="small"
-          sx={{ color: blackColor, fontWeight: "bold" }}
+          sx={{
+            color: blackColor,
+            fontSize: "14px",
+          }}
         >
           {message?.fileName} - {Math.round((message?.size / 1024) * 100) / 100}{" "}
           KB
@@ -439,7 +440,7 @@ export const ThreadDetail = () => {
     return (
       <Paper sx={{ width: "fit-content", marginTop: 1 }}>
         <video
-          width="160"
+          width="220"
           height="100%"
           style={{ borderRadius: "4px" }}
           controls
@@ -457,24 +458,9 @@ export const ThreadDetail = () => {
       const newUrl = content.replace(urlRegex, function (url) {
         return '<a href="' + url + '" target="_blank">' + url + "</a>";
       });
-      return (
-        <div
-          dangerouslySetInnerHTML={{ __html: newUrl }}
-          style={{
-            fontSize: "12px",
-            fontWeight: "bold",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-          }}
-        ></div>
-      );
+      return <div dangerouslySetInnerHTML={{ __html: newUrl }}></div>;
     } else {
-      return (
-        <Typography fontSize="small" fontWeight="bold" noWrap>
-          {content}
-        </Typography>
-      );
+      return <Typography fontSize="small">{content}</Typography>;
     }
   };
 
@@ -524,6 +510,13 @@ export const ThreadDetail = () => {
       inline: "start",
     });
   }, [messagesThread]);
+
+  useEffect(() => {
+    if(quoteThreadMessage) {
+      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
+      setHeightQuoteThreadMessageBox(heightQuoteMessage);
+    }
+  }, [quoteThreadMessage])
 
   //post message realtime
   useEffect(() => {
@@ -613,7 +606,7 @@ export const ThreadDetail = () => {
           </IconButton>
           <Box ml={0.5} sx={{ width: "200px" }}>
             {selectedThreadMessage &&
-              handleRenderMessageWithType(selectedThreadMessage)}
+              handleRenderMessageCustomWithType(selectedThreadMessage)}
           </Box>
         </Box>
         <IconButton
@@ -655,7 +648,7 @@ export const ThreadDetail = () => {
                       ref={scrollRef}
                       sx={{
                         backgroundColor:
-                        editThreadMessage?._id === message?._id
+                          editThreadMessage?._id === message?._id
                             ? hoverTextColor
                             : "",
                       }}
@@ -733,17 +726,6 @@ export const ThreadDetail = () => {
                             </Box>
                             <Box
                               sx={{
-                                m: "0 8px",
-                                ...flexCenter,
-                              }}
-                            >
-                              <UilCommentMessageIcon
-                                width="0.7em"
-                                height="0.7em"
-                              />
-                            </Box>
-                            <Box
-                              sx={{
                                 m: "0 8px 0 0",
                                 ...flexCenter,
                                 ":hover": {
@@ -796,22 +778,25 @@ export const ThreadDetail = () => {
                                       >
                                         Delete
                                       </Typography>
-                                      <Typography
-                                        sx={{
-                                          padding: "8px",
-                                          fontSize: "14px",
-                                          ":hover": {
-                                            color: primaryColor,
-                                            opacity: 0.8,
-                                            cursor: "pointer",
-                                          },
-                                        }}
-                                        onClick={() =>
-                                          handleClickUpdateMessage(message)
-                                        }
-                                      >
-                                        Edit
-                                      </Typography>
+                                      {message?.type ===
+                                        typesMessage.PLAIN_TEXT && (
+                                        <Typography
+                                          sx={{
+                                            padding: "8px",
+                                            fontSize: "14px",
+                                            ":hover": {
+                                              color: primaryColor,
+                                              opacity: 0.8,
+                                              cursor: "pointer",
+                                            },
+                                          }}
+                                          onClick={() =>
+                                            handleClickUpdateMessage(message)
+                                          }
+                                        >
+                                          Edit
+                                        </Typography>
+                                      )}
                                     </>
                                   )}
                                   <Typography
@@ -868,7 +853,7 @@ export const ThreadDetail = () => {
                               </Typography>
                             </Box>
                             <MessageReplyContent mt={1}>
-                              {message?.replyMessage?.content ||
+                              {handleRenderMessageCustomWithType(message?.replyMessage) ||
                                 "The message have deleted"}
                             </MessageReplyContent>
                           </MessageQuoteBox>
@@ -903,29 +888,6 @@ export const ThreadDetail = () => {
                             </MessageReactionBox>
                           );
                         }) || <></>}
-
-                        {/* <MessageThreadBox>
-                        <Box
-                          sx={{
-                            padding: 0.5,
-                            borderRadius: "5px",
-                            backgroundColor: primaryColor,
-                            color: whiteColor,
-
-                            ":hover": {
-                              opacity: 0.8,
-                            },
-                          }}
-                        >
-                          <Typography fontSize="small">Thread</Typography>
-                        </Box>
-                        <Box sx={{ ...flexCenter, ml: 1 }}>
-                          <UilCommentMessageIcon width="0.7em" height="0.7em" />
-                          <Typography fontSize="11px" ml={0.5}>
-                            1
-                          </Typography>
-                        </Box>
-                      </MessageThreadBox> */}
                       </MessageContentWrapper>
                     </MessageItem>
                   );
@@ -974,7 +936,7 @@ export const ThreadDetail = () => {
             </Box>
             <Box mt={1}>
               <Typography component="p" sx={{ color: inActiveColor }}>
-                {quoteThreadMessage?.content}
+                {handleRenderMessageCustomWithType(quoteThreadMessage)}
               </Typography>
             </Box>
           </Box>
@@ -1084,7 +1046,7 @@ export const ThreadDetail = () => {
           </Box>
         </Box>
         {/* Modal */}
-        <ModalUploadFilePreview
+        <ModalUploadFileThreadPreview
           open={openUploadFileModal}
           onClose={setOpenUpladFileModal}
           data={fileListObject}

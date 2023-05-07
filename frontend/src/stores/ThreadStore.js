@@ -3,10 +3,8 @@ import { getMessagesThread } from "@/services/thread.services";
 
 export const useThreadStore = create((set, get) => ({
   messagesThread: null,
-  quoteThreadMessage: null,
   editThreadMessage:  null,
   selectedThreadMessage: null,
-  heightQuoteThreadMessageBox: 0,
   loading: false,
 
   setEditThreadMessage: (payload) => {
@@ -15,20 +13,14 @@ export const useThreadStore = create((set, get) => ({
   setSelectedThreadMessage: (payload) => {
     set({ selectedThreadMessage: payload });
   },
-  setHeightQuoteThreadMessageBox: (payload) => {
-    set({ heightQuoteThreadMessageBox: payload });
-  },
-  setQuoteThreadMessage: (payload) => {
-    set({ quoteThreadMessage: payload });
-  },
   setThreadMessages: (payload) => {
     set({ messagesThread: payload });
   },
   pushThreadMessage: (payload) => {
-    set((state) => ({ messagesThread: [...state.messages, payload] }));
+    set((state) => ({ messagesThread: [...state.messagesThread, payload] }));
   },
   deleteThreadMessage: (payload) => {
-    set((state) => ({ messagesThread: state.messages?.filter((msg) => msg?._id !== payload) }));
+    set((state) => ({ messagesThread: state.messagesThread?.filter((msg) => msg?._id !== payload) }));
   },
   editThreadMessageStore: (payload) => {
     const newListMessageThread = get().messagesThread.map(msg => {
@@ -58,7 +50,6 @@ export const useThreadStore = create((set, get) => ({
     set({ messagesThread: newListMessageThread })
   },
   setLoading: (payload) => set({ loading: payload }),
-
   fetchMessagesThreadChannel: async (payload) => {
     const response = await getMessagesThread(payload);
     if (response) {

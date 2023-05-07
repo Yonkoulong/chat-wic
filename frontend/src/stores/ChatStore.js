@@ -55,7 +55,6 @@ export const useChatStore = create((set, get) => ({
     set({ messages: newListMessage })
   },
   setLoading: (payload) => set({ loading: payload }),
-
   fetchMessagesChannel: async (payload) => {
     const response = await getMessageChannelByChannelId(payload);
     if (response) {

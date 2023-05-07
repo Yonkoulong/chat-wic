@@ -53,7 +53,10 @@ import {
   blackColor,
 } from "@/shared/utils/colors.utils";
 import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
-import { chatTimestamp } from "@/shared/utils/utils";
+import {
+  chatTimestamp,
+  handleRenderMessageCustomWithType,
+} from "@/shared/utils/utils";
 import { redirectTo } from "@/shared/utils/history";
 
 import {
@@ -261,7 +264,7 @@ export const RoomContent = () => {
         <img
           src={message?.content}
           alt="image-message"
-          style={{ width: "100%", objectFit: "contain" }}
+          style={{ width: "100%", objectFit: "cover", height: "100%" }}
         />
       </Paper>
     );
@@ -371,7 +374,9 @@ export const RoomContent = () => {
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 10000);
     }
   }, [roomInfo, typeRoom]);
 
@@ -714,10 +719,15 @@ export const RoomContent = () => {
                                   )}`}
                             </Typography>
                           </Box>
-                          <MessageReplyContent mt={1}>
-                            {message?.replyMessage?.content ||
-                              "The message have deleted"}
-                          </MessageReplyContent>
+                          <Box mt={1}>
+                            {handleRenderMessageCustomWithType(
+                              message?.replyMessage
+                            ) || (
+                              <span style={{ fontSize: "12px" }}>
+                                The message have deleted
+                              </span>
+                            )}
+                          </Box>
                         </MessageQuoteBox>
                       )}
 
@@ -751,35 +761,39 @@ export const RoomContent = () => {
                             </MessageReactionBox>
                           );
                         })) || <></>}
+                      {message?.threadId && (
+                        <MessageThreadBox>
+                          <Box
+                            sx={{
+                              padding: 0.5,
+                              borderRadius: "5px",
+                              backgroundColor: primaryColor,
+                              color: whiteColor,
 
-                      <MessageThreadBox>
-                        <Box
-                          sx={{
-                            padding: 0.5,
-                            borderRadius: "5px",
-                            backgroundColor: primaryColor,
-                            color: whiteColor,
-
-                            ":hover": {
-                              opacity: 0.8,
-                              cursor: "pointer",
-                            },
-                          }}
-                          onClick={() =>
-                            redirectTo(
-                              `/chat/channel/${id}/threads/${message?.threadId}`
-                            )
-                          }
-                        >
-                          <Typography fontSize="small">Thread</Typography>
-                        </Box>
-                        <Box sx={{ ...flexCenter, ml: 1 }}>
-                          <UilCommentMessageIcon width="0.7em" height="0.7em" />
-                          <Typography fontSize="11px" ml={0.5}>
-                            1
-                          </Typography>
-                        </Box>
-                      </MessageThreadBox>
+                              ":hover": {
+                                opacity: 0.8,
+                                cursor: "pointer",
+                              },
+                            }}
+                            onClick={() =>
+                              redirectTo(
+                                `/chat/channel/${id}/threads/${message?.threadId}`
+                              )
+                            }
+                          >
+                            <Typography fontSize="small">Thread</Typography>
+                          </Box>
+                          <Box sx={{ ...flexCenter, ml: 1 }}>
+                            <UilCommentMessageIcon
+                              width="0.7em"
+                              height="0.7em"
+                            />
+                            <Typography fontSize="11px" ml={0.5}>
+                              1
+                            </Typography>
+                          </Box>
+                        </MessageThreadBox>
+                      )}
                     </MessageContentWrapper>
                   </MessageItem>
                 );

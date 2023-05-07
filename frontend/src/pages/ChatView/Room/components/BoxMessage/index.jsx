@@ -41,7 +41,7 @@ import {
   enumTypeRooms,
   enumRoles,
 } from "@/shared/utils/constant";
-import { hasWhiteSpace, isObjectEmpty } from "@/shared/utils/utils";
+import { hasWhiteSpace, isObjectEmpty, handleRenderMessageCustomWithType } from "@/shared/utils/utils";
 import {
   postMessageChannel,
   putUpdateMessageChannel,
@@ -320,9 +320,9 @@ export const BoxMessage = () => {
             />
           </Box>
           <Box mt={1}>
-            <Typography component="p" sx={{ color: inActiveColor }}>
-              {quoteMessage?.content}
-            </Typography>
+            <Box sx={{ color: inActiveColor }}>
+              {handleRenderMessageCustomWithType(quoteMessage)}
+            </Box>
           </Box>
         </Box>
       )}

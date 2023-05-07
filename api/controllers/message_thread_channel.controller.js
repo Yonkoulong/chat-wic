@@ -89,16 +89,15 @@ const postMessageThread = async (req, res) => {
       }
 
       //create Message thread
-      console.log(MessageThread.create(newMessageThread));
-      const resp = await MessageThread.create(newMessageThread);
-      
+      await MessageThread.create(newMessageThread);
       if (!isObjectEmpty(messageByReplyIds)) {
-        return res?.status(httpCode.oke).json({ ...newMessageThread, replyIdMessage: messageByReplyIds, senderName: senderName, avatar: senderAvatar });
+        return res?.status(httpCode.ok).json({ ...newMessageThread, replyMessage: messageByReplyIds, senderName: senderName, avatar: senderAvatar });
       } else {
-        return res?.status(httpCode.oke).json({ ...newMessageThread, senderName: senderName, avatar: senderAvatar });
+        return res?.status(httpCode.ok).json({ ...newMessageThread, senderName: senderName, avatar: senderAvatar });
       }
-
-    } catch (error) { }
+    } catch (error) {
+      return res?.status(httpCode.badRequest).json(responseError.badRequest);
+    }
   }
 };
 

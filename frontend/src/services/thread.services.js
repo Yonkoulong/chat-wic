@@ -13,6 +13,6 @@ export async function editMessageThread () {
 
 }
 
-export async function deleteMessageThread () {
-
+export async function deleteMessageThread (messageThreadId) {
+    return requestAxios.delete(`/message-thread/${messageThreadId}/delete`);
 }
