@@ -220,6 +220,8 @@ const putUpdateMessageChannel = async (req, res) => {
         );
       })?.length > 0;
 
+    const isUpdateReaction = !isWillRemoveReaction;
+
     const isMessageAlreadyExist =
       messageReactions?.filter((item) => {
         return item?.reactorId === reaction?.reactorId;
@@ -233,15 +235,17 @@ const putUpdateMessageChannel = async (req, res) => {
     if (isNewReaction) {
       // add new reaction
       messageReactions?.push(reaction);
-    } else if (isWillRemoveReaction) {
-      // remove reaction has existed
+    }
+
+    // remove reaction has existed
+    if (isWillRemoveReaction) {
       messageReactions = messageReactions?.filter(
-        (item) =>
-          item?.unified !== reaction?.unified &&
-          reaction?.reactorId !== reaction?.reactorId
+        (item) => item?.reactorId !== reaction?.reactorId
       );
-    } else {
-      // update new reaction
+    }
+
+    // update new reaction
+    if (isUpdateReaction) {
       messageReactions = messageReactions?.map((item) => {
         const reactorId = reaction?.reactorId;
         let newItem = item;
@@ -365,7 +369,7 @@ const postCreateThreadAndAddMessageToThread = async (req, res) => {
 
 const getMessageChannelDetail = async (req, res) => {
   const { messageId } = req?.params;
-  if(isObjectIdInMongodb(messageId)) {
+  if (isObjectIdInMongodb(messageId)) {
     const convertId = ObjectIdMongodb(messageId);
 
     try {
@@ -373,8 +377,10 @@ const getMessageChannelDetail = async (req, res) => {
       const messageInfo = await MessageChannel.find({ _id: convertId });
       // let messageResponse = { ...messageInfo[0]?._doc };
       //info message
-      if(messageInfo?.length > 0) {
-        return res.status(httpCode.ok).json(formatResponse(messageInfo[0]?._doc));
+      if (messageInfo?.length > 0) {
+        return res
+          .status(httpCode.ok)
+          .json(formatResponse(messageInfo[0]?._doc));
       } else {
         return res.status(httpCode.notFound).json(responseError.notFound);
       }
@@ -382,8 +388,7 @@ const getMessageChannelDetail = async (req, res) => {
       return res.status(httpCode.badRequest).json(responseError.badRequest);
     }
   }
-
-}
+};
 
 // search member and channel by organizeId
 const postSearchMemberAndChannelByOrganizeId = async (req, res) => {};
