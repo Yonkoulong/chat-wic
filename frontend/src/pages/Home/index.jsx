@@ -37,9 +37,6 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import { redirectTo } from '@/shared/utils/history';
 
 export const HomePage = () => {
-
-
-
   return (
     <Box
       sx={{

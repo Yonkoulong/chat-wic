@@ -87,8 +87,16 @@ export const MessageQuoteBox = styled(Box)`
 export const MessageReactionBox = styled(Box)`
   display: flex;
   align-items: center;
-  gap: 4px;
   margin-top: 8px;
+  width: fit-content;
+  border-radius: 5px;
+  border: 1px solid ${borderColor};
+  background-color: ${hoverTextColor};
+
+  &:hover {
+    opacity: 0.8;
+    cursor: pointer;
+  }
 `
 
 export const MessageThreadBox = styled(Box)`

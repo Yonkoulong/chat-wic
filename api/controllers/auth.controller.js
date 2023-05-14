@@ -27,11 +27,12 @@ const postLogin = async (req, res) => {
       password,
       matchUser?.password || ""
     );
-
+    
     if (isMatchPassword) {
       const token = jwt.sign({ data: matchUser }, process.env.TOKEN_KEY, {
         expiresIn: "24h",
       });
+      
       return res.status(httpCode.ok).json({ ...matchUser?._doc, token });
     } else {
       return res.status(httpCode.badRequest).json(responseError.login);
@@ -74,18 +75,21 @@ const postRegister = async (req, res) => {
   const convertPassword = await bcrypt.hash(password, saltRounds);
   const _id = new ObjectIdMongodb();
   const organizeId = new ObjectIdMongodb();
+  const newUserName = email?.split("@");
+
   const newUser = {
     _id,
     email,
     password: convertPassword,
     userStatus: IUserStatus.offline,
-    username: "",
+    username: newUserName.length > 0 ? newUserName[0] : '',
     avatar: "",
     firstName: "",
     lastName: "",
     role: USER_ROLES.admin,
     organizeId,
   };
+  
 
   try {
     await User?.create(newUser);

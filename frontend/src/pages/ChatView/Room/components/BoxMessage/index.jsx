@@ -300,8 +300,7 @@ export const BoxMessage = () => {
         >
           <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
             <Typography variant="subtitle2">
-              You are answering{" "}
-              {userInfo?.username == quoteMessage?.senderName
+              You are answering {userInfo?.username == quoteMessage?.senderName
                 ? "yourself"
                 : quoteMessage?.senderName}
             </Typography>

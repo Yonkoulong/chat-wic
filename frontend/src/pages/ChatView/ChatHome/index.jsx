@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 
 import { Box, Typography, Button, Paper } from "@/shared/components";
+import { useAppStore } from "@/stores/AppStore";
 
 import {
   ModalCreateDirect,
   ModalCreateChannel,
 } from "@/pages/ChatView/Components/Modal";
+import { enumRoles } from "@/shared/utils/constant";
 
 export const ChatHome = () => {
   const [openCreateChannelModal, setOpenCreateChannelModal] = useState(false);
   const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] =
     useState(false);
 
+  const { userInfo } = useAppStore((state) => state);
+
   const handleClickOpenModalCreateChannel = () => {
     setOpenCreateChannelModal(true);
-    setAnchorRoom(null);
+    setAnchorRoom(null); //bug
   };
 
   const handleClickOpenModalCreateDirect = () => {
@@ -45,32 +49,34 @@ export const ChatHome = () => {
       </Box>
       <Box sx={{ marginTop: "50px" }}>
         <Box sx={{ display: "flex", gap: "30px" }}>
-          <Paper
-            sx={{
-              flex: "0 0 33.33333%",
-              maxWidth: "33.33333%",
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: 'space-between',
-              height: '180px'
-            }}
-          >
-            <Box>
-              <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
-                Create channels
-              </Typography>
-              <Typography fontSize="small" mt={2}>
-                Create public channel that new workspace members can join.
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => handleClickOpenModalCreateChannel()}
+          {userInfo && userInfo?.role == enumRoles.PROJECT_MANAGER && (
+            <Paper
+              sx={{
+                flex: "0 0 33.33333%",
+                maxWidth: "33.33333%",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                height: "180px",
+              }}
             >
-              Create Channel
-            </Button>
-          </Paper>
+              <Box>
+                <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
+                  Create channels
+                </Typography>
+                <Typography fontSize="small" mt={2}>
+                  Create public channel that new workspace members can join.
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                onClick={() => handleClickOpenModalCreateChannel()}
+              >
+                Create Channel
+              </Button>
+            </Paper>
+          )}
           <Paper
             sx={{
               flex: "0 0 33.33333%",
@@ -78,7 +84,8 @@ export const ChatHome = () => {
               padding: "16px",
               display: "flex",
               flexDirection: "column",
-              justifyContent: 'space-between'
+              justifyContent: "space-between",
+              height: "180px",
             }}
           >
             <Box>

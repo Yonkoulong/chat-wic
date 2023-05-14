@@ -88,7 +88,7 @@ import {
   getMessageChannelDetail,
 } from "@/services/channel.services";
 
-import { postMessageThread, deleteMessageThread } from "@/services/thread.services";
+import { postMessageThread, deleteMessageThread, editMessageThread } from "@/services/thread.services";
 
 const flexCenter = {
   display: "flex",
@@ -118,6 +118,7 @@ export const ThreadDetail = () => {
 
   const [idMessageHovering, setIdMessageHovering] = useState(null);
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
+  const [idEditMessage, setIdEidtMessage] = useState(null);
   const [openUploadFileModal, setOpenUpladFileModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
@@ -213,13 +214,14 @@ export const ThreadDetail = () => {
             content: value,
           };
 
-          const resp = await putUpdateMessageChannel(
+          const resp = await editMessageThread(
             editThreadMessage?._id,
             newPayLoadEditMessageChannel
           );
 
           if (resp) {
-            // fetchMessagesThreadChannel({ channelId: id });
+            client?.emit("edit-message-thread", resp?.data?.content);
+            editThreadMessageStore(resp?.data?.content);
           }
         } else {
           const newPayloadMessageChannel = {
@@ -280,7 +282,11 @@ export const ThreadDetail = () => {
       if (!idEditMessage) return;
 
       if (typeRoom && typeRoom === enumTypeRooms.CHANNEL) {
+        const resp = await editMessageThread(idEditMessage, newPayload);
+
         if (resp) {
+          client?.emit("reaction-mesage-thread", resp?.data?.content);
+          reactionThreadMessage(resp?.data?.content);
         }
       }
     } catch (error) {
@@ -344,6 +350,20 @@ export const ThreadDetail = () => {
       }
       setEditThreadMessage(message);
       setAnchorMoreFeatureMessage(null);
+
+      if(message?.type === typesMessage.PLAIN_TEXT) {
+        textAreaRef.current.value = message?.content;
+        setTimeout(() => {
+          textAreaRef.current.focus();
+        }, 100);
+
+        if (
+          textAreaRef.current.value != "" &&
+          !hasWhiteSpace(textAreaRef.current.value)
+        ) {
+          setIsDisplayIconChat(true);
+        }
+      }
     }
   };
 
@@ -495,6 +515,7 @@ export const ThreadDetail = () => {
             return;
           }
 
+          client?.emit("join-message-thread", threadId);
           setSelectedThreadMessage(respMessageChannel?.data?.content);
         } catch (error) {
           throw error;
@@ -859,35 +880,27 @@ export const ThreadDetail = () => {
                           </MessageQuoteBox>
                         )}
 
-                        {message?.reactions?.map((reaction, index) => {
-                          return (
-                            <MessageReactionBox key={index}>
-                              <Box
-                                sx={{
-                                  ...flexCenter,
-                                  padding: 0.5,
-                                  borderRadius: "5px",
-                                  border: `1px solid ${borderColor}`,
-                                  backgroundColor: hoverTextColor,
-                                  ":hover": {
-                                    opacity: 0.8,
-                                  },
-                                }}
-                              >
-                                {reaction?.unified && (
-                                  <>
-                                    <Typography fontSize="small">
-                                      {String.fromCodePoint(reaction?.unified)}
-                                    </Typography>
-                                    <Typography fontSize="small" ml={0.5}>
-                                      1
-                                    </Typography>
-                                  </>
-                                )}
-                              </Box>
-                            </MessageReactionBox>
-                          );
-                        }) || <></>}
+                        {message?.reactions.length > 0 && (
+                          <MessageReactionBox>
+                            {message?.reactions?.map((reaction, index) => {
+                              return (
+                                  <Box
+                                    sx={{ ...flexCenter,}}
+                                    key={index}
+                                  >
+                                    {reaction?.unified && (
+                                      <Typography fontSize="small">
+                                        {String.fromCodePoint(reaction?.unified)}
+                                      </Typography>                                      
+                                    )}
+                                  </Box>
+                              );
+                            })}
+                            <Typography fontSize="small" p="0px 4px">
+                              {message?.reactions.length}
+                            </Typography>
+                          </MessageReactionBox>
+                        )}
                       </MessageContentWrapper>
                     </MessageItem>
                   );

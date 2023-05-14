@@ -325,10 +325,9 @@ const deleteUserByUserIds = async (req, res) => {
 const getRefreshToken = async (req, res) => {
   const token = req?.headers?.authorization || req?.headers?.Authorization;
   const userData = verifyToken(convertToken(token));
-
   const currentUser = userData?.data;
-  const userId = currentUser?.id;
-  const userById = await User.find({ id: userId });
+  const userId = currentUser?._id;
+  const userById = await User.find({ _id: userId });
   if (currentUser) {
     const respData = {
       content: { ...userById[0]?._doc, token: convertToken(token) },

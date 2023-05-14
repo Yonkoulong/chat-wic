@@ -14,9 +14,9 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
+import { timeCustomize } from "@/shared/utils/utils";
 import { getChannelsByUser } from "@/services/channel.services";
 import { getDirectsByUserId } from "@/services/direct.services";
-import { putUpdateUserStatus } from "@/services/member.services";
 
 import { useAppStore } from "@/stores/AppStore";
 import { useRoomStore } from "@/stores/RoomStore";
@@ -223,7 +223,7 @@ const Sidebar = () => {
             </Box>
           </Box>
           <Box>
-            <SidebarBodyItemRoomTime>12:00 PM</SidebarBodyItemRoomTime>
+            <SidebarBodyItemRoomTime>{timeCustomize(direct?.updatedAt || '')}</SidebarBodyItemRoomTime>
           </Box>
         </SidebarBodyItemRoomWrapper>
       </SidebarBodyItemRooms>
@@ -608,7 +608,7 @@ const Sidebar = () => {
                             </Box>
                             <Box>
                               <SidebarBodyItemRoomTime>
-                                12:00 PM
+                              {timeCustomize(channel?.updatedAt) || ''}
                               </SidebarBodyItemRoomTime>
                             </Box>
                           </SidebarBodyItemRoomWrapper>

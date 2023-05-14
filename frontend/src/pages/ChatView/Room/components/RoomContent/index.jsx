@@ -11,6 +11,7 @@ import { Box, Typography, CircularProgress, Paper } from "@/shared/components";
 import { RoomNotFound } from "@/shared/components/RoomNotFound";
 import { LinkPreview } from "@dhaiwat10/react-link-preview";
 
+import PersonIcon from '@mui/icons-material/Person';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -140,9 +141,8 @@ export const RoomContent = () => {
         const resp = await putUpdateMessageChannel(idEditMessage, newPayload);
 
         if (resp) {
-          fetchMessagesChannel({ channelId: roomInfo?._id });
-          // client?.emit("reaction-message-channel", resp?.data?.content);
-          // reactionMessage(resp?.data?.content);
+          client?.emit("reaction-message-channel", resp?.data?.content);
+          reactionMessage(resp?.data?.content);
         }
       }
 
@@ -163,7 +163,14 @@ export const RoomContent = () => {
     }
   };
 
-  const countNumberReactionPerMemoji = () => {};
+  const countNumberReactionPerMemoji = () => {
+    
+  };
+
+  const handleClickRedirectoThreadDetail = (message) => {
+    redirectTo(`/chat/channel/${id}/threads/${message?.threadId}`);
+    client.emit("join-message-thread", message?.threadId);
+  }
 
   //reply
   const handleClickReplyMessage = (message) => {
@@ -731,36 +738,30 @@ export const RoomContent = () => {
                         </MessageQuoteBox>
                       )}
 
-                      {(message?.reactions[0] &&
-                        message?.reactions?.map((reaction, index) => {
-                          return (
-                            <MessageReactionBox key={index}>
+                      {message?.reactions.length > 0 && (
+                        <MessageReactionBox>
+                          {message?.reactions?.map((reaction, index) => {
+                            return (
                               <Box
+                                key={index}
                                 sx={{
                                   ...flexCenter,
-                                  padding: 0.5,
-                                  borderRadius: "5px",
-                                  border: `1px solid ${borderColor}`,
-                                  backgroundColor: hoverTextColor,
-                                  ":hover": {
-                                    opacity: 0.8,
-                                  },
                                 }}
                               >
                                 {reaction?.unified && (
-                                  <>
-                                    <Typography fontSize="small">
-                                      {String.fromCodePoint(reaction?.unified)}
-                                    </Typography>
-                                    <Typography fontSize="small" ml={0.5}>
-                                      1
-                                    </Typography>
-                                  </>
+                                  <Typography fontSize="small">
+                                    {String.fromCodePoint(reaction?.unified)}
+                                  </Typography>
                                 )}
                               </Box>
-                            </MessageReactionBox>
-                          );
-                        })) || <></>}
+                            );
+                          })}
+                          <Typography fontSize="small" p="0px 4px">
+                            {message?.reactions.length}
+                          </Typography>
+                        </MessageReactionBox>
+                      )}
+
                       {message?.threadId && (
                         <MessageThreadBox>
                           <Box
@@ -775,23 +776,29 @@ export const RoomContent = () => {
                                 cursor: "pointer",
                               },
                             }}
-                            onClick={() =>
-                              redirectTo(
-                                `/chat/channel/${id}/threads/${message?.threadId}`
-                              )
-                            }
+                            onClick={() => handleClickRedirectoThreadDetail(message)}
                           >
                             <Typography fontSize="small">Thread</Typography>
                           </Box>
-                          <Box sx={{ ...flexCenter, ml: 1 }}>
-                            <UilCommentMessageIcon
-                              width="0.7em"
-                              height="0.7em"
-                            />
-                            <Typography fontSize="11px" ml={0.5}>
-                              1
-                            </Typography>
-                          </Box>
+                          {message?.threadInfo?.totalMessagesInThread && (
+                            <Box sx={{ ...flexCenter, ml: 1 }}>
+                              <UilCommentMessageIcon
+                                width="0.7em"
+                                height="0.7em"
+                              />
+                              <Typography fontSize="11px" ml={0.5}>
+                                {message?.threadInfo?.totalMessagesInThread || ''}
+                              </Typography>
+                            </Box>
+                          )}
+                          {message?.threadInfo?.totalMembersInThread && (
+                            <Box sx={{ ...flexCenter, ml: 0.5 }}>
+                              <PersonIcon fontSize="small" sx={{ width: '0.8em', height: '0.8em' }}/>
+                              <Typography fontSize="11px" ml={0.5}>
+                                {message?.threadInfo?.totalMembersInThread || ''}
+                              </Typography>
+                            </Box>
+                          )}
                         </MessageThreadBox>
                       )}
                     </MessageContentWrapper>

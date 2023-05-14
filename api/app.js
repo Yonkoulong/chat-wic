@@ -147,6 +147,29 @@ const setupApp = async () => {
       socket.to(data?.channelId).emit('receive-message-channel-reaction', data);
     })
 
+    //thread in channel
+    socket.on("join-message-thread", (data) => {
+      socket.join(data);
+      console.log(data + "we have a new connect to this thread")
+    })
+
+    socket.on("send-message-thread", (data) => {
+      socket.to(data?.threadId).emit("receive-message-thread", data);
+    });
+
+    socket.on('delete-message-thread', (data) => {
+      socket.to(data?.threađId).emit('receive-message-thread-delete', data?.messageId);
+    })
+
+    socket.on('edit-message-thread', (data) => {
+      socket.to(data?.threadId).emit('receive-message-thread-edit', data);
+    })
+
+    socket.on('reaction-message-thread', (data) => {
+      socket.to(data?.threadId).emit('receive-message-thread-reaction', data);
+    })
+
+
     //direct
     socket.on("create-direct-room", async (data) => {
       socket.join(data?._id);
@@ -171,7 +194,7 @@ const setupApp = async () => {
       socket.to(data?.directId).emit('receive-message-direct-edit', data);
     })
 
-    socket.on('reaction-message-channel', (data) => {
+    socket.on('reaction-message-direct', (data) => {
       socket.to(data?.directId).emit('receive-message-direct-reaction', data);
     })
 
@@ -185,11 +208,11 @@ const setupApp = async () => {
 
       if (isObjectIdInMongodb(userId)) {
         const convertId = ObjectIdMongodb(userId);
-        
+
         try {
           const userInfo = await User.find({ _id: convertId })
-  
-          if (userInfo?.length > 0 && userInfo[0].userStatus === IUserStatus?.online) {  
+          
+          if (userInfo?.length > 0 && userInfo[0].userStatus == IUserStatus?.online) {  
             const newUserInfo = { ...userInfo[0]?._doc, userStatus: IUserStatus?.offline }
   
             await User.updateOne(

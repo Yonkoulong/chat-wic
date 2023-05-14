@@ -47,7 +47,7 @@ export const SignIn = () => {
       if(respData) {
         setUserInfo(respData?.data);
         localStorage.setItem('token', respData?.data?.token);
-        redirectTo("/chat");
+        redirectTo("/chat/home");
         toast.success("Sign in successfully.");
       }
     } catch (error) {

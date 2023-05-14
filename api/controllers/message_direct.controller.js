@@ -193,17 +193,25 @@ const putUpdateMessageDirect = async (req, res) => {
         );
       })?.length > 0;
 
-    const isUpdateReaction = !isWillRemoveReaction;
+    
+
+    const isUpdateReaction = messageReactions?.filter((item) => {
+      return (
+        item?.unified?.toString() !== reaction?.unified?.toString() &&
+        item?.reactorId === reaction?.reactorId
+      );
+    })?.length > 0;
 
     const isMessageAlreadyExist =
       messageReactions?.filter((item) => {
+        console.log(item, reaction?.reactorId);
         return item?.reactorId === reaction?.reactorId;
-      })?.length < 1;
+      })?.length > 0;
+
 
     const isNewReaction =
       messageReactions?.length < 1 || !isMessageAlreadyExist;
 
-    console.log(isWillRemoveReaction, "isWillRemoveReaction");
 
     if (isNewReaction) {
       // add new reaction

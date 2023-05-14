@@ -150,6 +150,7 @@ export const SearchRoom = ({ closeSearchRoom }) => {
                       cursor: "pointer",
                     },
                   }}
+                  key={member?._id}
                   onClick={() => handleClickRoomSearched(member)}
                 >
                   <Box

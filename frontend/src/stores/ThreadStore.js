@@ -35,18 +35,15 @@ export const useThreadStore = create((set, get) => ({
   reactionThreadMessage: (payload) => {
     const newListMessageThread = get().messagesThread.map(msg => {
       if(msg?._id == payload?._id) {
-        console.log(payload);
-        if(msg?.reactions?.length > 0 || msg?.reactions[0]) {
-          msg.reactions.map((react) => {
 
-          })
-        } else {
-          return {...msg, reactions: [payload?.reactions]}
+       if(msg?.reactions?.length > 0) {
+          return {...msg, reactions: payload?.reactions}
         }
       } else {
         return msg;
       }
     });
+    console.log(newListMessageThread);
     set({ messagesThread: newListMessageThread })
   },
   setLoading: (payload) => set({ loading: payload }),

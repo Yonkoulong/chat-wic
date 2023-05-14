@@ -8,7 +8,7 @@ import {
   borderColor,
   warningColor,
   hoverTextColor,
-  primaryColor
+  primaryColor,
 } from "./colors.utils";
 import { Paper, Box, Typography } from "@/shared/components";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -52,6 +52,30 @@ export function chatTimestamp(date) {
     return <span>{moment(date).format("lll")}</span>;
   }
 }
+
+ export function timeCustomize(dateUTC) {
+  const now = Date.now();
+  const diff = now - Date.parse(dateUTC);
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < minute) {
+    return "just now";
+  } else if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+  } else if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return `${hours} hour${hours > 1 ? "s" : ""}`;
+  } else {
+    const date = new Date(dateUTC);
+    const dayOfMonth = date.getDate();
+    const monthIndex = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${dayOfMonth}/${monthIndex}/${year}`;
+  }
+ }
 
 export function handleReturnInfoDirectRoom(userLogged, direct) {
   if (
@@ -167,7 +191,7 @@ const renderMessageWithTypeRaw = (message) => {
       <Typography
         ml={1}
         fontSize="small"
-          sx={{ color: blackColor, fontWeight: "bold" }}
+        sx={{ color: blackColor, fontWeight: "bold" }}
       >
         {message?.fileName} - {Math.round((message?.size / 1024) * 100) / 100}{" "}
         KB
@@ -193,14 +217,23 @@ const handleDetectUrl = (content) => {
     const newUrl = content.replace(urlRegex, function (url) {
       return '<a href="' + url + '" target="_blank">' + url + "</a>";
     });
-    return <div dangerouslySetInnerHTML={{ __html: newUrl }} style={{
-        fontSize: "12px",
-        fontWeight: "bold",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-      }}></div>;
+    return (
+      <div
+        dangerouslySetInnerHTML={{ __html: newUrl }}
+        style={{
+          fontSize: "12px",
+          fontWeight: "bold",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+        }}
+      ></div>
+    );
   } else {
-    return <Typography fontSize="small" fontWeight="bold" noWrap>{content}</Typography>;
+    return (
+      <Typography fontSize="small" fontWeight="bold" noWrap>
+        {content}
+      </Typography>
+    );
   }
 };

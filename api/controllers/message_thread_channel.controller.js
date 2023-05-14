@@ -102,6 +102,92 @@ const postMessageThread = async (req, res) => {
 };
 
 const putUpdateMessageThread = async (req, res) => {
+  const { content, reaction } = req?.body;
+  const { messageThreadId } = req?.params;
+  
+  try {
+    const messageById = await MessageThread.find({ _id: messageThreadId });
+
+    let messageData = {};
+    if (messageById?.length < 1) {
+      return res?.status(httpCode.notFound).json(responseError.notFound);
+    }
+    messageData = {
+      ...messageById[0]?._doc,
+      content: content || messageById[0]?._doc?.content,
+    };
+
+    let messageReactions = messageData?.reactions || [];
+
+    const isWillRemoveReaction =
+      messageReactions?.filter((item) => {
+        return (
+          item?.unified?.toString() === reaction?.unified?.toString() &&
+          item?.reactorId === reaction?.reactorId
+        );
+      })?.length > 0;
+
+    
+
+    const isUpdateReaction = messageReactions?.filter((item) => {
+      return (
+        item?.unified?.toString() !== reaction?.unified?.toString() &&
+        item?.reactorId === reaction?.reactorId
+      );
+    })?.length > 0;
+
+    const isMessageAlreadyExist =
+      messageReactions?.filter((item) => {
+        console.log(item, reaction?.reactorId);
+        return item?.reactorId === reaction?.reactorId;
+      })?.length > 0;
+
+
+    const isNewReaction =
+      messageReactions?.length < 1 || !isMessageAlreadyExist;
+
+      
+      if (isNewReaction) {
+      console.log( "isNewReaction");
+      // add new reaction
+      messageReactions?.push(reaction);
+    }
+
+    // remove reaction has existed
+    if (isWillRemoveReaction) {
+      console.log( "isWillRemoveReaction");
+
+      messageReactions = messageReactions?.filter(
+        (item) => item?.reactorId !== reaction?.reactorId
+      );
+    }
+
+    // update new reaction
+    if (isUpdateReaction) {
+      console.log( "isUpdateReaction");
+
+      messageReactions = messageReactions?.map((item) => {
+        const reactorId = reaction?.reactorId;
+        let newItem = item;
+        // check already exist reactorId
+        if (reactorId === item?.reactorId) {
+          newItem = reaction;
+        }
+        return newItem;
+      });
+    }
+
+    messageData = { ...messageData, reactions: messageReactions };
+
+    await MessageThread.updateOne(
+      { _id: messageThreadId },
+      { $set: messageData, $currentDate: { lastUpdated: true } }
+    );
+
+    return res?.status(httpCode.ok).json(formatResponse(messageData));
+  } catch {
+    return res?.status(httpCode.badRequest).json(responseError.badRequest);
+  }
 }
 
 const deleteMessageThread = async (req, res) => {
@@ -183,7 +269,7 @@ const getMessageThreadByThreadId = async (req, res) => {
   });
 
   return res.status(httpCode.ok).json(formatResponse(convertMessageInThread));
-};
+};                                                                                      
 
 module.exports = [
   {

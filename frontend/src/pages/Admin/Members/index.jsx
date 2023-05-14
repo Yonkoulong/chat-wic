@@ -209,7 +209,7 @@ export const Members = () => {
               <ButtonCustomize
                 variant="contained"
                 disabled={membersSelected?.length < 1}
-                onClick={() => handleDeleteMember()}
+                onClick={() => handleClickOpenModalDeleteMember()}
               >
                 Delete Members
               </ButtonCustomize>

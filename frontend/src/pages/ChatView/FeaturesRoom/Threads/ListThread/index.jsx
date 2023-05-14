@@ -1,5 +1,5 @@
-import React from "react";
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 import styled, { css } from "styled-components";
 import {
@@ -25,7 +25,11 @@ import {
   hoverTextColor,
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { handleRenderMessageCustomWithType, timeCustomize } from "@/shared/utils/utils";
+
 import { useRoomStore } from "@/stores/RoomStore";
+import { useChatStore } from "@/stores/ChatStore";
+import { useSocketStore } from "@/stores/SocketStore";
 
 const TableCellSearchInput = styled(TextField)`
   ${({ theme: {} }) => css`
@@ -43,14 +47,31 @@ const flexCenter = {
 };
 
 export const ListThread = () => {
-  const {roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
-
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore(
+    (state) => state
+  );
+  const { messages } = useChatStore((state) => state);
+  const { client } = useSocketStore((state) => state);
   const { id } = useParams();
+
+  const [threads, setThreads] = useState([]);
 
   const handleClickCloseThread = () => {
     setTypeFeatureRoom(null);
     redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
   };
+
+  const handleRedirecToThreadDetail = (thread) => {
+    redirectTo(`/chat/channel/${id}/threads/${thread?.threadId}`)
+    client.emit("join-message-thread", thread?.threadId);
+  }
+
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      const newThreads = messages.filter((msg) => msg?.threadId);
+      setThreads(newThreads);
+    }
+  }, [messages]);
 
   return (
     <Box>
@@ -93,7 +114,7 @@ export const ListThread = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start" sx={{ cursor: "pointer" }}>
-                <SearchIcon fontSize="small" />
+                <SearchIcon fontSize="medium" />
               </InputAdornment>
             ),
           }}
@@ -101,59 +122,70 @@ export const ListThread = () => {
       </Box>
 
       <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
-        <Box
-          sx={{
-            ...flexCenter,
-            justifyContent: "space-between",
-            padding: 2,
-            borderBottom: `1px solid ${borderColor}`,
-            ":hover": {
-              backgroundColor: hoverTextColor,
-              cursor: "pointer",
-            },
-          }}
-          onClick={() => redirectTo(`/chat/channel/${id}/threads/123`)}
-        >
-          <Box sx={{ display: "flex" }}>
-            <Box>
-              <img
-                src=""
-                alt=""
-                width={40}
-                height={40}
-                sx={{ objectFit: "contain" }}
-              />
-            </Box>
-            <Box ml={1}>
-              <Box sx={{ ...flexCenter }}>
-                <Typography fontSize="15px">User 1</Typography>
-                <Typography
-                  fontSize="12px"
-                  sx={{ color: inActiveColor, ml: 1 }}
-                >
-                  Feb 14, 2023
-                </Typography>
+        {threads?.length > 0 &&
+          threads.map((thread) => {
+            return (
+              <Box
+                sx={{
+                  ...flexCenter,
+                  justifyContent: "space-between",
+                  padding: 2,
+                  borderBottom: `1px solid ${borderColor}`,
+                  ":hover": {
+                    backgroundColor: hoverTextColor,
+                    cursor: "pointer",
+                  },
+                }}
+                onClick={() => handleRedirecToThreadDetail(thread)}
+              >
+                <Box sx={{ display: "flex" }}>
+                  <Box>
+                    <img
+                      src=""
+                      alt=""
+                      width={40}
+                      height={40}
+                      sx={{ objectFit: "contain" }}
+                    />
+                  </Box>
+                  <Box ml={1}>
+                    <Box sx={{ ...flexCenter }}>
+                      <Typography fontSize="15px">
+                        {thread?.senderName || ""}
+                      </Typography>
+                      <Typography
+                        fontSize="12px"
+                        sx={{ color: inActiveColor, ml: 1 }}
+                      >
+                        {timeCustomize(thread?.threadInfo?.createAtThread)}
+                      </Typography>
+                    </Box>
+                    <Box color={borderColor} sx={{ width: "200px"}}>
+                      {handleRenderMessageCustomWithType(thread)}
+                    </Box>
+                  </Box>
+                </Box>
+                <Box sx={{ ...flexCenter }}>
+                  {thread?.threadInfo?.totalMessagesInThread && (
+                    <Box sx={{ ...flexCenter }} mr={1}>
+                      <ChatBubbleOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
+                      <Typography fontSize="12px" sx={{ color: inActiveColor }}>
+                        {thread?.threadInfo?.totalMessagesInThread}
+                      </Typography>
+                    </Box>
+                  )}
+                  {thread?.threadInfo?.totalMembersInThread && (
+                    <Box sx={{ ...flexCenter }}>
+                      <PersonOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
+                      <Typography fontSize="12px" sx={{ color: inActiveColor }}>
+                        {thread?.threadInfo?.totalMembersInThread}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
-              <TruncateString color={borderColor} line={"1"}>
-                Message
-              </TruncateString>
-            </Box>
-          </Box>
-          <Box sx={{ ...flexCenter }}>
-            <Box sx={{ ...flexCenter }} mr={1}>
-              <ChatBubbleOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
-              <Typography fontSize="12px" sx={{ color: inActiveColor }}>
-                2
-              </Typography>
-            </Box>
-            <Box sx={{ ...flexCenter }}>
-              <PersonOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
-              <Typography fontSize="12px" sx={{ color: inActiveColor }}>
-                2
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+            );
+          })}
       </Box>
     </Box>
   );
