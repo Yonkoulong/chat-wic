@@ -426,6 +426,7 @@ const Sidebar = () => {
                               cursor: "pointer",
                             },
                           }}
+                          onClick={() => redirectTo("/chat/profile")}
                         >
                           <PersonIcon />
                           <AnchorUserInfoBottomItemText>

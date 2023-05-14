@@ -28,6 +28,7 @@ import { deleteUserByUserIds } from "@/services/member.services";
 import {
   MAX_HEIGHT_TABLE,
   formatDate,
+  enumRoles
 } from "@/shared/utils/constant";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
@@ -102,6 +103,7 @@ export const Members = () => {
     email: "",
     paging: { page: 1, size: 10 },
   });
+  const [newMembers, setNewMembers] = useState([]);
   const [openCreateMemberModal, setOpenCreateMemberModal] = useState(false);
   const [openPopupConfirm, setOpenPopupConfirm] = useState(false)
 ;
@@ -191,6 +193,13 @@ export const Members = () => {
     });
   };
 
+  useEffect(() => {
+    if(members.length > 0) {
+      const newListMember = members.filter((mem) => mem.role !== enumRoles.ADMIN);
+      setNewMembers(newListMember);
+    }
+  }, [members]);
+
   return (
     <MemberContainer>
       <Breadcrumbs aria-label="breadcrumb">
@@ -234,7 +243,7 @@ export const Members = () => {
               handleSearch,
               payloadRequest,
             })}
-            dataList={members}
+            dataList={newMembers}
             selected={membersSelected}
             handleSelect={handleSelectMember}
             handleSelectAllClick={handleCheckAllMember}

@@ -66,7 +66,7 @@ export const UserInfo = () => {
     }
   }, []);
 
-  console.log(userInfoPopup);
+
   return (
     <Box>
       <Box

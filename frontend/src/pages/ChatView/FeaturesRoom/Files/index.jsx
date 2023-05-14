@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import styled, { css } from 'styled-components';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import styled, { css } from "styled-components";
 
 import {
   Box,
@@ -13,26 +13,28 @@ import {
   Tab,
   ImageList,
   ImageListItem,
-} from '@/shared/components';
+} from "@/shared/components";
 
-import { SymbolsAttachFileIcon } from '@/assets/icons';
-import CloseIcon from '@mui/icons-material/Close';
+import { SymbolsAttachFileIcon } from "@/assets/icons";
+import CloseIcon from "@mui/icons-material/Close";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 import {
   primaryColor,
   borderColor,
   inActiveColor,
+  whiteColor,
   hoverBackgroundColor,
   hoverTextColor,
-} from '@/shared/utils/colors.utils';
-import { redirectTo } from '@/shared/utils/history';
-import { typesMessage } from '@/shared/utils/constant';
-import { useRoomStore } from '@/stores/RoomStore';
-import { useChatStore } from '@/stores/ChatStore';
+} from "@/shared/utils/colors.utils";
+import { redirectTo } from "@/shared/utils/history";
+import { typesMessage } from "@/shared/utils/constant";
+import { useRoomStore } from "@/stores/RoomStore";
+import { useChatStore } from "@/stores/ChatStore";
 
 const flexCenter = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
 };
 
 function TabPanel(props) {
@@ -46,7 +48,7 @@ function TabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 0 }}>{children}</Box>}
     </div>
   );
 }
@@ -60,7 +62,7 @@ TabPanel.propTypes = {
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 
@@ -86,7 +88,7 @@ export const Files = () => {
 
   const handleRenderValueOnTab = (tabEl) => {
     return (
-      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: 'auto' }}>
+      <Box sx={{ maxHeight: `calc(100vh - 220px)`, overflowY: "auto" }}>
         {loading && (
           <Box my={10} textAlign="center">
             <CircularProgress color="inherit" size={30} />
@@ -103,7 +105,7 @@ export const Files = () => {
         const imagesFilter = messages?.filter((msg) => msg.type == typeMsg);
         return renderTabFilterImage(imagesFilter);
       }
-      case typesMessage.FILE: {
+      case typesMessage.RAW: {
         const filesFilter = messages?.filter((msg) => msg.type == typeMsg);
         return renderTabFilterFile(filesFilter);
       }
@@ -133,18 +135,58 @@ export const Files = () => {
   };
 
   const renderTabFilterFile = (data) => {
-    return data?.length > 0 ? (
-      <Box sx={{}}>
-        {data?.map((item) => {
-          <Box key={item.content} sx={{ borderBottom: `1px solid red` }}>
-            <IconButton></IconButton>
-            <Typography></Typography>
-          </Box>;
-        })}
-      </Box>
-    ) : (
-      <>No data</>
-    );
+    if (data?.length > 0) {
+      const filterFiles = data?.map((item) => {
+        return (
+          <Box
+            sx={{
+              ...flexCenter,
+              padding: 2,
+              justifyContent: "space-between",
+              borderBottom: `1px solid ${borderColor}`,
+              ":hover": {
+                backgroundColor: hoverTextColor,
+                cursor: "pointer",
+              },
+            }}
+            key={item?._id}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  width: "34px",
+                  height: "34px",
+                  backgroundColor: primaryColor,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <DescriptionIcon sx={{ color: whiteColor }} />
+              </Box>
+
+              <Box ml={1}>
+                <Typography fontSize="15px">{item?.fileName}</Typography>
+                <Typography fontSize="15px">
+                  {Math.round((item?.size / 1024) * 100) / 100}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        );
+      });
+      return filterFiles;
+    } else {
+      return <>No data</>;
+    }
   };
 
   const renderTabFilterVideo = () => {};
@@ -158,7 +200,7 @@ export const Files = () => {
       <Box
         sx={{
           ...flexCenter,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           padding: 2,
           borderBottom: `1px solid ${borderColor}`,
         }}
@@ -173,7 +215,7 @@ export const Files = () => {
           aria-label="close"
           component="label"
           sx={{
-            ':hover': {
+            ":hover": {
               color: primaryColor,
             },
           }}
@@ -184,7 +226,7 @@ export const Files = () => {
       </Box>
 
       <Box>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={tabFilter}
             onChange={handleChangeTab}
