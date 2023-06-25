@@ -10,6 +10,7 @@ import { PageNotFound } from "@/pages/404";
 import { ProtectedRoute, AuthorizationRoute } from "@/shared/HOC";
 import { enumRoles } from "@/shared/utils/constant";
 import { RoomChat } from '@/pages/ChatView/Room';
+import { Profile } from '@/pages/Profile';
 
 export const routes = [
   {
@@ -118,6 +119,10 @@ export const routes = [
         path: '/chat/direct/:id/user-info',
         element: <RoomChat />
       },
+      {
+        path: '/chat/profile',
+        element: <Profile></Profile>
+      }
     ]
   },
   {
