@@ -1,18 +1,17 @@
-import Button from "@mui/material/Button";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 export const ButtonCustomize = (props) => {
-  const { variant, size, color, children, handleClick, other } = props;
+  const { variant, size, color, children, handleClick } = props;
 
   return (
-    <Button
+    <LoadingButton
       variant={variant}
       size={size}
       color={color}
       onClick={handleClick}
-      {...other}
       {...props}
     >
       {children}
-    </Button>
+    </LoadingButton>
   );
 };

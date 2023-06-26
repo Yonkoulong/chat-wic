@@ -32,3 +32,11 @@ export async function deleteUserByUserIds(payload) {
 export async function putUpdateUserStatus(payload) {
     return requestAxios.put(`/user/${payload?.id}/update-user-status`, payload)
 }
+
+export async function putUpdatePasswordMember(payload) {
+    return requestAxios.put(`/user/${payload?.id}/update-password`)
+}
+
+export async function putResetPasswordMember(payload) {
+    return requestAxios.put(`/user/${payload?.id}/reset-password`);
+}
