@@ -16,8 +16,6 @@ import { useProfileStyles } from './Profile.styles';
 import { useAppStore } from '@/stores/AppStore';
 import { ChangePasswordDialog } from '@/shared/components/Dialog';
 
-
-
 const initialValues = {
     dob: "",
     firstName: "",
