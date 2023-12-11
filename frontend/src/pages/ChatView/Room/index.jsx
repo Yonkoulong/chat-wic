@@ -62,6 +62,11 @@ export const RoomChat = () => {
         setTypeFeatureRoom(feature[0]);
         return;
       }
+      
+      // if(location?.pathname?.indexOf(enumPopupFeatures[key]) !== -1) {
+      //   setTypeFeatureRoom(enumPopupFeatures[key]);
+      //   return;
+      // }
     }
   };
 
@@ -94,6 +99,7 @@ export const RoomChat = () => {
         throw error;
       }
     })();
+
   }, []);
 
   useEffect(() => {
