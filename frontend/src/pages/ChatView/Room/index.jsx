@@ -99,6 +99,7 @@ export const RoomChat = () => {
         throw error;
       }
     })();
+
   }, []);
 
   useEffect(() => {
