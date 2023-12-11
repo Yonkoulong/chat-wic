@@ -19,7 +19,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { postChannel } from "@/services/channel.services";
+import { putUpdatePasswordMember } from "@/services/member.services";
 import { useMemberStore } from "@/stores/MemberStore";
 import { useAppStore } from "@/stores/AppStore";
 import { redirectTo } from "@/shared/utils/history";
@@ -73,11 +73,8 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  organizeId: "",
-  channelName: "",
-  description: "",
-  ownerId: 0,
-  userIds: [],
+    oldPassword: '',
+    newPassword: ''
 };
 
 export const ChangePasswordDialog = ({ open, onClose }) => {
@@ -112,20 +109,16 @@ export const ChangePasswordDialog = ({ open, onClose }) => {
   const onSubmit = async (data) => {
     try {
       const newPayloadChannel = {
-        ...data,
-        organizeId: userInfo?.organizeId,
-        userIds: membersSelected?.map(mem => mem?.id),
-        ownerId: userInfo?._id,
+        ...data
       };
 
-      const respData = await postChannel(newPayloadChannel);
+      const respData = await putUpdatePasswordMember(newPayloadChannel);
 
       if (respData) {
         const idChannel = respData?.data?.content?._id;
-        client.emit('create-channel-room', respData?.data?.content)
         setLoading(true);
         handleClose();
-        redirectTo(`/chat/channel/${idChannel}`);
+        // redirectTo(`/chat/channel/${idChannel}`);
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -135,34 +128,10 @@ export const ChangePasswordDialog = ({ open, onClose }) => {
 
   const handleClose = () => {
     reset({
-      channelName: "",
-      description: "",
-      ownerId: 0,
-      userIds: [],
+      oldPassword: '',
+      newPassword: ''
     });
     onClose(false);
-  };
-
-  const handleGetUsers = async () => {
-    setLoading(true);
-    try {
-      await fetchMembers({
-        organizeId: userInfo?.organizeId,
-        id: "",
-        email: "",
-      });
-    } catch (error) {
-      const errorMessage = error?.response?.data?.content;
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-      handleFocusInputAfterClick();
-    }
-  };
-
-  const handleFocusInputAfterClick = () => {
-    const inputRef = inputFocusRef.current;
-    inputRef.querySelector("input").focus();
   };
 
   return (
@@ -185,8 +154,8 @@ export const ChangePasswordDialog = ({ open, onClose }) => {
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Channel name"
-                fieldName="channelName"
+                fieldNameErrorMessage="Current password"
+                fieldName="oldPassword"
                 required={true}
               >
                 {(field) => (
@@ -207,8 +176,8 @@ export const ChangePasswordDialog = ({ open, onClose }) => {
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Current password"
-                fieldName="oldPassword"
+                fieldNameErrorMessage="New password"
+                fieldName="newPassword"
                 required={true}
                 InputProps={{
                     endAdornment: (

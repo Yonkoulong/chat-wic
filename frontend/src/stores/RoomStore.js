@@ -6,7 +6,7 @@ export const useRoomStore = create((set) => ({
     typeRoom: null,
     channelRooms: [],
     directRooms: [],
-
+    
     setRoomInfo: (payload) => {
         set({ roomInfo: payload });
     },

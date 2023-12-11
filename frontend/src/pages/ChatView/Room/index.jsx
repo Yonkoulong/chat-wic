@@ -94,7 +94,7 @@ export const RoomChat = () => {
         throw error;
       }
     })();
-  }, [location]);
+  }, []);
 
   useEffect(() => {
     if (!id || !client) {
@@ -103,7 +103,7 @@ export const RoomChat = () => {
 
     client.emit("room", id);
   }, [id, client]);
-
+ 
   return (
     <RoomChatContainer>
       <RoomHeader />
