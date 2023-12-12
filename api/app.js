@@ -123,12 +123,17 @@ const setupApp = async () => {
     socket.on("create-channel-room", async (data) => {
       socket.join(data?._id);
       const sockets = await io.fetchSockets();
-      const membersSocketId = sockets
-        .filter((item) => {
-          return data.userIds.includes(item.data.userId);
-        })
-        .map((x) => x.id);
-      io.to(membersSocketId).emit("invited-to-a-channel", { test: data?._id });
+      // const membersSocketId = sockets
+      //   .filter((item) => {
+      //     return data.userIds.includes(item.data.userId);
+      //   })
+      //   .map((x) => x.id);
+     
+      // console.log("list memeber id socket: ", membersSocketId);
+      io.emit("invited-to-a-channel", { 
+        usersId: data.userIds,
+        channelId: data?._id
+      });
     });
 
     socket.on("send-message-channel", (data) => {
