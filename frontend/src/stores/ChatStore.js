@@ -40,14 +40,12 @@ export const useChatStore = create((set, get) => ({
   reactionMessage: (payload) => {
     const newListMessage = get().messages.map(msg => {
       if(msg?._id == payload?._id) {
-
-        if(msg?.reactions?.length > 0) {
-          return {...msg, reactions: payload?.reactions}
-        }
+        return {...msg, reactions: payload?.reactions}
       } else {
         return msg;
       }
     });
+    console.log(newListMessage);
     set({ messages: newListMessage })
   },
   setLoading: (payload) => set({ loading: payload }),

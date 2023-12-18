@@ -88,7 +88,7 @@ const Sidebar = () => {
   const { userInfo } = useAppStore((state) => state);
   const { channelRooms, directRooms, setChannelRooms, setDirectRooms } =
     useRoomStore((state) => state);
-  const { typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
+  const { roomInfo, typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
     (state) => state
   );
   const client = useSocketStore((state) => state.client);
@@ -174,7 +174,6 @@ const Sidebar = () => {
     if (typeFeatureRoom) {
       setTypeFeatureRoom(null);
     }
-    console.log(channel?._id);
     redirectTo(`/chat/channel/${channel?._id}`);
   };
 

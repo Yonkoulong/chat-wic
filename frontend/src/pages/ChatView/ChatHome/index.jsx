@@ -18,12 +18,10 @@ export const ChatHome = () => {
 
   const handleClickOpenModalCreateChannel = () => {
     setOpenCreateChannelModal(true);
-    setAnchorRoom(null); //bug
   };
 
   const handleClickOpenModalCreateDirect = () => {
     setOpenCreateDirectMessageModal(true);
-    setAnchorRoom(null);
   };
 
   return (

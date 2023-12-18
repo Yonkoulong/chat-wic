@@ -226,7 +226,7 @@ export const Members = () => {
             <Box>
               <ButtonCustomize
                 variant="contained"
-                handleClick={handleClickOpenModalCreateMember}
+                onClick={handleClickOpenModalCreateMember}
               >
                 Create Members
               </ButtonCustomize>

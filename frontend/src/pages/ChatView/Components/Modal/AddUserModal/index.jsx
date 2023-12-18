@@ -248,7 +248,7 @@ export const ModalAddUser = ({ open, onClose }) => {
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onClick={handleClose}
             >
               Cancel
             </ButtonCustomize>

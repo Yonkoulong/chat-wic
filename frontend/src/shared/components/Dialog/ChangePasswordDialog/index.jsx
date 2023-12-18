@@ -205,7 +205,7 @@ export const ChangePasswordDialog = ({ open, onClose }) => {
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onClick={handleClose}
             >
               Cancel
             </ButtonCustomize>

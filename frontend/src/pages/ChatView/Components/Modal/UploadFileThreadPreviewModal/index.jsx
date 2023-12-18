@@ -292,7 +292,7 @@ export const ModalUploadFileThreadPreview = ({
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onclick={handleClose}
             >
               Cancel
             </ButtonCustomize>

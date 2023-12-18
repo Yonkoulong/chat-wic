@@ -54,7 +54,6 @@ export const ChatView = () => {
 
       //channel
       client.on('invited-to-a-channel', (data) => {
-        console.log(data);
         if(data.usersId.includes(userInfo?._id)) {
           handlerInviteChannel();
         }

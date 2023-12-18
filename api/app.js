@@ -43,13 +43,8 @@ const setupApp = async () => {
   });
 
   io.on("connection", async (socket) => {
-    console.log(
-      "We have a new connection!!!!",
-      socket.handshake.headers?.userid
-    );
     const userId = socket.handshake.headers?.userid;
     socket.data.userId = socket.handshake.headers?.userid;
-
 
     //update status when connection
     if (isObjectIdInMongodb(userId)) {
@@ -82,9 +77,8 @@ const setupApp = async () => {
       });
 
       if (channelsByUserId) {
-        channelsByUserId.forEach((channel) => {
-          socket.join([channel?._id]);
-        });
+        const listIdEachChannel = channelsByUserId.map((channel) =>  channel?._id.toString())
+        socket.join(listIdEachChannel);
       }
     } catch (error) {
       throw error;
@@ -97,9 +91,8 @@ const setupApp = async () => {
       });
 
       if (directsByUserId) {
-        directsByUserId.forEach((direct) => {
-          socket.join([direct?._id]);
-        })
+        const listIdEachDirect = directsByUserId.map((direct) =>  direct?._id.toString())
+        socket.join(listIdEachDirect);
       }
     } catch (error) {
       throw error;
@@ -113,16 +106,16 @@ const setupApp = async () => {
     //   }
     // })
 
-    socket.on("room", (data) => {
-      //data is idRoom
-      socket.join(data);
-      console.log("You are connecting to this room", data);
-    });
+    // socket.on("room", (data) => {
+    //   //data is idRoom
+    //   socket.join(data);
+    //   console.log("You are connecting to this room", data);
+    // });
 
     //channel
     socket.on("create-channel-room", async (data) => {
       socket.join(data?._id);
-      const sockets = await io.fetchSockets();
+      // const sockets = await io.fetchSockets();
       // const membersSocketId = sockets
       //   .filter((item) => {
       //     return data.userIds.includes(item.data.userId);
@@ -155,7 +148,6 @@ const setupApp = async () => {
     //thread in channel
     socket.on("join-message-thread", (data) => {
       socket.join(data);
-      console.log(data + "we have a new connect to this thread")
     })
 
     socket.on("send-message-thread", (data) => {
@@ -209,7 +201,6 @@ const setupApp = async () => {
     });
 
     socket.on("disconnect", async () => {
-      console.log("user is offline", socket.handshake.headers?.userid);
 
       if (isObjectIdInMongodb(userId)) {
         const convertId = ObjectIdMongodb(userId);

@@ -328,7 +328,7 @@ export const ModalCreateTask = ({ open, onClose }) => {
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onClick={handleClose}
             >
               Cancel
             </ButtonCustomize>

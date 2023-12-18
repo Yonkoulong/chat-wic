@@ -86,7 +86,6 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
 
   const inputFocusRef = useRef();
-
   const {
     control,
     handleSubmit,
@@ -111,7 +110,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
       const newPayloadChannel = {
         ...data,
         organizeId: userInfo?.organizeId,
-        userIds: membersSelected?.map(mem => mem?.id),
+        userIds: membersSelected?.map(mem => mem?._id),
         ownerId: userInfo?._id,
       };
 
@@ -159,14 +158,15 @@ export const ModalCreateChannel = ({ open, onClose }) => {
 
   const handleSelectedMember = (member) => {
     if (!member) return;
-    const memberId = member?.id;
-    const membersSelectedIds = membersSelected?.map((mem) => mem?.id);
+
+    const memberId = member.id || member._id;
+    const membersSelectedIds = membersSelected?.map((mem) => mem?._id);
     const inputRef = inputFocusRef.current.querySelector("input");
 
     let newMembersSelected = [];
     if (membersSelectedIds?.includes(memberId)) {
       newMembersSelected = membersSelected?.filter(
-        (member) => member?.id !== memberId
+        (member) => member?._id !== memberId
       );
     } else {
       newMembersSelected = [...membersSelected, member];
@@ -184,7 +184,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
   const handleUnSelectedMember = (member) => {
     if (!member) return;
     const newMembersUnSelected = membersSelected?.filter(
-      (memberSelected) => memberSelected?.id !== member?.id
+      (memberSelected) => memberSelected?._id !== member?._id
     );
     setMembersSelected(newMembersUnSelected);
     handleFocusInputAfterClick();
@@ -300,7 +300,7 @@ export const ModalCreateChannel = ({ open, onClose }) => {
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onClick={handleClose}
             >
               Cancel
             </ButtonCustomize>
