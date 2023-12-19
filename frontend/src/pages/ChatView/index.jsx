@@ -63,14 +63,14 @@ export const ChatView = () => {
       client.on('invited-to-a-direct', handlerInviteDirect);
     });
 
-    client.on('disconnect', () => {
-      setClient(null);
-    });
+    // client.on('disconnect', () => {
+    //   setClient(null);
+    // });
 
     return () => {
       client.off('invited-to-a-channel');
       client.off('invited-to-a-direct');
-      client.disconnect();
+      // client.disconnect();
     };
   }, []);
 

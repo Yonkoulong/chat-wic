@@ -31,7 +31,7 @@ export const RoomChat = () => {
 
   const client = useSocketStore((state) => state.client);
   const { userInfo } = useAppStore((state) => state);
-  const { setRoomInfo, setTypeRoom, typeFeatureRoom, setTypeFeatureRoom } =
+  const { roomInfo, setRoomInfo, setTypeRoom, typeFeatureRoom, setTypeFeatureRoom } =
     useRoomStore((state) => state);
 
   const handleShowPopupFeatures = () => {
@@ -69,46 +69,40 @@ export const RoomChat = () => {
       // }
     }
   };
-
+  
   useEffect(() => {
-    (async () => {
-      try {
-        let resp;
-
-        if (location?.pathname?.indexOf(enumTypeRooms.CHANNEL) !== -1) {
-          resp = await getChannelDetail(id, {
-            organizeId: userInfo?.organizeId,
-            userId: userInfo?._id,
-          });
-          setTypeRoom(enumTypeRooms.CHANNEL);
+    if(location && location?.pathname.split('/')[3] !== roomInfo?._id) {
+      (async () => {
+        try {
+          let resp;
+  
+          if (location?.pathname?.indexOf(enumTypeRooms.CHANNEL) !== -1) {
+            resp = await getChannelDetail(id, {
+              organizeId: userInfo?.organizeId,
+              userId: userInfo?._id,
+            });
+            setTypeRoom(enumTypeRooms.CHANNEL);
+          }
+  
+          if (location?.pathname?.indexOf(enumTypeRooms.DIRECT) !== -1) {
+            resp = await getDirectDetail(id, {
+              organizeId: userInfo?.organizeId,
+              userId: userInfo?._id,
+            });
+            setTypeRoom(enumTypeRooms.DIRECT);
+          }
+          if (resp) {
+            setRoomInfo(resp?.data?.content);
+            handleFindLocationMatchPopupFeature();
+          }
+        } catch (error) {
+          const errorMessage = error?.response?.data?.content;
+          throw error;
         }
-
-        if (location?.pathname?.indexOf(enumTypeRooms.DIRECT) !== -1) {
-          resp = await getDirectDetail(id, {
-            organizeId: userInfo?.organizeId,
-            userId: userInfo?._id,
-          });
-          setTypeRoom(enumTypeRooms.DIRECT);
-        }
-        if (resp) {
-          setRoomInfo(resp?.data?.content);
-          handleFindLocationMatchPopupFeature();
-        }
-      } catch (error) {
-        const errorMessage = error?.response?.data?.content;
-        throw error;
-      }
-    })();
-
-  }, []);
-
-  useEffect(() => {
-    if (!id || !client) {
-      return;
+      })();
     }
 
-    client.emit("room", id);
-  }, [id, client]);
+  }, [location]);
  
   return (
     <RoomChatContainer>

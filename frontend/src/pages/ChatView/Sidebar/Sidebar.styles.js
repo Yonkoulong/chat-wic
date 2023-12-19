@@ -225,7 +225,7 @@ export const SidebarBodyItemRoomWrapper = styled(Box)`
     display: flex;
     justify-content: space-between;    
     padding: 16px 24px;
-
+    
     &:hover {
         background-color: ${hoverItemSidebarColor};
         cursor: pointer;
