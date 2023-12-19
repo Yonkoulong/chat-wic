@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 import Chip from "@mui/material/Chip";
 
 import { Box } from "@/shared/components";
@@ -18,10 +18,10 @@ import { selectedColor, whiteColor } from "@/shared/utils/colors.utils";
 import { CircularProgress } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-export const SelectMultipleInput = ({
+export const SelectMultipleInput = forwardRef(function SelectMultipleInput({
   width = 568,
   dataList = [],
-  keyId = "id",
+  keyId = "_id",
   keyValue = "username",
   dataSelected = [],
   handleSelectedMember,
@@ -32,7 +32,8 @@ export const SelectMultipleInput = ({
   placeholder = "Enter",
   inputFocusRef,
   field,
-}) => {
+}, ref) {
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   
@@ -48,7 +49,6 @@ export const SelectMultipleInput = ({
     if (e.target.value != "") {
       handleSearch(e);
       if (!open) {
-        console.log(open);
         setAnchorEl(e?.currentTarget);
       }
     }
@@ -80,7 +80,7 @@ export const SelectMultipleInput = ({
                 return (
                   <Chip
                     size="small"
-                    key={item[keyId] || index}
+                    key={item[keyId]}
                     tabIndex={-1}
                     sx={{ mx: 1, my: 0.5 }}
                     label={item?.email}
@@ -134,10 +134,10 @@ export const SelectMultipleInput = ({
           )}
           {!loading &&
             dataList?.length > 0 &&
-            dataList.map((item) => {
+            dataList?.map((item) => {
               return (
                 <StyledSelectMultipleContentItem
-                  key={item?.id}
+                  key={item[keyId]}
                   onClick={() =>
                     !!handleSelectedMember && handleSelectedMember(item)
                   }
@@ -174,4 +174,4 @@ export const SelectMultipleInput = ({
       </StyledSelectMultipleMenu>
     </>
   );
-};
+})

@@ -222,7 +222,7 @@ export const ModalCreateMember = ({ open, onClose }) => {
             </CreateMemberInputContainer>
           </DialogContent>
           <DialogActions>
-            <ButtonCustomize variant="outlined" autoFocus handleClick={handleClose}>
+            <ButtonCustomize variant="outlined" autoFocus onClick={handleClose}>
               Cancel
             </ButtonCustomize>
             <ButtonCustomize variant="contained" type="submit" disabled={watchFieldsInModalCreateMember()} >Create</ButtonCustomize>

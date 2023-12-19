@@ -53,20 +53,24 @@ export const ChatView = () => {
       setClient(client);
 
       //channel
-      client.on('invited-to-a-channel', handlerInviteChannel);
+      client.on('invited-to-a-channel', (data) => {
+        if(data.usersId.includes(userInfo?._id)) {
+          handlerInviteChannel();
+        }
+      });
 
       //direct
       client.on('invited-to-a-direct', handlerInviteDirect);
     });
 
-    client.on('disconnect', () => {
-      setClient(null);
-    });
+    // client.on('disconnect', () => {
+    //   setClient(null);
+    // });
 
     return () => {
-      client.off('invited-to-a-channel', handlerInviteChannel);
-      client.off('invited-to-a-direct', handlerInviteDirect);
-      client.disconnect();
+      client.off('invited-to-a-channel');
+      client.off('invited-to-a-direct');
+      // client.disconnect();
     };
   }, []);
 

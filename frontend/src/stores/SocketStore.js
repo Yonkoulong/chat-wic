@@ -1,7 +1,8 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export const useSocketStore = create((set) => ({
-  client: null,
+  client: null
+  ,
   setClient: (payload) => {
     set({ client: payload });
   },

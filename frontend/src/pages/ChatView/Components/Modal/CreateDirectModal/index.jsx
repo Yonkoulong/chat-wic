@@ -241,7 +241,7 @@ export const ModalCreateDirect = ({ open, onClose }) => {
             <ButtonCustomize
               variant="outlined"
               autoFocus
-              handleClick={handleClose}
+              onClick={handleClose}
             >
               Cancel
             </ButtonCustomize>

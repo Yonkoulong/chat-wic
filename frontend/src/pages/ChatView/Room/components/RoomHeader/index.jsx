@@ -32,9 +32,7 @@ const flexCenter = {
 
 export const RoomHeader = () => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const roomInfo = useRoomStore((state) => state.roomInfo);
-  const typeRoom = useRoomStore((state) => state.typeRoom);
-  const setTypeFeatureRoom = useRoomStore((state) => state.setTypeFeatureRoom);
+  const {roomInfo, typeRoom, setTypeFeatureRoom} = useRoomStore((state) => state);
 
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
 

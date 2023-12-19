@@ -76,7 +76,6 @@ const flexCenter = {
 };
 
 export const RoomContent = () => {
-  console.log("ma may");
   const { id } = useParams();
   const { client } = useSocketStore((state) => state);
 

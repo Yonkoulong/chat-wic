@@ -77,22 +77,24 @@ import {
 } from "@/shared/utils/colors.utils";
 import { enumRoles, enumMemberStatus, order } from "@/shared/utils/constant";
 import { redirectTo } from "@/shared/utils/history";
+import { hoverItemSidebarColor } from '@/shared/utils/colors.utils';
+
 import {
   handleReturnInfoDirectRoom,
   handleReturnColorStatus,
 } from "@/shared/utils/utils";
 
 const flexCenter = { display: "flex", alignItems: "center" };
+const activeRoom = {  backgroundColor: hoverItemSidebarColor };
 
 const Sidebar = () => {
   const { userInfo } = useAppStore((state) => state);
   const { channelRooms, directRooms, setChannelRooms, setDirectRooms } =
     useRoomStore((state) => state);
-  const { typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
-    (state) => state
-  );
+  const { roomInfo, typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
+    (state) => state);
   const client = useSocketStore((state) => state.client);
-  
+ 
   const [anchorUserInfo, setAnchorUserInfo] = useState(null);
   const [anchorRoom, setAnchorRoom] = useState(null);
   const [totalHeightSubtract, setTotalHeightSubtract] = useState(0);
@@ -106,9 +108,7 @@ const Sidebar = () => {
 
   const handleSetMaxHeightForSidebarBody = () => {
     if (SidebarHeaderRef.current && SidebarBottomRef.current) {
-      const totalHeightSubtract =
-        SidebarHeaderRef.current.offsetHeight +
-        SidebarBottomRef.current.offsetHeight;
+      const totalHeightSubtract = SidebarHeaderRef.current.offsetHeight + SidebarBottomRef.current.offsetHeight;
       setTotalHeightSubtract(totalHeightSubtract);
     }
   };
@@ -174,7 +174,6 @@ const Sidebar = () => {
     if (typeFeatureRoom) {
       setTypeFeatureRoom(null);
     }
-    console.log(channel?._id);
     redirectTo(`/chat/channel/${channel?._id}`);
   };
 
@@ -193,6 +192,7 @@ const Sidebar = () => {
       <SidebarBodyItemRooms key={direct?._id}>
         <SidebarBodyItemRoomWrapper
           onClick={() => handleRedirectToDirectRoom(direct)}
+          sx={{ backgroundColor: direct?._id == roomInfo?._id && hoverItemSidebarColor }}
         >
           <Box sx={{ display: "flex", align: "center" }}>
             <Box
@@ -577,6 +577,7 @@ const Sidebar = () => {
                         <SidebarBodyItemRooms key={channel?._id}>
                           <SidebarBodyItemRoomWrapper
                             onClick={() => handleRedirectToChannelRoom(channel)}
+                            sx={{ backgroundColor: channel?._id == roomInfo?._id && hoverItemSidebarColor }}
                           >
                             <Box sx={{ display: "flex", align: "center" }}>
                               <Box
