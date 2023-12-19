@@ -77,7 +77,7 @@ import {
 } from "@/shared/utils/colors.utils";
 import { enumRoles, enumMemberStatus, order } from "@/shared/utils/constant";
 import { redirectTo } from "@/shared/utils/history";
-import { whiteColor, hoverItemSidebarColor } from '@/shared/utils/colors.utils';
+import { hoverItemSidebarColor } from '@/shared/utils/colors.utils';
 
 import {
   handleReturnInfoDirectRoom,
@@ -192,6 +192,7 @@ const Sidebar = () => {
       <SidebarBodyItemRooms key={direct?._id}>
         <SidebarBodyItemRoomWrapper
           onClick={() => handleRedirectToDirectRoom(direct)}
+          sx={{ backgroundColor: direct?._id == roomInfo?._id && hoverItemSidebarColor }}
         >
           <Box sx={{ display: "flex", align: "center" }}>
             <Box
@@ -576,6 +577,7 @@ const Sidebar = () => {
                         <SidebarBodyItemRooms key={channel?._id}>
                           <SidebarBodyItemRoomWrapper
                             onClick={() => handleRedirectToChannelRoom(channel)}
+                            sx={{ backgroundColor: channel?._id == roomInfo?._id && hoverItemSidebarColor }}
                           >
                             <Box sx={{ display: "flex", align: "center" }}>
                               <Box
