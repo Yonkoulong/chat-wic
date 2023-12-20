@@ -1,9 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import { ChatViewContainer } from './ChatView.styles';
-
 import io from 'socket.io-client';
+
+import Sidebar from './Sidebar';
+
+import { ChatViewContainer, ChatViewWrapper, ChatViewOverlay, MobileHeadWrapper, 
+  MobileHeadText } from './ChatView.styles';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import SettingsIcon from '@mui/icons-material/Settings';
+
 import { useSocketStore } from '@/stores/SocketStore';
 import { useAppStore } from '@/stores/AppStore';
 import { useRoomStore } from '@/stores/RoomStore';
@@ -17,6 +22,11 @@ export const ChatView = () => {
   const { setClient, client } = useSocketStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
   const { setChannelRooms, setDirectRooms } = useRoomStore((state) => state);
+  const [isOpenSidebar, isSetOpenSidebar] = useState(false);
+
+  const handleCloseSidebar = () => {
+    isSetOpenSidebar(false);
+  }
 
   useEffect(() => {
     const payload = {
@@ -60,7 +70,11 @@ export const ChatView = () => {
       });
 
       //direct
-      client.on('invited-to-a-direct', handlerInviteDirect);
+      client.on('invited-to-a-direct', (data) => {
+        if(data.usersId.includes(userInfo?._id)) {
+          handlerInviteDirect();
+        }
+      });
     });
 
     // client.on('disconnect', () => {
@@ -76,8 +90,17 @@ export const ChatView = () => {
 
   return (
     <ChatViewContainer>
-      <Sidebar />
-      <Outlet />
+      
+      <Sidebar isOpen={isOpenSidebar} handleClose={handleCloseSidebar}/>
+      <ChatViewWrapper >
+        {isOpenSidebar && <ChatViewOverlay onClick={() => handleCloseSidebar()}/>}
+        <MobileHeadWrapper>
+          <MenuOpenIcon fontSize='medium' color='primary' onClick={() => isSetOpenSidebar(true) }/>
+          <MobileHeadText sx={{ fontSize: "16px", fontWeight: "bold" }}>Chats</MobileHeadText>
+          <SettingsIcon fontSize='medium' color='primary'/>
+        </MobileHeadWrapper>
+        <Outlet />
+      </ChatViewWrapper>
     </ChatViewContainer>
   );
 };

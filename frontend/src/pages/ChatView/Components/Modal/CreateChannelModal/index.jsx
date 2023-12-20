@@ -77,7 +77,7 @@ const defaultValues = {
   userIds: [],
 };
 
-export const ModalCreateChannel = ({ open, onClose }) => {
+export const ModalCreateChannel = ({ open, onClose, ...props }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const client = useSocketStore((state) => state.client);
   const { userInfo } = useAppStore((state) => state);
@@ -122,6 +122,9 @@ export const ModalCreateChannel = ({ open, onClose }) => {
         setLoading(true);
         handleClose();
         redirectTo(`/chat/channel/${idChannel}`);
+        if(props && props?.handleCloseSidebar) {
+          props?.handleCloseSidebar();
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

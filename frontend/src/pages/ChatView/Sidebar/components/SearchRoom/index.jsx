@@ -36,7 +36,7 @@ import { useSocketStore } from "@/stores/SocketStore";
 import { useDebounce } from "@/shared/hooks";
 import { postCheckAlreadyExistDirect } from "@/services/direct.services";
 
-export const SearchRoom = ({ closeSearchRoom }) => {
+export const SearchRoom = ({ closeSearchRoom, handleCloseSidebar }) => {
   const { userInfo } = useAppStore((state) => state);
   const client = useSocketStore((state) => state.client);
 
@@ -63,7 +63,8 @@ export const SearchRoom = ({ closeSearchRoom }) => {
       if (resp) {
         client.emit("create-direct-room", resp?.data?.content);
         redirectTo(`/chat/direct/${resp?.data?.content?._id}`);
-        closeSearchRoom()
+        closeSearchRoom();
+        handleCloseSidebar();
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

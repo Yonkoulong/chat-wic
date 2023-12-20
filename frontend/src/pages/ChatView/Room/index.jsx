@@ -110,7 +110,7 @@ export const RoomChat = () => {
       <Box sx={{ display: "flex", flex: 1 }}>
         <Box
           width={typeFeatureRoom ? "65%" : "100%"}
-          sx={{ position: "relative" }}
+          
         >
           <RoomContent />
           <BoxMessage />

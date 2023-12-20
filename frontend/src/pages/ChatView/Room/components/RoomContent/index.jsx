@@ -6,7 +6,6 @@ import EmojiPicker from "emoji-picker-react";
 import Popover from "@mui/material/Popover";
 import { toast } from "react-toastify";
 
-import { RoomContentContainer } from "./RoomContent.styles";
 import { Box, Typography, CircularProgress, Paper } from "@/shared/components";
 import { RoomNotFound } from "@/shared/components/RoomNotFound";
 import { LinkPreview } from "@dhaiwat10/react-link-preview";
@@ -24,6 +23,8 @@ import {
 } from "@/assets/icons";
 
 import {
+  RoomContentContainer,
+  MessageListWrapper,
   MessageList,
   MessageItem,
   UserImageWrapper,
@@ -80,8 +81,7 @@ export const RoomContent = () => {
   const { client } = useSocketStore((state) => state);
 
   const userInfo = useAppStore((state) => state.userInfo);
-  const roomInfo = useRoomStore((state) => state.roomInfo);
-  const typeRoom = useRoomStore((state) => state.typeRoom);
+  const {roomInfo, typeRoom} = useRoomStore((state) => state);
   const {
     messages,
     pushMessage,
@@ -487,14 +487,7 @@ export const RoomContent = () => {
   return (
     <RoomContentContainer>
       <Box>
-        <Box
-          sx={{
-            padding: "24px 0px",
-            overflowY: "auto",
-            overflowX: "hidden",
-            maxHeight: `calc(100vh - 187.62px - ${heightQuoteMessage}px)`,
-          }}
-        >
+        <MessageListWrapper heightquotemessage={heightQuoteMessage}>
           <MessageList>
             {!loading &&
               messages &&
@@ -806,7 +799,7 @@ export const RoomContent = () => {
                 );
               })}
           </MessageList>
-        </Box>
+        </MessageListWrapper>
         {loading && (
           <Box my={10} textAlign="center">
             <CircularProgress color="inherit" size={30} />
