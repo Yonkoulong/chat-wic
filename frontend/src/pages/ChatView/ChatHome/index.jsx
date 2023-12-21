@@ -46,17 +46,18 @@ export const ChatHome = () => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "50px" }}>
-        <Box sx={{ display: "flex", gap: "30px" }}>
+        <Box sx={{ display: "flex", gap: "30px", flexDirection: {xs: 'column', sm: "row"} }}>
           {userInfo && userInfo?.role == enumRoles.PROJECT_MANAGER && (
             <Paper
               sx={{
-                flex: "0 0 33.33333%",
-                maxWidth: "33.33333%",
+                flex: {xs: "0 0 100%", sm:"0 0 calc(50% - 15px)", md: "0 0 33.33333%"},
+                maxWidth: {xs: "100%", sm: "50%", md: "33.33333%"},
                 padding: "16px",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
                 height: "180px",
+
               }}
             >
               <Box>
@@ -70,6 +71,7 @@ export const ChatHome = () => {
               <Button
                 variant="contained"
                 onClick={() => handleClickOpenModalCreateChannel()}
+                sx={{ marginTop: {xs: "24px", sm: "0"}}}
               >
                 Create Channel
               </Button>
@@ -77,8 +79,8 @@ export const ChatHome = () => {
           )}
           <Paper
             sx={{
-              flex: "0 0 33.33333%",
-              maxWidth: "33.33333%",
+              flex: {xs: "0 0 100%", sm:"0 0 calc(50% - 15px)", md: "0 0 calc(33.33333% - 10px)"},
+              maxWidth: {xs: "100%", sm: "50%", md: "33.33333%"},
               padding: "16px",
               display: "flex",
               flexDirection: "column",
@@ -97,7 +99,7 @@ export const ChatHome = () => {
             <Button
               variant="contained"
               onClick={() => handleClickOpenModalCreateDirect()}
-              mt={2}
+              sx={{ marginTop: {xs: "24px", sm: "0"}}}
             >
               Create direct message
             </Button>

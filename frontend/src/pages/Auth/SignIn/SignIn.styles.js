@@ -5,6 +5,10 @@ import { primaryColor, inActiveColor, whiteColor } from '@/shared/utils/colors.u
 export const SignInContainer = styled(Box)`
     width: 100%;
     padding: 24px 68px;
+
+    @media (max-width: 744px) {
+        padding: 24px 16px;
+    }
 `
 
 export const SignInWrapper = styled(Box)``

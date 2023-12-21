@@ -9,6 +9,10 @@ import {
 export const SignUpContainer = styled.div`
   width: 100%;
   padding: 24px 68px;
+
+  @media (max-width: 744px) {
+    padding: 24px 16px;
+  }
 `;
 
 export const SignUpWrapper = styled(Box)``;

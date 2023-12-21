@@ -169,7 +169,7 @@ const setupApp = async () => {
         //   return data.userIds.includes(item.data.userId);
         // })
         // .map((x) => x.id);
-      console.log(data);
+    
       io.emit("invited-to-a-direct", { 
         usersId: data?.userIds,
         directId:  data?._id

@@ -1,13 +1,15 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 
 import {
   Box,
   Typography,
   Paper,
   Button,
-  IconButton,
-} from "@/shared/components";
+  IconButton,} from "@/shared/components";
 import {
+  HomeContainer,
+  HomeHeaderContainer,
+  HomeHeaderWrapper,
   HomeHeaderText,
   HomeBodyList,
   HomeBodyItem,
@@ -22,6 +24,7 @@ import {
   primaryColor,
   borderColor,
   inActiveColor,
+  whiteColor
 } from "@/shared/utils/colors.utils";
 import bannerImage from "../../assets/image/bannerImage.jpg";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
@@ -37,38 +40,43 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import { redirectTo } from '@/shared/utils/history';
 
 export const HomePage = () => {
+  const [isFixedHeader, setIsFixedHeader] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = (e) => {
+      if(scrollY > 50) {
+        setIsFixedHeader(true);
+      } else {
+        setIsFixedHeader(false);
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, []);
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: "0",
-        display: "block",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItem: "center",
-          justifyContent: "space-between",
-          padding: "16px 0",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItem: "center", gap: "16px" }}>
-          <Typography
-            sx={{ color: primaryColor, fontWeight: "bold", cursor: "default " }}
-          >
-            WIC
-          </Typography>
-          <HomeHeaderText>Product</HomeHeaderText>
-          <HomeHeaderText>Solutions</HomeHeaderText>
-          <HomeHeaderText>About</HomeHeaderText>
-        </Box>
-        <Button variant="contained" onClick={() => redirectTo('/signin')}>Sign in</Button>
-      </Box>
-      <Box sx={{ display: "flex", marginTop: "40px", gap: "30px" }}>
-        <Box sx={{ flex: "0 0 50%" }}>
+    <HomeContainer >
+      <HomeHeaderContainer isfixedheader={isFixedHeader.toString()}>
+        <HomeHeaderWrapper>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: 'wrap' }}>
+            <Typography
+              sx={{ color: isFixedHeader ? whiteColor : primaryColor, fontWeight: "bold", cursor: "default " }}
+            >
+              WIC
+            </Typography>
+            <HomeHeaderText isfixedheader={isFixedHeader.toString()}>Product</HomeHeaderText>
+            <HomeHeaderText isfixedheader={isFixedHeader.toString()}>Solutions</HomeHeaderText>
+            <HomeHeaderText isfixedheader={isFixedHeader.toString()}>About</HomeHeaderText>
+          </Box>
+          <Button sx={{ backgroundColor: isFixedHeader && whiteColor, color: isFixedHeader && primaryColor, textTransform: "capitalize" }} variant="contained" onClick={() => redirectTo('/signin')}>Sign in</Button>
+        </HomeHeaderWrapper>
+      </HomeHeaderContainer>
+      <Box sx={{ display: "flex", margin: "40px auto 0", padding: "0 24px", gap: "30px", maxWidth: "1200px", width: "100%", flexDirection: {xs: 'column', sm: 'row'} }}>
+        <Box sx={{ flex: "0 0 calc(50% - 15px)" }}>
           <Typography sx={{ fontSize: "40px", fontWeight: "bold" }}>
             Talking with everyone and keep secure.
           </Typography>
@@ -78,11 +86,11 @@ export const HomePage = () => {
             saepe, vitae tempore, earum a. Saepe temporibus quos molestias magni
             vitae illo.
           </Typography>
-          <Button variant="contained" sx={{ marginTop: "60px" }} onClick={() => redirectTo('/signup')}>
+          <Button variant="contained" sx={{ marginTop: "60px", display: {xs: 'none', sm: 'block'} }} onClick={() => redirectTo('/signup')}>
             Create organize with your own
           </Button>
         </Box>
-        <Box sx={{ flex: "0 0 50%", height: "400px" }}>
+        <Box sx={{ flex: "0 0 calc(50% - 15px)", height: "400px" }}>
           <img
             src={bannerImage}
             alt="image"
@@ -94,8 +102,12 @@ export const HomePage = () => {
             }}
           />
         </Box>
+        <Button variant="contained" sx={{ display: {xs: 'block', sm: 'none'} }} onClick={() => redirectTo('/signup')}>
+            Create organize with your own
+        </Button>
       </Box>
-      <Box sx={{ marginTop: "60px" }}>
+
+      <Box sx={{ margin: "60px auto 0", padding: "0 24px", maxWidth: "1200px", width: "100%" }}>
         <HomeBodyList>
           <HomeBodyItem>
             <HomeBodyItemImageWrapper>
@@ -159,13 +171,16 @@ export const HomePage = () => {
           </HomeBodyItem>
         </HomeBodyList>
       </Box>
-      <Box sx={{ marginTop: "60px" }}>
+      <Box sx={{ margin: "60px auto 0" }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            borderBottom: `1px solid ${borderColor}`,
-            paddingBottom: "24px",
+            maxWidth: "1200px", 
+            width: "100%",
+            margin: "0 auto",
+            padding: "0 24px 24px",
+            flexWrap: "wrap",
           }}
         >
           <HomeFooterCol>
@@ -222,10 +237,12 @@ export const HomePage = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "16px 0px 24px",
+            padding: "16px 24px 24px",
+            borderTop: `1px solid ${borderColor}`,
+            flexDirection: { xs: "column-reverse", sm: 'row'}
           }}
         >
-          <Typography sx={{ color: inActiveColor, fontSize: "12px" }}>
+          <Typography sx={{ color: inActiveColor, fontSize: "12px", marginTop: { xs: "16px", sm: "0" }, textAlign: 'center' }}>
             ©2023 WIC Technologies, LLC, a student is studying at Greenwich
             university
           </Typography>
@@ -245,6 +262,6 @@ export const HomePage = () => {
           </Box>
         </Box>
       </Box>
-    </Box>
+    </HomeContainer>
   );
 };
