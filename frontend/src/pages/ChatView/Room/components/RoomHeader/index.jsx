@@ -32,7 +32,7 @@ const flexCenter = {
 
 export const RoomHeader = () => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const {roomInfo, typeRoom, setTypeFeatureRoom} = useRoomStore((state) => state);
+  const {roomInfo, typeRoom, setTypeFeatureRoom, typeFeatureRoom} = useRoomStore((state) => state);
 
   const [anchorMoreFeatures, setAnchorMoreFeatures] = useState(null);
 
@@ -45,9 +45,14 @@ export const RoomHeader = () => {
   };
 
   const handleOpenFeatureRoom = (feature) => {
-    redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`);
-    setTypeFeatureRoom(feature);
-
+    if(typeFeatureRoom !== feature) {
+      redirectTo(`/chat/${typeRoom}/${roomInfo?._id}/${feature}`);
+      setTypeFeatureRoom(feature);
+    } else {
+      redirectTo(`/chat/${typeRoom}/${roomInfo?._id}`);
+      setTypeFeatureRoom(null)
+    }
+    
     if (anchorMoreFeatures) {
       setAnchorMoreFeatures(null);
     }
