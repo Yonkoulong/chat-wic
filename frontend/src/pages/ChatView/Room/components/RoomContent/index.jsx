@@ -54,7 +54,7 @@ import {
   whiteColor,
   blackColor,
 } from "@/shared/utils/colors.utils";
-import { enumTypeRooms, typesMessage } from "@/shared/utils/constant";
+import { enumPopupFeatures, enumTypeRooms, typesMessage } from "@/shared/utils/constant";
 import {
   chatTimestamp,
   handleRenderMessageCustomWithType,
@@ -81,7 +81,7 @@ export const RoomContent = () => {
   const { client } = useSocketStore((state) => state);
 
   const userInfo = useAppStore((state) => state.userInfo);
-  const {roomInfo, typeRoom} = useRoomStore((state) => state);
+  const { roomInfo, typeRoom, setTypeFeatureRoom } = useRoomStore((state) => state);
   const {
     messages,
     pushMessage,
@@ -89,7 +89,12 @@ export const RoomContent = () => {
     editMessageStore,
     reactionMessage,
   } = useChatStore((state) => state);
-  const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const listQuoteMessageChannel = useChatStore((state) => state.listQuoteMessageChannel);
+  const listQuoteMessageDirect = useChatStore((state) => state.listQuoteMessageDirect);
+  const setListQuoteMessageChannel = useChatStore((state) => state.setListQuoteMessageChannel);
+  const setListQuoteMessageDirect = useChatStore((state) => state.setListQuoteMessageDirect);
+  const setDeleteQuoteMessageChannel = useChatStore((state) => state.setDeleteQuoteMessageChannel);
+  const setDeleteQuoteMessageDirect = useChatStore((state) => state.setDeleteQuoteMessageDirect);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
   const loading = useChatStore((state) => state.loading);
@@ -97,6 +102,7 @@ export const RoomContent = () => {
   const heightQuoteMessage = useChatStore(
     (state) => state.heightQuoteMessageBox
   );
+  const setHeightQuoteMessage = useChatStore((state) => state.heightQuoteMessageBox);
   const fetchMessagesChannel = useChatStore(
     (state) => state.fetchMessagesChannel
   );
@@ -174,9 +180,18 @@ export const RoomContent = () => {
 
   //reply
   const handleClickReplyMessage = (message) => {
-    if (message) {
-      setQuoteMessage(message);
+    if (!message) { return; }
+
+    if(editMessage) {
+      setEditMessage(null);
     }
+
+    if(typeRoom == enumTypeRooms.CHANNEL) {
+      setListQuoteMessageChannel(message);
+    } else {
+      setListQuoteMessageDirect(message);
+    }
+   
   };
 
   //handle open anchor
@@ -224,14 +239,37 @@ export const RoomContent = () => {
   };
 
   const handleClickUpdateMessage = (message) => {
-    if (message) {
+    if (!message) { return; }
+
+    if(typeRoom === enumTypeRooms.CHANNEL) {
+
       if (message?.replyId) {
-        setQuoteMessage(message?.replyMessage);
+        setListQuoteMessageChannel(message?.replyMessage);
+      } else {
+        const currentQuoteMessage = listQuoteMessageChannel?.find((quoteMessage) => 
+          quoteMessage.channelId == roomInfo?._id)
+        if(currentQuoteMessage) {
+          setDeleteQuoteMessageChannel(currentQuoteMessage?._id);
+          setHeightQuoteMessage(0)
+        }
       }
       setEditMessage(message);
-      setAnchorMoreFeatureMessage(null);
+    } else {  
+      if (message?.replyId) {
+        setListQuoteMessageDirect(message?.replyMessage);
+      } else {
+        const currentQuoteMessage = listQuoteMessageDirect?.find((quoteMessage) => 
+          quoteMessage.directId == roomInfo?._id)
+        if(currentQuoteMessage) {
+          setDeleteQuoteMessageDirect(currentQuoteMessage?._id);
+          setHeightQuoteMessage(0)
+        }
+      }
+        setEditMessage(message);
     }
-  };
+    
+    setAnchorMoreFeatureMessage(null);
+  }
 
   //handle render message with type
   const handleRenderMessageWithType = (message) => {
@@ -365,6 +403,7 @@ export const RoomContent = () => {
 
   const handleCreateThread = (message) => {
     redirectTo(`/chat/channel/${id}/threads/${message?._id}`);
+    setTypeFeatureRoom(enumPopupFeatures.THREAD);
   };
 
   useEffect(() => {
@@ -483,7 +522,7 @@ export const RoomContent = () => {
   const idAnchorMoreFeatureMessage = openAnchorMoreFeatureMessage
     ? "anchor-more-feature-message"
     : undefined;
-
+  
   return (
     <RoomContentContainer>
       <Box>
