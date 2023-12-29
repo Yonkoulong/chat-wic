@@ -18,7 +18,7 @@ export const useChatStore = create((set, get) => ({
   },
   setListQuoteMessageChannel: (payload) => {
     const isQuoteMessage = get().listQuoteMessageChannel?.some((quoteMessageChannel) => {
-      quoteMessageChannel.channelId == payload.channelId;
+      return quoteMessageChannel.channelId === payload.channelId;
     });
     if(isQuoteMessage) {
       const newListQuoteMessage = get().listQuoteMessageChannel.filter((quoteMessageChannel) => {

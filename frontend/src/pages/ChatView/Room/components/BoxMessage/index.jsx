@@ -75,12 +75,6 @@ export const BoxMessage = () => {
   const setHeightQuoteMessageBox = useChatStore(
     (state) => state.setHeightQuoteMessageBox
   );
-  const fetchMessagesChannel = useChatStore(
-    (state) => state.fetchMessagesChannel
-  );
-  const fetchMessagesDirect = useChatStore(
-    (state) => state.fetchMessagesDirect
-  );
   const { client } = useSocketStore((state) => state);
 
   const [isDisplayIconChat, setIsDisplayIconChat] = useState(false);
@@ -88,25 +82,26 @@ export const BoxMessage = () => {
   const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
+  const [currentQuoteMessageState, setCurrentQuoteMessageState] = useState({});
 
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const quoteMessageRef = useRef(null);
 
-
   const handleChat = (e) => {
     const textArea = textAreaRef.current;
 
     if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
       if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {
-        postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
         textArea.value = "";
         setIsDisplayIconChat(false);
+        postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
 
         //has quoute message
-        if (heightQuoteMessageBox && heightQuoteMessageBox > 0) {
-          handleCancelQuoteMessage();
+        if (heightQuoteMessageBox && heightQuoteMessageBox > 0 && currentQuoteMessageState) {
+          handleCancelQuoteMessage(currentQuoteMessageState?._id);
+          setCurrentQuoteMessageState(null);
         }
 
         if (editMessage) {
@@ -181,7 +176,6 @@ export const BoxMessage = () => {
           if (resp) {
             client.emit("edit-message-channel", resp?.data?.content);
             editMessageStore(resp?.data?.content);
-            // fetchMessagesChannel({ channelId: id });
           }
         } else {
           const newPayloadMessageChannel = {
@@ -191,7 +185,7 @@ export const BoxMessage = () => {
             content: value,
             channelId: id,
             type: type,
-            replyId: quoteMessage?._id || null,
+            replyId: listQuoteMessageChannel.find((quoteMessage) => quoteMessage?.channelId == id)?._id || null,
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
@@ -218,7 +212,6 @@ export const BoxMessage = () => {
           if (resp) {
             client.emit("edit-message-direct", resp?.data?.content);
             editMessageStore(resp?.data?.content);
-            // fetchMessagesDirect({ directId: id });
           }
         } else {
           const newPayloadMessageDirect = {
@@ -227,7 +220,7 @@ export const BoxMessage = () => {
             senderName: userInfo?.username,
             content: value,
             type: type,
-            replyId: quoteMessage?._id || null,
+            replyId: listQuoteMessageDirect.find((quoteMessage) => quoteMessage?.directId == id)?._id || null,
           };
 
           const resp = await postMessageDirect(id, newPayloadMessageDirect);
@@ -265,8 +258,13 @@ export const BoxMessage = () => {
     } else {
       currentQuoteMessage = listQuoteMessageDirect?.find((quoteMessageDirect) => quoteMessageDirect.directId === roomInfo?._id);
     }
-
+    
     if(currentQuoteMessage) {
+      
+      if(!currentQuoteMessageState) {
+        setCurrentQuoteMessageState(currentQuoteMessage);
+      }
+
       return (
         <Box
         ref={quoteMessageRef}
