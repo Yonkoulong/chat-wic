@@ -91,7 +91,7 @@ const Sidebar = (props) => {
   const { userInfo } = useAppStore((state) => state);
   const { channelRooms, directRooms, setChannelRooms, setDirectRooms } =
     useRoomStore((state) => state);
-  const { roomInfo, typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
+  const { roomInfo, typeFeatureRoom, setRoomInfo, setTypeFeatureRoom } = useRoomStore(
     (state) => state);
   const client = useSocketStore((state) => state.client);
  
@@ -139,6 +139,7 @@ const Sidebar = (props) => {
 
   const handleRedirectToChatHome = () => {
     redirectTo("/chat/home");
+    setRoomInfo({})
     handleClose(); 
   }
 
@@ -150,6 +151,7 @@ const Sidebar = (props) => {
 
   const handleRedirectToAdminPage = () => {
     redirectTo("/admin");
+    setRoomInfo({})
     handleClose();
   }
 

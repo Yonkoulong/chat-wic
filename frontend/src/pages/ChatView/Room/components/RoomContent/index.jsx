@@ -102,7 +102,7 @@ export const RoomContent = () => {
   const heightQuoteMessage = useChatStore(
     (state) => state.heightQuoteMessageBox
   );
-  const setHeightQuoteMessage = useChatStore((state) => state.heightQuoteMessageBox);
+  const setHeightQuoteMessage = useChatStore((state) => state.setHeightQuoteMessageBox);
   const fetchMessagesChannel = useChatStore(
     (state) => state.fetchMessagesChannel
   );

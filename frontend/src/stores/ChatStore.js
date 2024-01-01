@@ -46,6 +46,7 @@ export const useChatStore = create((set, get) => ({
     set((state) => ({ 
       listQuoteMessageChannel: state.listQuoteMessageChannel?.filter((quoteMessage) => quoteMessage?._id !== idQuoteMessage) 
     }));
+    console.log(get().listQuoteMessageChannel);
   },
   setDeleteQuoteMessageDirect: (idQuoteMessage) => {
     set((state) => ({ 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -82,26 +82,26 @@ export const BoxMessage = () => {
   const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
-  const [currentQuoteMessageState, setCurrentQuoteMessageState] = useState({});
+  // const [currentQuoteMessageState, setCurrentQuoteMessageState] = useState({});
+
+  let currentQuoteMessage = {};
 
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
   const fileInputRef = useRef(null);
-  const quoteMessageRef = useRef(null);
+  // const quoteMessageRef = useRef(null);
 
   const handleChat = (e) => {
     const textArea = textAreaRef.current;
 
     if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
-      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {
-        textArea.value = "";
+      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {        
         setIsDisplayIconChat(false);
         postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
-
+        textArea.value = "";
         //has quoute message
-        if (heightQuoteMessageBox && heightQuoteMessageBox > 0 && currentQuoteMessageState) {
-          handleCancelQuoteMessage(currentQuoteMessageState?._id);
-          setCurrentQuoteMessageState(null);
+        if (heightQuoteMessageBox && heightQuoteMessageBox > 0) {
+          handleCancelQuoteMessage(currentQuoteMessage?._id);
         }
 
         if (editMessage) {
@@ -251,8 +251,6 @@ export const BoxMessage = () => {
   };
 
   const handleRenderQuoteMessage = () => {
-    let currentQuoteMessage = {};
-
     if(typeRoom === enumTypeRooms.CHANNEL) {
       currentQuoteMessage = listQuoteMessageChannel?.find((quoteMessageChannel) => quoteMessageChannel.channelId === roomInfo?._id);
     } else {
@@ -261,10 +259,6 @@ export const BoxMessage = () => {
     
     if(currentQuoteMessage) {
       
-      if(!currentQuoteMessageState) {
-        setCurrentQuoteMessageState(currentQuoteMessage);
-      }
-
       return (
         <Box
         ref={quoteMessageRef}
@@ -306,15 +300,6 @@ export const BoxMessage = () => {
   }
 
   useEffect(() => {
-    if (listQuoteMessageChannel.length > 0 || listQuoteMessageDirect.length > 0 ) {
-      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight || 0;
-      setHeightQuoteMessageBox(heightQuoteMessage);
-
-      setTimeout(() => {
-        textAreaRef.current.focus();
-      }, 100);
-    }
-
     if (editMessage) {
       switch (editMessage?.type) {
         case typesMessage.PLAIN_TEXT:
@@ -342,7 +327,33 @@ export const BoxMessage = () => {
           break;
       }
     }
-  }, [listQuoteMessageChannel, listQuoteMessageDirect, editMessage]);
+  }, [editMessage]);
+
+  const quoteMessageRef = useCallback((node) => {
+    if(node !== null) {
+      
+      if (listQuoteMessageChannel.length > 0 || listQuoteMessageDirect.length > 0 ) {
+        let isQuoteMessaging = false;
+       
+        if(typeRoom === enumTypeRooms.CHANNEL) {
+          isQuoteMessaging = listQuoteMessageChannel?.some((quoteMessageChannel) => quoteMessageChannel.channelId === id);
+        } else {
+          isQuoteMessaging = listQuoteMessageDirect?.some((quoteMessageDirect) => quoteMessageDirect.directId === roomInfo?._id);
+        }
+  
+        if(isQuoteMessaging) {
+          const heightQuoteMessage = node?.offsetHeight || 0;
+          setHeightQuoteMessageBox(heightQuoteMessage);
+  
+          setTimeout(() => {
+            textAreaRef.current.focus();
+          }, 100);
+        } else {
+          setHeightQuoteMessageBox(0);
+        }
+      }
+    }
+  }, [id, listQuoteMessageChannel, listQuoteMessageDirect]) //check when change room
 
   return (
     <BoxMessageContainer>
