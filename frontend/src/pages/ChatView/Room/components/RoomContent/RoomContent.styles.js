@@ -10,6 +10,18 @@ import {
 
 export const RoomContentContainer = styled(Box)``;
 
+export const MessageListWrapper = styled(Box)`
+  
+  padding: 24px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 187.62px - ${props => props.heightquotemessage}px);
+
+  @media (max-width: 1024px) {
+    max-height: calc(100vh - 243.62px - ${props => props.heightquotemessage}px);
+  }
+`;
+
 export const MessageList = styled(Box)`
   display: flex;
   flex-direction: column;

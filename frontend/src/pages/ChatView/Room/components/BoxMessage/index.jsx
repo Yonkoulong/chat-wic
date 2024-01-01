@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -60,23 +60,20 @@ const flexCenter = {
 export const BoxMessage = () => {
   const { id } = useParams();
 
-  const typeRoom = useRoomStore((state) => state.typeRoom);
+  const { typeRoom, roomInfo } = useRoomStore((state) => state);
   const userInfo = useAppStore((state) => state.userInfo);
   const { messages, pushMessage, editMessageStore } = useChatStore(
     (state) => state
   );
-  const quoteMessage = useChatStore((state) => state.quoteMessage);
+  const listQuoteMessageChannel = useChatStore((state) => state.listQuoteMessageChannel);
+  const listQuoteMessageDirect = useChatStore((state) => state.listQuoteMessageDirect);
+  const setDeleteQuoteMessageChannel = useChatStore((state) => state.setDeleteQuoteMessageChannel);
+  const setDeleteQuoteMessageDirect = useChatStore((state) => state.setDeleteQuoteMessageDirect);
   const editMessage = useChatStore((state) => state.editMessage);
   const setEditMessage = useChatStore((state) => state.setEditMessage);
-  const setQuoteMessage = useChatStore((state) => state.setQuoteMessage);
+  const heightQuoteMessageBox = useChatStore((state) => state.heightQuoteMessageBox);
   const setHeightQuoteMessageBox = useChatStore(
     (state) => state.setHeightQuoteMessageBox
-  );
-  const fetchMessagesChannel = useChatStore(
-    (state) => state.fetchMessagesChannel
-  );
-  const fetchMessagesDirect = useChatStore(
-    (state) => state.fetchMessagesDirect
   );
   const { client } = useSocketStore((state) => state);
 
@@ -85,24 +82,26 @@ export const BoxMessage = () => {
   const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
   const [fileListObject, setFileListObject] = useState([]);
   const [uploadFile, setUploadFile] = useState({});
+  // const [currentQuoteMessageState, setCurrentQuoteMessageState] = useState({});
+
+  let currentQuoteMessage = {};
 
   const textAreaRef = useRef(null);
   const imgInputRef = useRef(null);
   const fileInputRef = useRef(null);
-  const quoteMessageRef = useRef(null);
+  // const quoteMessageRef = useRef(null);
 
   const handleChat = (e) => {
     const textArea = textAreaRef.current;
 
     if (e.target.value != "" && !hasWhiteSpace(e.target.value)) {
-      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {
+      if (!e.shiftKey && (e.key === "Enter" || e.keyCode === 13)) {        
+        setIsDisplayIconChat(false);
         postMessageOnServer(e.target.value, typesMessage.PLAIN_TEXT);
         textArea.value = "";
-        setIsDisplayIconChat(false);
-
         //has quoute message
-        if (quoteMessage) {
-          handleCancelQuoteMessage();
+        if (heightQuoteMessageBox && heightQuoteMessageBox > 0) {
+          handleCancelQuoteMessage(currentQuoteMessage?._id);
         }
 
         if (editMessage) {
@@ -177,7 +176,6 @@ export const BoxMessage = () => {
           if (resp) {
             client.emit("edit-message-channel", resp?.data?.content);
             editMessageStore(resp?.data?.content);
-            // fetchMessagesChannel({ channelId: id });
           }
         } else {
           const newPayloadMessageChannel = {
@@ -187,7 +185,7 @@ export const BoxMessage = () => {
             content: value,
             channelId: id,
             type: type,
-            replyId: quoteMessage?._id || null,
+            replyId: listQuoteMessageChannel.find((quoteMessage) => quoteMessage?.channelId == id)?._id || null,
           };
 
           const resp = await postMessageChannel(newPayloadMessageChannel);
@@ -214,7 +212,6 @@ export const BoxMessage = () => {
           if (resp) {
             client.emit("edit-message-direct", resp?.data?.content);
             editMessageStore(resp?.data?.content);
-            // fetchMessagesDirect({ directId: id });
           }
         } else {
           const newPayloadMessageDirect = {
@@ -223,7 +220,7 @@ export const BoxMessage = () => {
             senderName: userInfo?.username,
             content: value,
             type: type,
-            replyId: quoteMessage?._id || null,
+            replyId: listQuoteMessageDirect.find((quoteMessage) => quoteMessage?.directId == id)?._id || null,
           };
 
           const resp = await postMessageDirect(id, newPayloadMessageDirect);
@@ -240,8 +237,12 @@ export const BoxMessage = () => {
     }
   };
 
-  const handleCancelQuoteMessage = () => {
-    setQuoteMessage(null);
+  const handleCancelQuoteMessage = (idQuoteMessage) => {
+    if(typeRoom === enumTypeRooms.CHANNEL) {
+      setDeleteQuoteMessageChannel(idQuoteMessage);
+    } else {
+      setDeleteQuoteMessageDirect(idQuoteMessage);
+    }
     setHeightQuoteMessageBox(0);
   };
 
@@ -249,16 +250,56 @@ export const BoxMessage = () => {
     setOpenCreateTaskModal(true);
   };
 
-  useEffect(() => {
-    if (quoteMessage) {
-      const heightQuoteMessage = quoteMessageRef.current?.offsetHeight;
-      setHeightQuoteMessageBox(heightQuoteMessage);
-
-      setTimeout(() => {
-        textAreaRef.current.focus();
-      }, 100);
+  const handleRenderQuoteMessage = () => {
+    if(typeRoom === enumTypeRooms.CHANNEL) {
+      currentQuoteMessage = listQuoteMessageChannel?.find((quoteMessageChannel) => quoteMessageChannel.channelId === roomInfo?._id);
+    } else {
+      currentQuoteMessage = listQuoteMessageDirect?.find((quoteMessageDirect) => quoteMessageDirect.directId === roomInfo?._id);
     }
+    
+    if(currentQuoteMessage) {
+      
+      return (
+        <Box
+        ref={quoteMessageRef}
+        sx={{
+          backgroundColor: hoverTextColor,
+          padding: "8px 24px",
+        }}
+      >
+        <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
+          <Typography variant="subtitle2">
+            You are answering {userInfo?.username == currentQuoteMessage?.senderName
+              ? "yourself"
+              : currentQuoteMessage?.senderName}
+          </Typography>
+          <CloseIcon
+            sx={{
+              fontSize: "18px",
+              cursor: "pointer",
+              borderRadius: "50px",
 
+              ":hover": {
+                backgroundColor: hoverBackgroundColor,
+                color: primaryColor,
+              },
+            }}
+            onClick={() => handleCancelQuoteMessage(currentQuoteMessage?._id)}
+          />
+        </Box>
+        <Box mt={1}>
+          <Box sx={{ color: inActiveColor }}>
+            {handleRenderMessageCustomWithType(currentQuoteMessage)}
+          </Box>
+        </Box>
+      </Box>
+      )
+    } else {
+      return (<></>)
+    }
+  }
+
+  useEffect(() => {
     if (editMessage) {
       switch (editMessage?.type) {
         case typesMessage.PLAIN_TEXT:
@@ -286,45 +327,37 @@ export const BoxMessage = () => {
           break;
       }
     }
-  }, [quoteMessage, editMessage]);
+  }, [editMessage]);
+
+  const quoteMessageRef = useCallback((node) => {
+    if(node !== null) {
+      
+      if (listQuoteMessageChannel.length > 0 || listQuoteMessageDirect.length > 0 ) {
+        let isQuoteMessaging = false;
+       
+        if(typeRoom === enumTypeRooms.CHANNEL) {
+          isQuoteMessaging = listQuoteMessageChannel?.some((quoteMessageChannel) => quoteMessageChannel.channelId === id);
+        } else {
+          isQuoteMessaging = listQuoteMessageDirect?.some((quoteMessageDirect) => quoteMessageDirect.directId === roomInfo?._id);
+        }
+  
+        if(isQuoteMessaging) {
+          const heightQuoteMessage = node?.offsetHeight || 0;
+          setHeightQuoteMessageBox(heightQuoteMessage);
+  
+          setTimeout(() => {
+            textAreaRef.current.focus();
+          }, 100);
+        } else {
+          setHeightQuoteMessageBox(0);
+        }
+      }
+    }
+  }, [id, listQuoteMessageChannel, listQuoteMessageDirect]) //check when change room
 
   return (
     <BoxMessageContainer>
-      {quoteMessage && (
-        <Box
-          ref={quoteMessageRef}
-          sx={{
-            backgroundColor: hoverTextColor,
-            padding: "8px 24px",
-          }}
-        >
-          <Box sx={{ ...flexCenter, justifyContent: "space-between" }}>
-            <Typography variant="subtitle2">
-              You are answering {userInfo?.username == quoteMessage?.senderName
-                ? "yourself"
-                : quoteMessage?.senderName}
-            </Typography>
-            <CloseIcon
-              sx={{
-                fontSize: "18px",
-                cursor: "pointer",
-                borderRadius: "50px",
-
-                ":hover": {
-                  backgroundColor: hoverBackgroundColor,
-                  color: primaryColor,
-                },
-              }}
-              onClick={handleCancelQuoteMessage}
-            />
-          </Box>
-          <Box mt={1}>
-            <Box sx={{ color: inActiveColor }}>
-              {handleRenderMessageCustomWithType(quoteMessage)}
-            </Box>
-          </Box>
-        </Box>
-      )}
+      {handleRenderQuoteMessage()}
       <Box
         sx={{
           ...flexCenter,

@@ -74,7 +74,7 @@ const defaultValues = {
   userIds: [],
 };
 
-export const ModalCreateDirect = ({ open, onClose }) => {
+export const ModalCreateDirect = ({ open, onClose, ...props }) => {
   const { fetchMembers, members } = useMemberStore((state) => state);
   const { userInfo } = useAppStore((state) => state);
   const client = useSocketStore((state) => state.client);
@@ -120,6 +120,9 @@ export const ModalCreateDirect = ({ open, onClose }) => {
         setLoading(true);
         handleClose();
         redirectTo(`/chat/direct/${idDirect}`);
+        if(props && props?.handleCloseSidebar) {
+          props?.handleCloseSidebar();
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;

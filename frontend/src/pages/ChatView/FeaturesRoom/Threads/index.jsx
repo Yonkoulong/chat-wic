@@ -5,6 +5,7 @@ import { ThreadDetail } from './ThreadDetail';
 
 export const Threads = () => {
     const { threadId } = useParams();
+
     return (
         <>
             { threadId ? <ThreadDetail /> : <ListThread /> } 

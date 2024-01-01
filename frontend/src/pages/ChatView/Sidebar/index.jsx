@@ -85,37 +85,22 @@ import {
 } from "@/shared/utils/utils";
 
 const flexCenter = { display: "flex", alignItems: "center" };
-const activeRoom = {  backgroundColor: hoverItemSidebarColor };
 
-const Sidebar = () => {
+const Sidebar = (props) => {
+  const { isOpen, handleClose } = props; //control this component(Sidebar) open and close
   const { userInfo } = useAppStore((state) => state);
   const { channelRooms, directRooms, setChannelRooms, setDirectRooms } =
     useRoomStore((state) => state);
-  const { roomInfo, typeFeatureRoom, setTypeFeatureRoom } = useRoomStore(
+  const { roomInfo, typeFeatureRoom, setRoomInfo, setTypeFeatureRoom } = useRoomStore(
     (state) => state);
   const client = useSocketStore((state) => state.client);
  
   const [anchorUserInfo, setAnchorUserInfo] = useState(null);
   const [anchorRoom, setAnchorRoom] = useState(null);
-  const [totalHeightSubtract, setTotalHeightSubtract] = useState(0);
   const [openCreateChannelModal, setOpenCreateChannelModal] = useState(false);
   const [openCreateDirectMessageModal, setOpenCreateDirectMessageModal] =
     useState(false);
   const [openSearchRoom, setOpenSearchRoom] = useState(false);
-
-  const SidebarHeaderRef = useRef(0);
-  const SidebarBottomRef = useRef(0);
-
-  const handleSetMaxHeightForSidebarBody = () => {
-    if (SidebarHeaderRef.current && SidebarBottomRef.current) {
-      const totalHeightSubtract = SidebarHeaderRef.current.offsetHeight + SidebarBottomRef.current.offsetHeight;
-      setTotalHeightSubtract(totalHeightSubtract);
-    }
-  };
-
-  useEffect(() => {
-    handleSetMaxHeightForSidebarBody();
-  }, [totalHeightSubtract]);
 
   const handleClickOpenAnchorUserInfo = (event) => {
     setAnchorUserInfo(event.currentTarget);
@@ -152,6 +137,24 @@ const Sidebar = () => {
     }
   };
 
+  const handleRedirectToChatHome = () => {
+    redirectTo("/chat/home");
+    setRoomInfo({})
+    handleClose(); 
+  }
+
+  const handleRedirecToProfileDetail = () => {
+    redirectTo("/chat/profile");
+    setAnchorUserInfo(null)
+    handleClose();
+  }
+
+  const handleRedirectToAdminPage = () => {
+    redirectTo("/admin");
+    setRoomInfo({})
+    handleClose();
+  }
+
   const handleClickOpenModalCreateChannel = () => {
     setOpenCreateChannelModal(true);
     setAnchorRoom(null);
@@ -175,14 +178,15 @@ const Sidebar = () => {
       setTypeFeatureRoom(null);
     }
     redirectTo(`/chat/channel/${channel?._id}`);
+    handleClose();
   };
 
   const handleRedirectToDirectRoom = (direct) => {
     if (typeFeatureRoom) {
       setTypeFeatureRoom(null);
     }
-
     redirectTo(`/chat/direct/${direct?._id}`);
+    handleClose();
   };
 
   const handleRenderDirectMemberOnSideBar = (direct) => {
@@ -268,9 +272,9 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <SidebarContainer>
+    <SidebarContainer isopensidebar={isOpen.toString()}>
       <SidebarWrapper>
-        <SidebarHeader ref={SidebarHeaderRef}>
+        <SidebarHeader>
           <SidebarHeaderList>
             <SidebarHeaderItem>
               {userInfo?.avatar ? (
@@ -426,7 +430,7 @@ const Sidebar = () => {
                               cursor: "pointer",
                             },
                           }}
-                          onClick={() => redirectTo("/chat/profile")}
+                          onClick={() => handleRedirecToProfileDetail()}
                         >
                           <PersonIcon />
                           <AnchorUserInfoBottomItemText>
@@ -442,7 +446,7 @@ const Sidebar = () => {
                                 cursor: "pointer",
                               },
                             }}
-                            onClick={() => redirectTo("/admin")}
+                            onClick={() => handleRedirectToAdminPage()}
                           >
                             <GridViewIcon />
                             <AnchorUserInfoBottomItemText>
@@ -475,7 +479,7 @@ const Sidebar = () => {
               </Popover>
             </SidebarHeaderItem>
 
-            <SidebarHeaderItem onClick={() => redirectTo("/chat/home")}>
+            <SidebarHeaderItem onClick={() => handleRedirectToChatHome()}>
               <HomeIcon sx={{ display: "flex" }} />
             </SidebarHeaderItem>
 
@@ -561,9 +565,7 @@ const Sidebar = () => {
         </SidebarHeader>
 
         <SidebarBody>
-          <SidebarBodyWrapper
-            sx={{ maxHeight: `calc(100% - ${totalHeightSubtract}px)` }}
-          >
+          <SidebarBodyWrapper>
             <SidebarBodyList>
               <SidebarBodyItem>
                 <SidebarBodyItemName>
@@ -634,7 +636,7 @@ const Sidebar = () => {
           </SidebarBodyWrapper>
         </SidebarBody>
 
-        <SidebarFooter ref={SidebarBottomRef}>
+        <SidebarFooter>
           <SidebarFooterWrapper>
             <MessageIcon fontSize="large" />
             <SidebarFooterContent>
@@ -646,19 +648,21 @@ const Sidebar = () => {
       </SidebarWrapper>
 
       {openSearchRoom ? (
-        <SearchRoom closeSearchRoom={handleCloseSearchRoom} />
+        <SearchRoom closeSearchRoom={handleCloseSearchRoom} handleCloseSidebar={handleClose}/>
       ) : null}
 
       {/* modal create channel */}
       <ModalCreateChannel
         open={openCreateChannelModal}
         onClose={setOpenCreateChannelModal}
+        handleCloseSidebar={handleClose}
       />
 
       {/* modal create direct */}
       <ModalCreateDirect
         open={openCreateDirectMessageModal}
         onClose={setOpenCreateDirectMessageModal}
+        handleCloseSidebar={handleClose}
       />
     </SidebarContainer>
   );

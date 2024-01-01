@@ -4,7 +4,8 @@ import { getMessageByDirectId } from "@/services/direct.services";
 
 export const useChatStore = create((set, get) => ({
   messages: null,
-  quoteMessage: null,
+  listQuoteMessageChannel: [],
+  listQuoteMessageDirect: [],
   editMessage:  null,
   heightQuoteMessageBox: 0,
   loading: false,
@@ -15,8 +16,42 @@ export const useChatStore = create((set, get) => ({
   setHeightQuoteMessageBox: (payload) => {
     set({ heightQuoteMessageBox: payload });
   },
-  setQuoteMessage: (payload) => {
-    set({ quoteMessage: payload });
+  setListQuoteMessageChannel: (payload) => {
+    const isQuoteMessage = get().listQuoteMessageChannel?.some((quoteMessageChannel) => {
+      return quoteMessageChannel.channelId === payload.channelId;
+    });
+    if(isQuoteMessage) {
+      const newListQuoteMessage = get().listQuoteMessageChannel.filter((quoteMessageChannel) => {
+        quoteMessageChannel.channelId != payload.channelId;
+      })
+      set({ listQuoteMessageChannel: [...newListQuoteMessage, payload]})
+    } else {
+      set((state) => ({ listQuoteMessageChannel: [...state.listQuoteMessageChannel, payload] }));
+    }
+  },
+  setListQuoteMessageDirect: (payload) => {
+    const isQuoteMessage = get().listQuoteMessageDirect.some((quoteMessageDirect) => {
+      quoteMessageDirect.directId == payload.directId;
+    });
+    if(isQuoteMessage) {
+      const newListQuoteMessage = get().listQuoteMessageDirect.filter((quoteMessageDirect) => {
+        quoteMessageDirect.directId != payload.directId;
+      })
+      set({ listQuoteMessageDirect: [...newListQuoteMessage, payload]})
+    } else {
+      set((state) => ({ listQuoteMessageDirect: [...state.listQuoteMessageDirect, payload] }));
+    }
+  },
+  setDeleteQuoteMessageChannel: (idQuoteMessage) => {
+    set((state) => ({ 
+      listQuoteMessageChannel: state.listQuoteMessageChannel?.filter((quoteMessage) => quoteMessage?._id !== idQuoteMessage) 
+    }));
+    console.log(get().listQuoteMessageChannel);
+  },
+  setDeleteQuoteMessageDirect: (idQuoteMessage) => {
+    set((state) => ({ 
+      listQuoteMessageDirect: state.listQuoteMessageDirect?.filter((quoteMessage) => quoteMessage?._id !== idQuoteMessage) 
+    }));
   },
   setMessages: (payload) => {
     set({ messages: payload });
@@ -45,7 +80,6 @@ export const useChatStore = create((set, get) => ({
         return msg;
       }
     });
-    console.log(newListMessage);
     set({ messages: newListMessage })
   },
   setLoading: (payload) => set({ loading: payload }),

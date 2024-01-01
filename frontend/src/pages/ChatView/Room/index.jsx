@@ -91,6 +91,7 @@ export const RoomChat = () => {
             });
             setTypeRoom(enumTypeRooms.DIRECT);
           }
+          
           if (resp) {
             setRoomInfo(resp?.data?.content);
             handleFindLocationMatchPopupFeature();
@@ -109,14 +110,13 @@ export const RoomChat = () => {
       <RoomHeader />
       <Box sx={{ display: "flex", flex: 1 }}>
         <Box
-          width={typeFeatureRoom ? "65%" : "100%"}
-          sx={{ position: "relative" }}
+          sx={{ width: {xs: typeFeatureRoom ? "0" : "100%", md: typeFeatureRoom ? "65%" : "100%"}, transition: "width .3s ease" }}
         >
           <RoomContent />
           <BoxMessage />
         </Box>
         {typeFeatureRoom ? (
-          <Box width="35%" sx={{ borderLeft: `1px solid ${borderColor}` }}>
+          <Box  sx={{ borderLeft: `1px solid ${borderColor}`, borderBottom: `2px solid ${borderColor}`, transition: "width .3s ease", width: {xs: "100%", md: "35%"}}}>
             {handleShowPopupFeatures()}
           </Box>
         ) : null}

@@ -7,11 +7,20 @@ export const SidebarContainer = styled(Box)`
     min-width: 300px;
     position: relative;
     overflow: hidden;
+    transition: width .5s ease, min-width .5s ease;
+
+    @media (max-width: 1024px) {
+        width: ${props => props?.isopensidebar == "true" ? "80%" : "0"};
+        min-width: ${props => props?.isopensidebar == "true" ? "80%" : "0"};
+        
+    }
 `
 
 export const SidebarWrapper = styled(Box)`
     background-color: #2F343D;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
 `
 
 export const SidebarHeader = styled(Box)`
@@ -166,20 +175,21 @@ export const SidebarHeaderItemStatus = styled(Box)`
 
 export const SidebarBody = styled(Box)`
     height: 100%;
+    flex: 1;
+    overflow: auto;
+    
+    -ms-overflow-style: none;/* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+
+    &::-webkit-scrollbar {
+        display: none
+    };
 `
 
 export const SidebarBodyWrapper = styled(Box)`
     ${() => css`
         &&& {
         padding: 24px 0px;
-        overflow: auto;
-
-        -ms-overflow-style: none;/* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-
-        &::-webkit-scrollbar {
-            display: none
-        };
     }
 `}
 `
@@ -275,11 +285,8 @@ export const SidebarBodyItemRoomTime = styled(Typography)`
 `
 
 export const SidebarFooter = styled(Box)`
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    border-top: 1px solid
+    border-top: 1px solid;
+    min-width: 215px;
 `
 
 export const SidebarFooterWrapper = styled(Box)`

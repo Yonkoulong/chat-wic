@@ -11,6 +11,9 @@ export const AuthViewContainer = styled(Box)`
 export const AuthViewImageLeft = styled(Box)`
     width: 50%;
 
+    @media (max-width: 744px) {
+        display: none;
+    }
 `
 
 export const AuthViewImage = styled('img')`
@@ -20,4 +23,9 @@ export const AuthViewImage = styled('img')`
 
 export const AuthViewContentRight = styled(Box)`
     width: 50%;
+
+    @media (max-width: 744px) {
+        width: 100%;
+        margin: auto;
+    }
 `
